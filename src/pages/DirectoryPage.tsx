@@ -273,7 +273,7 @@ const TENANTS: Tenant[] = [
     suite: 'Suite 210',
     logo: 'directory/The Magnetic Club Logo.webp',
     logoCircle: true,
-    comingSoon: true,
+    website: 'https://stan.store/kimmyneal',
   },
   {
     floor: 'Second Floor', floorKey: 'second-floor',
