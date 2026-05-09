@@ -12,9 +12,13 @@ import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import { img } from '../utils/img'
 
-import { allEvents } from '../data/events'
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
+const allEvents = [
+  { date: '2026-05-16', title: 'Grand Opening — Day 2', venue: 'The Forge', category: 'events', desc: 'Day two of The Forge Grand Opening celebration.' },
+  { date: '2026-05-30', title: 'Women\'s Boxing and Yoga', venue: 'The Forge', category: 'events', desc: 'Join us for a empowering session of boxing and yoga tailored for women.' },
+]
 
 export default function HomePage() {
   const navigate = useNavigate()
