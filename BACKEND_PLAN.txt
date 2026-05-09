@@ -1,0 +1,468 @@
+================================================================================
+  THE FORGE SALEM — BACKEND IMPLEMENTATION PLAN
+  forgesalem.com
+================================================================================
+
+This document outlines everything needed to move the site off localStorage and
+sessionStorage and onto a real, secure backend. Nothing here is implemented yet.
+Read top to bottom — later sections depend on earlier ones.
+
+
+--------------------------------------------------------------------------------
+  SECTION 1 — WHAT'S BROKEN RIGHT NOW (AND WHY)
+--------------------------------------------------------------------------------
+
+1. Admin credentials are hardcoded in plain text inside AdminLoginPage.tsx.
+   Anyone who views the compiled JS bundle can read the username and password.
+
+2. The "auth guard" is just a sessionStorage flag ('forge_admin': 'true').
+   Any user can open DevTools and set that flag themselves to access the admin.
+
+3. Community messages (text + photos) are stored in localStorage — meaning:
+   - Data lives only in one browser on one device. Admin changes on one machine
+     don't appear on another.
+   - Photos are base64-encoded blobs inside localStorage, which has a ~5–10 MB
+     cap per origin. A few photos will hit that limit and start throwing errors.
+   - Submitting a message on the public site and reviewing it in the admin panel
+     only works if both happen in the same browser. In production this is useless.
+
+4. The bathroom code is also localStorage-only — same cross-device problem.
+
+5. There is no rate limiting. Anyone can spam the community board form.
+
+6. There is no file type or file size validation on photo uploads beyond the
+   browser's "accept" attribute, which is trivially bypassed.
+
+
+--------------------------------------------------------------------------------
+  SECTION 2 — RECOMMENDED TECH STACK
+--------------------------------------------------------------------------------
+
+These are chosen to be practical for a small team, TypeScript-friendly, and
+deployable without managing servers.
+
+  BACKEND RUNTIME
+    Node.js with Express (or Fastify if you want slightly better performance).
+    TypeScript throughout.
+
+  DATABASE
+    PostgreSQL — structured, relational, well-supported everywhere.
+    Recommended host: Supabase (free tier is generous, includes Auth and Storage)
+    or Railway.app (simple PostgreSQL hosting with a dashboard).
+
+  FILE STORAGE (for community board photos)
+    Supabase Storage  — if you go with Supabase (integrated, same dashboard).
+    Cloudflare R2     — zero egress fees, S3-compatible API.
+    AWS S3            — industry standard, more setup required.
+    --> Photos should be stored as URLs pointing to the storage bucket,
+        not as base64 strings in a database column.
+
+  AUTHENTICATION
+    JSON Web Tokens (JWT) for the admin session.
+    bcrypt to hash the admin password before storing it.
+    Credentials must live in environment variables, never in source code.
+
+  EMAIL (optional but recommended for form confirmations)
+    Resend or SendGrid — notify the admin when a new community message arrives.
+
+  DEPLOYMENT
+    Frontend:  Vercel or Netlify (connect to your GitHub repo, auto-deploys).
+    Backend:   Railway, Render, or Fly.io (all support Node.js, easy deploys).
+    Database:  Wherever you host Postgres (Supabase, Railway, etc.).
+    --> If you use Supabase you can potentially skip a separate backend server
+        and call Supabase's REST/realtime API directly from the frontend with
+        Row Level Security (RLS) policies — see Section 7 for that option.
+
+
+--------------------------------------------------------------------------------
+  SECTION 3 — DATABASE SCHEMA
+--------------------------------------------------------------------------------
+
+Two tables are needed to start. A third (events) is recommended.
+
+  TABLE: admin_users
+  ------------------
+  id              UUID          PRIMARY KEY DEFAULT gen_random_uuid()
+  username        VARCHAR(80)   NOT NULL UNIQUE
+  password_hash   TEXT          NOT NULL        -- bcrypt hash, never plain text
+  created_at      TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+
+  Notes:
+  - Start with one row (the single admin account).
+  - If you ever need multiple admins, this table already supports it.
+  - Never store a plain-text password in this table.
+
+
+  TABLE: community_messages
+  -------------------------
+  id              UUID          PRIMARY KEY DEFAULT gen_random_uuid()
+  name            VARCHAR(120)  NOT NULL DEFAULT 'Anonymous'
+  message         TEXT          NOT NULL
+  photo_url       TEXT          NULL            -- URL to storage bucket, or NULL
+  status          VARCHAR(10)   NOT NULL DEFAULT 'pending'
+                                CHECK (status IN ('pending', 'approved', 'denied'))
+  submitted_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+  reviewed_at     TIMESTAMPTZ   NULL            -- set when admin approves/denies
+
+  Notes:
+  - photo_url stores the public URL of the uploaded file, not the raw bytes.
+  - Add an index on status so fetching approved messages is fast:
+      CREATE INDEX idx_community_status ON community_messages(status);
+
+
+  TABLE: settings  (key/value store for simple config like the bathroom code)
+  ------------------
+  key             VARCHAR(80)   PRIMARY KEY
+  value           TEXT          NOT NULL
+  updated_at      TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+
+  Initial rows:
+    ('bathroom_code', '')
+
+
+  TABLE: events  (optional — move events out of the hardcoded events.ts file)
+  ------------------
+  id              UUID          PRIMARY KEY DEFAULT gen_random_uuid()
+  title           VARCHAR(200)  NOT NULL
+  date            DATE          NOT NULL
+  venue           VARCHAR(200)  NOT NULL
+  category        VARCHAR(30)   NOT NULL CHECK (category IN ('dining','events','wellness'))
+  description     TEXT          NOT NULL
+  created_at      TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+
+
+--------------------------------------------------------------------------------
+  SECTION 4 — API ENDPOINTS TO BUILD
+--------------------------------------------------------------------------------
+
+Base path: /api
+
+All endpoints marked [ADMIN] require a valid JWT in the Authorization header:
+  Authorization: Bearer <token>
+
+All endpoints accept and return JSON unless noted.
+
+
+  AUTH
+  ----
+  POST  /api/auth/login
+    Body:    { username, password }
+    Returns: { token }  -- JWT, signed with a secret from env vars
+    Errors:  401 if credentials are wrong
+    Notes:   Token should expire after 8 hours. Do not return the password hash.
+
+  POST  /api/auth/logout
+    Notes:   If you keep a server-side token blocklist, invalidate it here.
+             If tokens are stateless JWTs, logout is handled client-side by
+             deleting the token from memory/storage.
+
+
+  COMMUNITY BOARD — PUBLIC
+  ------------------------
+  GET   /api/community
+    Returns: Array of approved messages, newest first.
+             { id, name, message, photo_url, submitted_at }
+    Notes:   Never return the 'denied' or 'pending' messages here.
+
+  POST  /api/community
+    Body:    multipart/form-data  { name?, message, photo? (file) }
+    Returns: { id, status: 'pending' }
+    Notes:
+    - Validate message is not empty and under 1000 characters.
+    - Validate name is under 120 characters.
+    - If a photo is attached:
+        * Check MIME type is image/jpeg, image/png, or image/webp.
+        * Reject files over 8 MB.
+        * Upload to storage bucket, store the returned URL in photo_url.
+        * Consider resizing server-side with Sharp (npm package) instead of
+          relying on the client-side canvas resize.
+    - Apply rate limiting: max 3 submissions per IP per hour.
+    - Optionally send an email to the admin notifying them of a new submission.
+
+
+  COMMUNITY BOARD — ADMIN
+  -----------------------
+  GET   /api/admin/community                [ADMIN]
+    Query params: ?status=pending|approved|denied|all
+    Returns: Full message list matching the filter, newest first.
+
+  PATCH /api/admin/community/:id            [ADMIN]
+    Body:    { status: 'approved' | 'denied' | 'pending' }
+    Returns: Updated message object.
+    Notes:   Also sets reviewed_at to NOW().
+
+  DELETE /api/admin/community/:id           [ADMIN]
+    Returns: 204 No Content.
+    Notes:   Also delete the associated photo from storage if photo_url is set.
+
+
+  SETTINGS — ADMIN
+  ----------------
+  GET   /api/admin/settings/:key            [ADMIN]
+    Returns: { key, value }
+
+  PUT   /api/admin/settings/:key            [ADMIN]
+    Body:    { value }
+    Returns: Updated { key, value }
+    Notes:   Used for the bathroom code. Key = 'bathroom_code'.
+
+
+  EVENTS — ADMIN (if you move events to the DB)
+  ----------------------------------------------
+  GET   /api/events
+    Returns: All upcoming events, sorted by date ascending. Public endpoint.
+
+  POST  /api/admin/events                   [ADMIN]
+    Body:    { title, date, venue, category, description }
+    Returns: Created event.
+
+  PATCH /api/admin/events/:id               [ADMIN]
+    Body:    Partial event fields.
+    Returns: Updated event.
+
+  DELETE /api/admin/events/:id              [ADMIN]
+    Returns: 204 No Content.
+
+
+--------------------------------------------------------------------------------
+  SECTION 5 — AUTHENTICATION OVERHAUL (STEP BY STEP)
+--------------------------------------------------------------------------------
+
+Current state:
+  - Username/password hardcoded in AdminLoginPage.tsx (INSECURE).
+  - Auth state = sessionStorage flag 'forge_admin' (TRIVIALLY BYPASSED).
+
+What needs to change:
+
+  1. Remove ADMIN_USER and ADMIN_PASS constants from AdminLoginPage.tsx.
+
+  2. Create one admin_users row in the database with a bcrypt-hashed password.
+     You can do this with a one-time seed script:
+       const hash = await bcrypt.hash('your-new-password', 12)
+       INSERT INTO admin_users (username, password_hash) VALUES ('forgeadmin', hash);
+
+  3. The /api/auth/login endpoint verifies the submitted password against the
+     stored hash using bcrypt.compare(), then returns a signed JWT.
+
+  4. The frontend stores the JWT in memory (a React context or Zustand store),
+     NOT in localStorage or sessionStorage. If you need it to survive a page
+     refresh, httpOnly cookies are safer than localStorage.
+
+  5. Every admin API call sends the JWT in the Authorization header.
+
+  6. The backend middleware verifies the JWT on each [ADMIN] request using the
+     JWT_SECRET environment variable. If invalid or expired, return 401.
+
+  7. Replace the current 'forge_gate' triple-click Easter egg with a normal
+     visible "Admin" link (e.g., in the footer), since the real security now
+     lives in the login credentials + JWT, not in hiding the login URL.
+
+
+--------------------------------------------------------------------------------
+  SECTION 6 — FILE UPLOAD SECURITY CHECKLIST
+--------------------------------------------------------------------------------
+
+When accepting photo uploads from the public, these checks are mandatory:
+
+  [ ] Validate MIME type server-side (don't trust the browser's Content-Type).
+      Use a library like 'file-type' (npm) that reads the file's magic bytes.
+  [ ] Reject files over a hard size limit (recommend 8 MB max).
+  [ ] Rename the file to a random UUID on the server — never use the original
+      filename, which could contain path traversal characters.
+  [ ] Store files in a private bucket and serve via signed URLs, OR store in a
+      public bucket with a randomized path that cannot be guessed.
+  [ ] Serve uploaded images through a CDN or image transform service
+      (Cloudflare Images, Imgix, or Supabase Image Transformations) so you can
+      enforce max dimensions and strip EXIF metadata (which can contain GPS coords).
+  [ ] Do NOT store files on the server's local filesystem if the backend is
+      deployed to a stateless host (Railway, Render, etc.) — use a bucket.
+  [ ] Consider running a malware/content scan on uploads if budget allows
+      (AWS Rekognition for content moderation, or a VirusTotal API call).
+
+
+--------------------------------------------------------------------------------
+  SECTION 7 — ALTERNATIVE: SUPABASE WITHOUT A CUSTOM BACKEND
+--------------------------------------------------------------------------------
+
+If you want to move fast without maintaining a Node.js server, Supabase lets you
+skip writing most of the backend yourself. Here's how the mapping works:
+
+  Custom backend endpoint       -->  Supabase equivalent
+  ─────────────────────────────────────────────────────────
+  POST /api/auth/login          -->  supabase.auth.signInWithPassword()
+  GET  /api/community           -->  supabase.from('community_messages')
+                                       .select().eq('status','approved')
+  POST /api/community           -->  supabase.from('community_messages').insert()
+                                     + supabase.storage.from('photos').upload()
+  PATCH /api/admin/community/:id -->  supabase.from('community_messages')
+                                       .update({ status }).eq('id', id)
+  GET/PUT /api/admin/settings   -->  supabase.from('settings').select/upsert()
+
+  Row Level Security (RLS) policies replace your JWT middleware:
+    - Public can INSERT into community_messages (status defaults to 'pending').
+    - Public can SELECT only rows where status = 'approved'.
+    - Only authenticated users (the admin) can SELECT all rows or UPDATE status.
+
+  Pros:  No backend server to host or maintain. Faster to ship.
+  Cons:  Supabase API keys are exposed client-side (mitigated by RLS policies,
+         but requires careful policy setup). Less control over rate limiting and
+         file processing logic. Vendor lock-in.
+
+  Recommendation: Supabase is fine for this project's scale. If you're
+  comfortable with it, start here. You can always add a thin backend later.
+
+
+--------------------------------------------------------------------------------
+  SECTION 8 — ENVIRONMENT VARIABLES NEEDED
+--------------------------------------------------------------------------------
+
+None of these should ever be committed to git. Store them in .env (local) and
+in your hosting platform's secret/environment settings (production).
+
+  # Backend server
+  DATABASE_URL=postgresql://user:password@host:5432/forgesalem
+  JWT_SECRET=a-long-random-string-at-least-32-characters
+  JWT_EXPIRES_IN=8h
+  PORT=3001
+
+  # File storage (pick one)
+  SUPABASE_URL=https://your-project.supabase.co
+  SUPABASE_SERVICE_ROLE_KEY=...          # server-side only, never expose client-side
+  SUPABASE_STORAGE_BUCKET=community-photos
+
+  # OR for S3/R2:
+  AWS_ACCESS_KEY_ID=...
+  AWS_SECRET_ACCESS_KEY=...
+  AWS_REGION=us-west-2
+  S3_BUCKET=forgesalem-uploads
+
+  # Email notifications (optional)
+  RESEND_API_KEY=...
+  ADMIN_EMAIL=inquiries@forgesalem.com
+
+  # Frontend (these are safe to expose, prefixed with VITE_)
+  VITE_API_BASE_URL=https://api.forgesalem.com
+  VITE_SUPABASE_URL=https://your-project.supabase.co
+  VITE_SUPABASE_ANON_KEY=...             # anon key only — safe client-side
+
+
+--------------------------------------------------------------------------------
+  SECTION 9 — FRONTEND CHANGES REQUIRED
+--------------------------------------------------------------------------------
+
+Once the backend exists, these changes are needed in the React app:
+
+  1. Replace all getMessages() / saveMessages() calls with fetch() calls to the
+     API (or Supabase client calls). Remove forgeStore.ts or gut its internals.
+
+  2. Replace getBathroomCode() / setBathroomCode() with API calls to
+     GET /api/admin/settings/bathroom_code and PUT /api/admin/settings/bathroom_code.
+
+  3. Replace the hardcoded admin login with a POST to /api/auth/login.
+     Store the returned JWT in an httpOnly cookie (set by the server) or in
+     React state (lost on refresh — use a cookie for persistence).
+
+  4. Add an Authorization header to every admin fetch call:
+       fetch('/api/admin/...', {
+         headers: { Authorization: `Bearer ${token}` }
+       })
+
+  5. Move the resizeImage() utility to server-side image processing with Sharp.
+     You can keep the client-side resize as a UX optimization (faster preview)
+     but don't rely on it for security or storage limits.
+
+  6. Replace the events.ts hardcoded array with a GET /api/events fetch on
+     page load (if you choose to move events to the database).
+
+  7. Add proper error states to the community board form — API errors should
+     show a user-friendly message, not silently fail.
+
+
+--------------------------------------------------------------------------------
+  SECTION 10 — IMPLEMENTATION ORDER (RECOMMENDED)
+--------------------------------------------------------------------------------
+
+Do these in order. Each step is usable before the next one starts.
+
+  PHASE 1 — Foundation
+  ─────────────────────
+  [ ] Set up PostgreSQL database (Supabase or Railway).
+  [ ] Run the schema from Section 3 to create tables.
+  [ ] Seed the admin_users table with a hashed password.
+  [ ] Set up file storage bucket (Supabase Storage or R2).
+  [ ] Create a .env file with all variables from Section 8.
+  [ ] Add .env to .gitignore (verify it's not already tracked).
+
+  PHASE 2 — Backend API
+  ──────────────────────
+  [ ] Initialize a Node.js + Express + TypeScript project (can live in a
+      /server folder inside this repo, or as a separate repo).
+  [ ] Install: express, pg (or @supabase/supabase-js), bcrypt, jsonwebtoken,
+               multer (file uploads), sharp (image resizing), cors, dotenv.
+  [ ] Implement POST /api/auth/login with bcrypt + JWT.
+  [ ] Implement JWT middleware for admin route protection.
+  [ ] Implement GET and POST /api/community.
+  [ ] Implement PATCH and DELETE /api/admin/community/:id.
+  [ ] Implement GET and PUT /api/admin/settings/:key.
+  [ ] Add rate limiting middleware (express-rate-limit).
+  [ ] Add input validation (zod is a good choice).
+
+  PHASE 3 — Frontend Wiring
+  ──────────────────────────
+  [ ] Update AdminLoginPage.tsx to POST to /api/auth/login.
+  [ ] Update AdminWelcomePage.tsx to fetch from /api/admin/community.
+  [ ] Update HomePage.tsx community board to fetch from /api/community.
+  [ ] Update InformationPage.tsx to fetch from /api/community.
+  [ ] Update bathroom code in AdminWelcomePage and InformationPage to
+      use /api/admin/settings/bathroom_code.
+  [ ] Update photo upload to send multipart/form-data to the API instead
+      of storing base64 in localStorage.
+  [ ] Remove forgeStore.ts or replace its internals with API calls.
+
+  PHASE 4 — Hardening
+  ────────────────────
+  [ ] Add HTTPS (your hosting platform likely handles this automatically).
+  [ ] Configure CORS to only allow your frontend's domain.
+  [ ] Add Content Security Policy headers.
+  [ ] Verify RLS policies (if using Supabase) allow only what they should.
+  [ ] Test that unauthenticated users cannot reach any /api/admin/* route.
+  [ ] Test that the community board only shows approved messages publicly.
+  [ ] Verify uploaded photos strip EXIF metadata (Sharp does this by default).
+  [ ] Set up automated DB backups (Supabase does this automatically on paid tiers).
+
+  PHASE 5 — Polish
+  ─────────────────
+  [ ] Add email notification to admin when a new message is submitted.
+  [ ] Add pagination to the community board (GET /api/community?page=1&limit=12).
+  [ ] Move events to the database and build the admin events editor.
+  [ ] Set up monitoring/error logging (Sentry has a free tier).
+
+
+--------------------------------------------------------------------------------
+  SECTION 11 — SECURITY SUMMARY (QUICK REFERENCE)
+--------------------------------------------------------------------------------
+
+  CRITICAL (fix before going live with a backend):
+  - Remove hardcoded credentials from AdminLoginPage.tsx.
+  - Store passwords as bcrypt hashes, never plain text.
+  - Protect all /api/admin/* routes with JWT middleware.
+  - Validate and sanitize all user input server-side.
+  - Never expose SERVICE_ROLE or secret keys to the frontend.
+
+  IMPORTANT:
+  - Rate limit the public community board submission endpoint.
+  - Validate file uploads by MIME type magic bytes, not just extension.
+  - Use randomized filenames for all uploaded files.
+  - Configure CORS to restrict to your actual domain.
+
+  GOOD TO HAVE:
+  - EXIF stripping on uploaded photos.
+  - Automated DB backups.
+  - Error monitoring (Sentry).
+  - Email alerts for new community submissions.
+  - Content Security Policy headers.
+
+
+================================================================================
+  END OF DOCUMENT
+================================================================================

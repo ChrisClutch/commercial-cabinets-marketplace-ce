@@ -294,6 +294,15 @@ export default function AdminWelcomePage() {
                         {msg.message}
                       </p>
 
+                      {/* Attached image */}
+                      {msg.image && (
+                        <img
+                          src={msg.image}
+                          alt="Attached"
+                          style={{ height: '72px', width: 'auto', borderRadius: '3px', objectFit: 'cover', marginTop: '0.15rem' }}
+                        />
+                      )}
+
                       {/* Actions */}
                       {msg.status === 'pending' ? (
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.15rem' }}>

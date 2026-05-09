@@ -20,6 +20,7 @@ export type CommunityMessage = {
   id: string
   name: string
   message: string
+  image?: string
   submittedAt: string
   status: MessageStatus
 }

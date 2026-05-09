@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 import { img } from '../utils/img'
 import { allEvents } from '../data/events'
-import { getBathroomCode, getMessages } from '../data/forgeStore'
+import { getBathroomCode, getMessages, saveMessages, type CommunityMessage } from '../data/forgeStore'
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -45,7 +45,41 @@ export default function InformationPage() {
 
   const [code]          = useState(getBathroomCode)
   const [codeRevealed, setCodeRevealed] = useState(false)
-  const [messages]      = useState(() => getMessages().filter(m => m.status === 'approved'))
+  const [messages, setMessages] = useState(() => getMessages().filter(m => m.status === 'approved'))
+
+  const [boardName, setBoardName]       = useState('')
+  const [boardMessage, setBoardMessage] = useState('')
+  const [boardImage, setBoardImage]     = useState('')
+  const [boardSubmitted, setBoardSubmitted] = useState(false)
+  const boardFileRef = useRef<HTMLInputElement>(null)
+
+  function handleBoardImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setBoardImage(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  function handleBoardSubmit(e: FormEvent) {
+    e.preventDefault()
+    const newMsg: CommunityMessage = {
+      id: Date.now().toString(),
+      name: boardName.trim() || 'Anonymous',
+      message: boardMessage.trim(),
+      image: boardImage || undefined,
+      submittedAt: new Date().toISOString(),
+      status: 'pending',
+    }
+    const all = getMessages()
+    saveMessages([...all, newMsg])
+    setMessages(prev => [...prev])
+    setBoardSubmitted(true)
+    setBoardName('')
+    setBoardMessage('')
+    setBoardImage('')
+    if (boardFileRef.current) boardFileRef.current.value = ''
+  }
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -192,30 +226,130 @@ export default function InformationPage() {
         </div>
 
         {/* ── Community Board ── */}
-        {messages.length > 0 && (
-          <div style={S.section}>
-            <span style={S.label}>Community Board</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={S.section}>
+          <span style={S.label}>Community Board</span>
+
+          {messages.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
               {messages.map(msg => (
-                <div key={msg.id} style={{ ...S.card, padding: '1.25rem' }}>
-                  <p style={{
-                    margin: '0 0 0.75rem',
-                    fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)',
-                    color: '#2a3540',
-                    lineHeight: 1.7,
-                    fontStyle: 'italic',
-                    fontFamily: '"Cormorant Garamond", serif',
-                  }}>
-                    "{msg.message}"
-                  </p>
-                  <p style={{ margin: 0, fontSize: '0.65rem', color: '#b7c0c8', letterSpacing: '0.06em' }}>
-                    — {msg.name}
-                  </p>
+                <div key={msg.id} style={{ ...S.card, overflow: 'hidden' }}>
+                  {msg.image && (
+                    <img src={msg.image} alt="" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', display: 'block' }} />
+                  )}
+                  <div style={{ padding: '1.25rem' }}>
+                    <p style={{
+                      margin: '0 0 0.75rem',
+                      fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)',
+                      color: '#2a3540',
+                      lineHeight: 1.7,
+                      fontStyle: 'italic',
+                      fontFamily: '"Cormorant Garamond", serif',
+                    }}>
+                      "{msg.message}"
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.65rem', color: '#b7c0c8', letterSpacing: '0.06em' }}>
+                      — {msg.name}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
+          )}
+
+          {/* Submission form */}
+          <div style={{ ...S.card, padding: '1.5rem' }}>
+            <p style={{ ...S.body, marginBottom: '1rem', fontWeight: 500, color: '#2a3540', fontSize: '0.8rem' }}>
+              Leave a note
+            </p>
+            {boardSubmitted ? (
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#5aac7a', letterSpacing: '0.04em' }}>
+                ✓ Thanks! Your note is pending review.
+              </p>
+            ) : (
+              <form onSubmit={handleBoardSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <input
+                  type="text"
+                  placeholder="Your name (optional)"
+                  value={boardName}
+                  onChange={e => setBoardName(e.target.value)}
+                  style={{
+                    border: '1px solid #e8e2d9', borderRadius: '4px',
+                    fontSize: '0.82rem', padding: '0.6rem 0.8rem', color: '#2a3540',
+                    outline: 'none', fontFamily: 'Inter, system-ui, sans-serif', background: '#faf5f1',
+                  }}
+                />
+                <textarea
+                  placeholder="Share your experience at The Forge…"
+                  required
+                  value={boardMessage}
+                  onChange={e => setBoardMessage(e.target.value)}
+                  rows={3}
+                  style={{
+                    border: '1px solid #e8e2d9', borderRadius: '4px',
+                    fontSize: '0.82rem', padding: '0.6rem 0.8rem', color: '#2a3540',
+                    outline: 'none', fontFamily: 'Inter, system-ui, sans-serif', background: '#faf5f1',
+                    resize: 'vertical', lineHeight: 1.6,
+                  }}
+                />
+
+                {/* Image upload */}
+                <div>
+                  <input
+                    ref={boardFileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBoardImage}
+                    style={{ display: 'none' }}
+                    id="info-board-image-upload"
+                  />
+                  <label
+                    htmlFor="info-board-image-upload"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                      border: '1px solid #e8e2d9', borderRadius: '4px',
+                      color: boardImage ? '#2a7a4a' : '#7a8a95', background: '#faf5f1',
+                      fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                      padding: '0.45rem 0.9rem', cursor: 'pointer',
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                    }}
+                  >
+                    {boardImage ? '✓ Image attached' : '+ Attach image'}
+                  </label>
+                  {boardImage && (
+                    <button
+                      type="button"
+                      onClick={() => { setBoardImage(''); if (boardFileRef.current) boardFileRef.current.value = '' }}
+                      style={{
+                        background: 'none', border: 'none', color: '#7a8a95',
+                        fontSize: '0.65rem', cursor: 'pointer', marginLeft: '0.65rem',
+                        fontFamily: 'Inter, system-ui, sans-serif',
+                      }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                  {boardImage && (
+                    <div style={{ marginTop: '0.65rem' }}>
+                      <img src={boardImage} alt="Preview" style={{ height: '72px', width: 'auto', borderRadius: '3px', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  style={{
+                    alignSelf: 'flex-start', background: '#e10600', color: '#fff',
+                    border: 'none', borderRadius: '4px', padding: '0.6rem 1.5rem',
+                    fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                    cursor: 'pointer', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600,
+                  }}
+                >
+                  Submit
+                </button>
+              </form>
+            )}
           </div>
-        )}
+        </div>
 
         {/* ── Building Directory ── */}
         <div style={S.section}>

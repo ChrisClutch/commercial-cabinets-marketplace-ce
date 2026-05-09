@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 
 declare global {
   namespace JSX {
@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import { img } from '../utils/img'
+import { getMessages, saveMessages, type CommunityMessage } from '../data/forgeStore'
 
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
@@ -52,6 +53,15 @@ export default function HomePage() {
   const [nlSubmitted, setNlSubmitted] = useState(false)
   const [nlEmail, setNlEmail] = useState('')
 
+  const [approvedMessages, setApprovedMessages] = useState<CommunityMessage[]>(() =>
+    getMessages().filter(m => m.status === 'approved')
+  )
+  const [boardName, setBoardName] = useState('')
+  const [boardMessage, setBoardMessage] = useState('')
+  const [boardImage, setBoardImage] = useState('')
+  const [boardSubmitted, setBoardSubmitted] = useState(false)
+  const boardFileRef = useRef<HTMLInputElement>(null)
+
   const filteredEvents = allEvents
     .filter(e => filter === 'all' || e.category === filter)
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -60,6 +70,33 @@ export default function HomePage() {
     e.preventDefault()
     setNlSubmitted(true)
     setNlEmail('')
+  }
+
+  function handleBoardImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setBoardImage(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  function handleBoardSubmit(e: FormEvent) {
+    e.preventDefault()
+    const newMsg: CommunityMessage = {
+      id: Date.now().toString(),
+      name: boardName.trim() || 'Anonymous',
+      message: boardMessage.trim(),
+      image: boardImage || undefined,
+      submittedAt: new Date().toISOString(),
+      status: 'pending',
+    }
+    const all = getMessages()
+    saveMessages([...all, newMsg])
+    setBoardSubmitted(true)
+    setBoardName('')
+    setBoardMessage('')
+    setBoardImage('')
+    if (boardFileRef.current) boardFileRef.current.value = ''
   }
 
   return (
@@ -183,6 +220,139 @@ export default function HomePage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* COMMUNITY BOARD */}
+      <section className="section section--paper" id="community" style={{ paddingTop: '3rem', background: 'var(--cream)' }}>
+        <div className="events-header">
+          <div>
+            <span className="section-label">From Our Community</span>
+            <h2 className="section-title">Community Board</h2>
+          </div>
+          <p style={{ fontFamily: 'var(--display)', fontSize: '1rem', fontWeight: 400, letterSpacing: '0.06em', color: 'var(--ink)' }}>
+            Share your experience
+          </p>
+        </div>
+
+        {/* Approved messages grid */}
+        {approvedMessages.length > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
+            {approvedMessages.map(msg => (
+              <div key={msg.id} style={{ background: '#fff', border: '1px solid #e8e2d9', borderRadius: '6px', overflow: 'hidden' }}>
+                {msg.image && (
+                  <img src={msg.image} alt="" style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
+                )}
+                <div style={{ padding: '1.25rem' }}>
+                  <p style={{
+                    fontFamily: 'var(--display)', fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)',
+                    fontStyle: 'italic', color: 'var(--ink)', lineHeight: 1.7, marginBottom: '0.75rem',
+                  }}>
+                    "{msg.message}"
+                  </p>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em' }}>— {msg.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Submission form */}
+        <div style={{ background: 'var(--void)', borderRadius: '6px', padding: '2rem 2.25rem', maxWidth: '560px' }}>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: '1.4rem', fontWeight: 300, color: '#f3eedf', marginBottom: '0.4rem' }}>
+            Leave a Note
+          </h3>
+          <p style={{ fontSize: '0.75rem', color: 'rgba(183,192,200,0.55)', marginBottom: '1.5rem', fontWeight: 300 }}>
+            Your message will appear here after review.
+          </p>
+
+          {boardSubmitted ? (
+            <p style={{ fontSize: '0.85rem', color: '#5aac7a', fontWeight: 400, letterSpacing: '0.04em' }}>
+              ✓ Thanks! Your note is pending review.
+            </p>
+          ) : (
+            <form onSubmit={handleBoardSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+              <input
+                type="text"
+                placeholder="Your name (optional)"
+                value={boardName}
+                onChange={e => setBoardName(e.target.value)}
+                style={{
+                  background: '#1f2e3c', border: '1px solid #2a3540', borderRadius: '3px',
+                  color: '#f3eedf', fontSize: '0.82rem', padding: '0.65rem 0.9rem',
+                  outline: 'none', fontFamily: 'Inter, system-ui, sans-serif',
+                }}
+              />
+              <textarea
+                placeholder="Share your experience at The Forge…"
+                required
+                value={boardMessage}
+                onChange={e => setBoardMessage(e.target.value)}
+                rows={3}
+                style={{
+                  background: '#1f2e3c', border: '1px solid #2a3540', borderRadius: '3px',
+                  color: '#f3eedf', fontSize: '0.82rem', padding: '0.65rem 0.9rem',
+                  outline: 'none', fontFamily: 'Inter, system-ui, sans-serif',
+                  resize: 'vertical', lineHeight: 1.6,
+                }}
+              />
+
+              {/* Image upload */}
+              <div>
+                <input
+                  ref={boardFileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBoardImage}
+                  style={{ display: 'none' }}
+                  id="board-image-upload"
+                />
+                <label
+                  htmlFor="board-image-upload"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                    background: 'none', border: '1px solid #2a3540', borderRadius: '3px',
+                    color: boardImage ? '#5aac7a' : '#7a8a95',
+                    fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                    padding: '0.55rem 1rem', cursor: 'pointer',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                  }}
+                >
+                  {boardImage ? '✓ Image attached' : '+ Attach image'}
+                </label>
+                {boardImage && (
+                  <button
+                    type="button"
+                    onClick={() => { setBoardImage(''); if (boardFileRef.current) boardFileRef.current.value = '' }}
+                    style={{
+                      background: 'none', border: 'none', color: '#7a8a95',
+                      fontSize: '0.65rem', cursor: 'pointer', marginLeft: '0.75rem',
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
+                {boardImage && (
+                  <div style={{ marginTop: '0.65rem' }}>
+                    <img src={boardImage} alt="Preview" style={{ height: '80px', width: 'auto', borderRadius: '3px', objectFit: 'cover' }} />
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                style={{
+                  alignSelf: 'flex-start', background: 'var(--cherry)', color: '#fff',
+                  border: 'none', borderRadius: '3px', padding: '0.65rem 1.6rem',
+                  fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                  cursor: 'pointer', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600,
+                }}
+              >
+                Submit
+              </button>
+            </form>
+          )}
+        </div>
       </section>
 
       {/* SOCIAL */}
