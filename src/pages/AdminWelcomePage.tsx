@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { img } from '../utils/img'
+import { supabase } from '../lib/supabase'
 import {
   getBathroomCode, setBathroomCode as persistCode,
   getMessages, saveMessages,
@@ -25,9 +26,9 @@ export default function AdminWelcomePage() {
 
   // Auth guard
   useEffect(() => {
-    if (!sessionStorage.getItem('forge_admin')) {
-      navigate('/admin', { replace: true })
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate('/admin', { replace: true })
+    })
   }, [navigate])
 
   // Bathroom code state
@@ -41,8 +42,8 @@ export default function AdminWelcomePage() {
   const [messages, setMessages] = useState<CommunityMessage[]>(getMessages)
   const [filter, setFilter]     = useState<'all' | MessageStatus>('all')
 
-  function handleLogout() {
-    sessionStorage.removeItem('forge_admin')
+  async function handleLogout() {
+    await supabase.auth.signOut()
     navigate('/')
   }
 
