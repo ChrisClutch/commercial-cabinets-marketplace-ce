@@ -2,11 +2,18 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { img } from '../utils/img'
 import { supabase } from '../lib/supabase'
-import {
-  getBathroomCode, setBathroomCode as persistCode,
-  getMessages, saveMessages,
-  type MessageStatus, type CommunityMessage,
-} from '../data/forgeStore'
+
+type MessageStatus = 'pending' | 'approved' | 'denied'
+
+type SupabaseMessage = {
+  id: string
+  name: string
+  message: string
+  photo_url: string | null
+  status: MessageStatus
+  submitted_at: string
+  reviewed_at: string | null
+}
 
 const STATUS_STYLE: Record<MessageStatus, { bg: string; border: string; color: string; label: string }> = {
   pending:  { bg: '#1f2e3c', border: '#2a3540', color: '#b7c0c8', label: 'Pending'  },
@@ -24,51 +31,72 @@ function formatDate(iso: string) {
 export default function AdminWelcomePage() {
   const navigate = useNavigate()
 
-  // Auth guard
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) navigate('/admin', { replace: true })
     })
   }, [navigate])
 
-  // Bathroom code state
-  const [bathroomCode, setBathroomCode] = useState(getBathroomCode)
+  const [bathroomCode, setBathroomCode] = useState('')
   const [codeInput, setCodeInput]       = useState('')
   const [editingCode, setEditingCode]   = useState(false)
   const [codeVisible, setCodeVisible]   = useState(false)
   const [codeSaved, setCodeSaved]       = useState(false)
 
-  // Community messages state
-  const [messages, setMessages] = useState<CommunityMessage[]>(getMessages)
-  const [filter, setFilter]     = useState<'all' | MessageStatus>('all')
+  const [messages, setMessages]   = useState<SupabaseMessage[]>([])
+  const [loadingMessages, setLoadingMessages] = useState(true)
+  const [filter, setFilter]       = useState<'all' | MessageStatus>('all')
+
+  useEffect(() => {
+    supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'bathroom_code')
+      .single()
+      .then(({ data }) => { if (data) setBathroomCode(data.value) })
+  }, [])
+
+  useEffect(() => {
+    supabase
+      .from('community_messages')
+      .select('*')
+      .order('submitted_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setMessages(data)
+        setLoadingMessages(false)
+      })
+  }, [])
 
   async function handleLogout() {
     await supabase.auth.signOut()
     navigate('/')
   }
 
-  function handleSaveCode(e: React.FormEvent) {
+  async function handleSaveCode(e: React.FormEvent) {
     e.preventDefault()
     const trimmed = codeInput.trim()
     if (!trimmed) return
+    await supabase
+      .from('settings')
+      .update({ value: trimmed, updated_at: new Date().toISOString() })
+      .eq('key', 'bathroom_code')
     setBathroomCode(trimmed)
-    persistCode(trimmed)
     setCodeInput('')
     setEditingCode(false)
     setCodeSaved(true)
     setTimeout(() => setCodeSaved(false), 3000)
   }
 
-  function updateStatus(id: string, status: MessageStatus) {
-    setMessages(prev => {
-      const updated = prev.map(m => m.id === id ? { ...m, status } : m)
-      saveMessages(updated)
-      return updated
-    })
+  async function updateStatus(id: string, status: MessageStatus) {
+    await supabase
+      .from('community_messages')
+      .update({ status, reviewed_at: new Date().toISOString() })
+      .eq('id', id)
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, status } : m))
   }
 
-  const pendingCount      = messages.filter(m => m.status === 'pending').length
-  const filteredMessages  = filter === 'all' ? messages : messages.filter(m => m.status === filter)
+  const pendingCount     = messages.filter(m => m.status === 'pending').length
+  const filteredMessages = filter === 'all' ? messages : messages.filter(m => m.status === filter)
 
   return (
     <div style={{ minHeight: '100vh', background: '#161f28', fontFamily: 'Inter, system-ui, sans-serif', color: '#f3eedf' }}>
@@ -111,7 +139,6 @@ export default function AdminWelcomePage() {
             flex: '1 1 260px', maxWidth: '320px',
             background: '#1f2e3c', border: '1px solid #2a3540', borderRadius: '4px', overflow: 'hidden',
           }}>
-            {/* Card header */}
             <div style={{
               padding: '1rem 1.25rem', borderBottom: '1px solid #2a3540',
               display: 'flex', alignItems: 'center', gap: '0.65rem',
@@ -123,8 +150,6 @@ export default function AdminWelcomePage() {
             </div>
 
             <div style={{ padding: '1.5rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
-              {/* Current code display */}
               <div>
                 <div style={{ fontSize: '0.63rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7a8a95', marginBottom: '0.6rem' }}>
                   Current Code
@@ -149,7 +174,6 @@ export default function AdminWelcomePage() {
                 )}
               </div>
 
-              {/* Edit mode */}
               {editingCode ? (
                 <form onSubmit={handleSaveCode} style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                   <input
@@ -206,7 +230,6 @@ export default function AdminWelcomePage() {
               {codeSaved && (
                 <p style={{ margin: 0, fontSize: '0.7rem', color: '#5aac7a', letterSpacing: '0.04em' }}>✓ Code updated</p>
               )}
-
             </div>
           </div>
 
@@ -215,7 +238,6 @@ export default function AdminWelcomePage() {
             flex: '2 1 420px',
             background: '#1f2e3c', border: '1px solid #2a3540', borderRadius: '4px', overflow: 'hidden',
           }}>
-            {/* Card header */}
             <div style={{
               padding: '1rem 1.25rem', borderBottom: '1px solid #2a3540',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -236,7 +258,6 @@ export default function AdminWelcomePage() {
               )}
             </div>
 
-            {/* Filter tabs */}
             <div style={{ display: 'flex', borderBottom: '1px solid #2a3540', padding: '0 1.25rem' }}>
               {(['all', 'pending', 'approved', 'denied'] as const).map(tab => (
                 <button
@@ -257,9 +278,12 @@ export default function AdminWelcomePage() {
               ))}
             </div>
 
-            {/* Messages */}
             <div>
-              {filteredMessages.length === 0 ? (
+              {loadingMessages ? (
+                <div style={{ padding: '3rem 1.5rem', textAlign: 'center', color: '#3c4b59', fontSize: '0.78rem' }}>
+                  Loading…
+                </div>
+              ) : filteredMessages.length === 0 ? (
                 <div style={{ padding: '3rem 1.5rem', textAlign: 'center', color: '#3c4b59', fontSize: '0.78rem' }}>
                   No {filter === 'all' ? '' : filter} messages
                 </div>
@@ -275,11 +299,10 @@ export default function AdminWelcomePage() {
                         display: 'flex', flexDirection: 'column', gap: '0.55rem',
                       }}
                     >
-                      {/* Name + date + badge */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                           <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f3eedf' }}>{msg.name}</span>
-                          <span style={{ fontSize: '0.62rem', color: '#3c4b59' }}>{formatDate(msg.submittedAt)}</span>
+                          <span style={{ fontSize: '0.62rem', color: '#3c4b59' }}>{formatDate(msg.submitted_at)}</span>
                         </div>
                         <span style={{
                           background: s.bg, color: s.color, border: `1px solid ${s.border}`,
@@ -290,21 +313,18 @@ export default function AdminWelcomePage() {
                         </span>
                       </div>
 
-                      {/* Message text */}
                       <p style={{ margin: 0, fontSize: '0.8rem', color: '#b7c0c8', lineHeight: 1.65 }}>
                         {msg.message}
                       </p>
 
-                      {/* Attached image */}
-                      {msg.image && (
+                      {msg.photo_url && (
                         <img
-                          src={msg.image}
+                          src={msg.photo_url}
                           alt="Attached"
                           style={{ height: '72px', width: 'auto', borderRadius: '3px', objectFit: 'cover', marginTop: '0.15rem' }}
                         />
                       )}
 
-                      {/* Actions */}
                       {msg.status === 'pending' ? (
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.15rem' }}>
                           <button

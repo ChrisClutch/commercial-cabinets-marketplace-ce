@@ -1,7 +1,15 @@
 import { useState, useEffect, useRef, FormEvent } from 'react'
 import { img } from '../utils/img'
 import { allEvents } from '../data/events'
-import { getBathroomCode, getMessages, saveMessages, type CommunityMessage } from '../data/forgeStore'
+import { supabase } from '../lib/supabase'
+
+type SupabaseMessage = {
+  id: string
+  name: string
+  message: string
+  photo_url: string | null
+  submitted_at: string
+}
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -43,42 +51,107 @@ const FLOORS = [
 export default function InformationPage() {
   useEffect(() => { document.title = 'Visitor Guide — The Forge Salem' }, [])
 
-  const [code]          = useState(getBathroomCode)
+  const [code, setCode]             = useState('')
+  const [loadingCode, setLoadingCode] = useState(true)
   const [codeRevealed, setCodeRevealed] = useState(false)
-  const [messages, setMessages] = useState(() => getMessages().filter(m => m.status === 'approved'))
+  const [messages, setMessages]     = useState<SupabaseMessage[]>([])
+  const [loadingMessages, setLoadingMessages] = useState(true)
 
   const [boardName, setBoardName]       = useState('')
   const [boardMessage, setBoardMessage] = useState('')
-  const [boardImage, setBoardImage]     = useState('')
+  const [boardFile, setBoardFile]       = useState<File | null>(null)
+  const [boardImagePreview, setBoardImagePreview] = useState('')
   const [boardSubmitted, setBoardSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const boardFileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'bathroom_code')
+      .single()
+      .then(({ data }) => {
+        if (data) setCode(data.value)
+        setLoadingCode(false)
+      })
+  }, [])
+
+  useEffect(() => {
+    supabase
+      .from('community_messages')
+      .select('id, name, message, photo_url, submitted_at')
+      .eq('status', 'approved')
+      .order('submitted_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setMessages(data)
+        setLoadingMessages(false)
+      })
+  }, [])
 
   function handleBoardImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setBoardImage(reader.result as string)
-    reader.readAsDataURL(file)
+    setBoardFile(file)
+    setBoardImagePreview(URL.createObjectURL(file))
   }
 
-  function handleBoardSubmit(e: FormEvent) {
+  function clearImage() {
+    setBoardFile(null)
+    setBoardImagePreview('')
+    if (boardFileRef.current) boardFileRef.current.value = ''
+  }
+
+  async function handleBoardSubmit(e: FormEvent) {
     e.preventDefault()
-    const newMsg: CommunityMessage = {
-      id: Date.now().toString(),
+    if (submitting) return
+    setSubmitting(true)
+    setSubmitError('')
+
+    let photo_url: string | null = null
+
+    if (boardFile) {
+      const ext = boardFile.name.split('.').pop()?.toLowerCase()
+      const allowed = ['jpg', 'jpeg', 'png', 'webp']
+      if (!ext || !allowed.includes(ext)) {
+        setSubmitError('Only JPG, PNG, and WebP images are allowed.')
+        setSubmitting(false)
+        return
+      }
+      if (boardFile.size > 8 * 1024 * 1024) {
+        setSubmitError('Image must be under 8 MB.')
+        setSubmitting(false)
+        return
+      }
+      const filename = `${crypto.randomUUID()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('community-photos')
+        .upload(filename, boardFile)
+      if (uploadError) {
+        setSubmitError('Image upload failed. Please try again.')
+        setSubmitting(false)
+        return
+      }
+      photo_url = supabase.storage.from('community-photos').getPublicUrl(filename).data.publicUrl
+    }
+
+    const { error } = await supabase.from('community_messages').insert({
       name: boardName.trim() || 'Anonymous',
       message: boardMessage.trim(),
-      image: boardImage || undefined,
-      submittedAt: new Date().toISOString(),
-      status: 'pending',
+      photo_url,
+    })
+
+    setSubmitting(false)
+    if (error) {
+      setSubmitError('Something went wrong. Please try again.')
+      return
     }
-    const all = getMessages()
-    saveMessages([...all, newMsg])
-    setMessages(prev => [...prev])
+
     setBoardSubmitted(true)
     setBoardName('')
     setBoardMessage('')
-    setBoardImage('')
-    if (boardFileRef.current) boardFileRef.current.value = ''
+    clearImage()
   }
 
   const today = new Date()
@@ -88,16 +161,11 @@ export default function InformationPage() {
     .sort((a, b) => a.date.localeCompare(b.date))
 
   const S = {
-    // Layout
     page:     { minHeight: '100vh', background: '#faf5f1', fontFamily: 'Inter, system-ui, sans-serif', color: '#2a3540' } as React.CSSProperties,
     wrap:     { maxWidth: '560px', margin: '0 auto', padding: '0 1.25rem 4rem' } as React.CSSProperties,
-
-    // Section chrome
     section:  { marginTop: '2.5rem' } as React.CSSProperties,
     label:    { fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: '#e10600', marginBottom: '0.75rem', display: 'block' },
     card:     { background: '#fff', border: '1px solid #e8e2d9', borderRadius: '6px', overflow: 'hidden' } as React.CSSProperties,
-
-    // Typography
     h2:       { fontFamily: '"Cormorant Garamond", serif', fontSize: 'clamp(1.6rem,5vw,2rem)', fontWeight: 300, color: '#161f28', margin: 0, lineHeight: 1.15 } as React.CSSProperties,
     body:     { fontSize: '0.85rem', color: '#7a8a95', lineHeight: 1.7, margin: 0 } as React.CSSProperties,
   }
@@ -140,10 +208,7 @@ export default function InformationPage() {
                     color: '#161f28',
                     lineHeight: 1,
                   }}>
-                    {code
-                      ? (codeRevealed ? code : code.replace(/./g, '•'))
-                      : '—'
-                    }
+                    {loadingCode ? '…' : code ? (codeRevealed ? code : code.replace(/./g, '•')) : '—'}
                   </span>
                   {code && (
                     <button
@@ -190,7 +255,6 @@ export default function InformationPage() {
                 const [yr, mo, dy] = ev.date.split('-').map(Number)
                 return (
                   <div key={i} style={{ ...S.card, padding: '1.25rem', display: 'flex', gap: '1.1rem', alignItems: 'flex-start' }}>
-                    {/* Date tag */}
                     <div style={{
                       minWidth: '48px', textAlign: 'center',
                       background: '#161f28', borderRadius: '4px',
@@ -204,7 +268,6 @@ export default function InformationPage() {
                         {MONTHS[mo - 1]} {yr}
                       </span>
                     </div>
-                    {/* Event info */}
                     <div style={{ flex: 1 }}>
                       <span style={{
                         display: 'inline-block', marginBottom: '0.3rem',
@@ -229,12 +292,15 @@ export default function InformationPage() {
         <div style={S.section}>
           <span style={S.label}>Community Board</span>
 
-          {messages.length > 0 && (
+          {loadingMessages && (
+            <p style={{ ...S.body, color: '#b7c0c8', marginBottom: '1rem' }}>Loading messages…</p>
+          )}
+          {!loadingMessages && messages.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
               {messages.map(msg => (
                 <div key={msg.id} style={{ ...S.card, overflow: 'hidden' }}>
-                  {msg.image && (
-                    <img src={msg.image} alt="" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', display: 'block' }} />
+                  {msg.photo_url && (
+                    <img src={msg.photo_url} alt="" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', display: 'block' }} />
                   )}
                   <div style={{ padding: '1.25rem' }}>
                     <p style={{
@@ -256,7 +322,6 @@ export default function InformationPage() {
             </div>
           )}
 
-          {/* Submission form */}
           <div style={{ ...S.card, padding: '1.5rem' }}>
             <p style={{ ...S.body, marginBottom: '1rem', fontWeight: 500, color: '#2a3540', fontSize: '0.8rem' }}>
               Leave a note
@@ -272,6 +337,7 @@ export default function InformationPage() {
                   placeholder="Your name (optional)"
                   value={boardName}
                   onChange={e => setBoardName(e.target.value)}
+                  maxLength={120}
                   style={{
                     border: '1px solid #e8e2d9', borderRadius: '4px',
                     fontSize: '0.82rem', padding: '0.6rem 0.8rem', color: '#2a3540',
@@ -283,6 +349,7 @@ export default function InformationPage() {
                   required
                   value={boardMessage}
                   onChange={e => setBoardMessage(e.target.value)}
+                  maxLength={2000}
                   rows={3}
                   style={{
                     border: '1px solid #e8e2d9', borderRadius: '4px',
@@ -292,12 +359,11 @@ export default function InformationPage() {
                   }}
                 />
 
-                {/* Image upload */}
                 <div>
                   <input
                     ref={boardFileRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleBoardImage}
                     style={{ display: 'none' }}
                     id="info-board-image-upload"
@@ -307,18 +373,18 @@ export default function InformationPage() {
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                       border: '1px solid #e8e2d9', borderRadius: '4px',
-                      color: boardImage ? '#2a7a4a' : '#7a8a95', background: '#faf5f1',
+                      color: boardFile ? '#2a7a4a' : '#7a8a95', background: '#faf5f1',
                       fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
                       padding: '0.45rem 0.9rem', cursor: 'pointer',
                       fontFamily: 'Inter, system-ui, sans-serif',
                     }}
                   >
-                    {boardImage ? '✓ Image attached' : '+ Attach image'}
+                    {boardFile ? '✓ Image attached' : '+ Attach image'}
                   </label>
-                  {boardImage && (
+                  {boardFile && (
                     <button
                       type="button"
-                      onClick={() => { setBoardImage(''); if (boardFileRef.current) boardFileRef.current.value = '' }}
+                      onClick={clearImage}
                       style={{
                         background: 'none', border: 'none', color: '#7a8a95',
                         fontSize: '0.65rem', cursor: 'pointer', marginLeft: '0.65rem',
@@ -328,23 +394,30 @@ export default function InformationPage() {
                       Remove
                     </button>
                   )}
-                  {boardImage && (
+                  {boardImagePreview && (
                     <div style={{ marginTop: '0.65rem' }}>
-                      <img src={boardImage} alt="Preview" style={{ height: '72px', width: 'auto', borderRadius: '3px', objectFit: 'cover' }} />
+                      <img src={boardImagePreview} alt="Preview" style={{ height: '72px', width: 'auto', borderRadius: '3px', objectFit: 'cover' }} />
                     </div>
                   )}
                 </div>
 
+                {submitError && (
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#e10600' }}>{submitError}</p>
+                )}
+
                 <button
                   type="submit"
+                  disabled={submitting}
                   style={{
                     alignSelf: 'flex-start', background: '#e10600', color: '#fff',
                     border: 'none', borderRadius: '4px', padding: '0.6rem 1.5rem',
                     fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase',
-                    cursor: 'pointer', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600,
+                    cursor: submitting ? 'not-allowed' : 'pointer',
+                    fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600,
+                    opacity: submitting ? 0.7 : 1,
                   }}
                 >
-                  Submit
+                  {submitting ? 'Submitting…' : 'Submit'}
                 </button>
               </form>
             )}
@@ -363,7 +436,6 @@ export default function InformationPage() {
                   borderBottom: i < FLOORS.length - 1 ? '1px solid #f0ebe2' : 'none',
                 }}
               >
-                {/* Floor level badge */}
                 <div style={{
                   minWidth: '52px',
                   background: '#161f28',
@@ -380,7 +452,6 @@ export default function InformationPage() {
                   </span>
                 </div>
 
-                {/* Floor content */}
                 <div style={{ flex: 1, padding: '1.1rem 1.25rem' }}>
                   <div style={{ marginBottom: '0.5rem' }}>
                     <span style={{ fontSize: '1rem', fontWeight: 600, color: '#161f28', fontFamily: '"Cormorant Garamond", serif', marginRight: '0.5rem' }}>

@@ -8,7 +8,10 @@
       "Bash(ls:*)",
       "Bash(du:*)",
       "Bash(find:*)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "Bash(del *)",
+      "Bash(git check-ignore *)"
     ]
   }
 }
