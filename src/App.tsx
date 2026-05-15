@@ -8,6 +8,9 @@ import Cellar54Page from './pages/Cellar54Page'
 import FaqPage from './pages/FaqPage'
 import LeasingPage from './pages/LeasingPage'
 import DirectoryPage from './pages/DirectoryPage'
+import AdminLoginPage from './pages/AdminLoginPage'
+import AdminWelcomePage from './pages/AdminWelcomePage'
+import InformationPage from './pages/InformationPage'
 
 function ScrollHandler() {
   const { pathname, hash } = useLocation()
@@ -40,6 +43,9 @@ export default function App() {
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/leasing" element={<LeasingPage />} />
         <Route path="/directory" element={<DirectoryPage />} />
+        <Route path="/admin" element={<AdminLoginPage />} />
+        <Route path="/admin/welcome" element={<AdminWelcomePage />} />
+        <Route path="/information" element={<InformationPage />} />
       </Routes>
     </BrowserRouter>
   )

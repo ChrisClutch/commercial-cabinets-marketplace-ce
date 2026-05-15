@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { img } from '../utils/img'
+
+// Module-level — survives Nav unmount/remount when navigating between pages
+let _logoClickCount = 0
+let _logoClickTimer: ReturnType<typeof setTimeout> | null = null
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40)
@@ -17,6 +22,27 @@ export default function Nav() {
 
   const isActive = (path: string) => location.pathname === path ? 'active' : ''
 
+  function handleLogoClick(e: React.MouseEvent) {
+    e.preventDefault()
+    _logoClickCount += 1
+
+    if (_logoClickTimer) clearTimeout(_logoClickTimer)
+
+    if (_logoClickCount >= 3) {
+      _logoClickCount = 0
+      sessionStorage.setItem('forge_gate', Date.now().toString())
+      navigate('/admin')
+      return
+    }
+
+    if (location.pathname !== '/') navigate('/')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    _logoClickTimer = setTimeout(() => {
+      _logoClickCount = 0
+    }, 800)
+  }
+
   return (
     <nav id="mainNav" className={scrolled ? 'scrolled' : ''}>
       <ul className="nav-links nav-links--left">
@@ -25,7 +51,7 @@ export default function Nav() {
         <li><Link to="/ground-floor" className={isActive('/ground-floor')}>Ground Floor</Link></li>
         <li><Link to="/cellar-54" className={isActive('/cellar-54')}>Lower Level</Link></li>
       </ul>
-      <Link to="/" className="forge-logo forge-logo--nav" aria-label="The Forge" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <Link to="/" className="forge-logo forge-logo--nav" aria-label="The Forge" onClick={handleLogoClick}>
         <img src={img('logo2.webp')} alt="The Forge" style={{ height: '70px', width: 'auto', display: 'block' }} />
       </Link>
       <div className="nav-right">

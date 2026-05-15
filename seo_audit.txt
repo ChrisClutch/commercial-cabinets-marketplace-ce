@@ -1,0 +1,521 @@
+================================================================================
+SEO / AEO / GEO AUDIT — THE FORGE SALEM (forgesalem.com)
+Audit Date: 2026-05-06
+================================================================================
+
+SITE OVERVIEW
+-------------
+URL:       forgesalem.com
+Framework: React 18 (Vite SPA) + React Router v6
+Hosting:   Cloudflare Pages
+Platform:  Client-side rendered (CSR) — no SSR/SSG
+
+
+================================================================================
+SECTION 1: TECHNICAL SEO
+================================================================================
+
+CRITICAL ISSUES
+---------------
+
+1. CLIENT-SIDE RENDERING (HIGHEST PRIORITY)
+   Status: FAILING
+   Detail: The entire site is a React SPA rendered by JavaScript. Search engine
+           crawlers (Googlebot, Bingbot) and AI crawlers (GPTBot, ClaudeBot,
+           Anthropic-AI) may not execute JavaScript fully or at all. Every page
+           shares a single static HTML shell — all meaningful content, headings,
+           and metadata are invisible without JS execution.
+   Fix:    Migrate to a framework with static site generation (SSG) such as
+           Astro, Next.js (static export), or Gatsby. Alternatively, add
+           prerendering via a service like Prerender.io or Cloudflare Workers.
+
+2. NO robots.txt
+   Status: MISSING
+   Detail: No robots.txt file exists in /public. Search and AI crawlers have no
+           crawl directives.
+   Fix:    Create /public/robots.txt with at minimum:
+             User-agent: *
+             Allow: /
+             Sitemap: https://forgesalem.com/sitemap.xml
+
+3. NO sitemap.xml
+   Status: MISSING
+   Detail: No XML sitemap exists. Search engines cannot reliably discover all
+           8 pages of the site.
+   Fix:    Generate /public/sitemap.xml listing all routes:
+             / | /anthem | /ground-floor | /womens-collective
+             /cellar-54 | /faq | /leasing | /directory
+           Submit to Google Search Console and Bing Webmaster Tools.
+
+4. NO meta descriptions
+   Status: MISSING (all pages)
+   Detail: Zero pages have a <meta name="description"> tag. Google uses
+           meta descriptions for SERP snippets. Without them, Google
+           auto-generates snippets — often poorly.
+   Fix:    Add unique, keyword-rich meta descriptions (150-160 chars) per page.
+           Use react-helmet-async or a custom hook to inject them.
+
+5. NO canonical URLs
+   Status: MISSING
+   Detail: No <link rel="canonical"> tags exist on any page. This risks
+           duplicate content issues (e.g., trailing slashes, www vs non-www).
+   Fix:    Add a canonical tag per page matching the page's primary URL.
+
+6. FAVICON FORMAT
+   Status: WARNING
+   Detail: The favicon is set as a .webp file. Safari and some older browsers
+           do not support .webp favicons. iOS home screen icons are also absent.
+   Fix:    Add an .ico or .png favicon and apple-touch-icon:
+             <link rel="icon" href="/favicon.ico">
+             <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+7. NO 404 PAGE
+   Status: MISSING
+   Detail: There is no custom 404 component or route. Users hitting invalid
+           URLs see the Cloudflare default 404, harming UX and crawl signals.
+   Fix:    Add a catch-all route in App.tsx:
+             <Route path="*" element={<NotFoundPage />} />
+
+8. NO web app manifest (manifest.json)
+   Status: MISSING
+   Detail: No PWA manifest. This affects mobile bookmark icons and
+           Lighthouse scores.
+   Fix:    Add /public/manifest.json and link it in index.html.
+
+
+MODERATE ISSUES
+---------------
+
+9. PAGE TITLES — JAVASCRIPT ONLY
+   Status: SUBOPTIMAL
+   Detail: Each page sets document.title via useEffect(). This means the
+           initial HTML served has only the generic title:
+             "The Forge — Salem's Lifestyle Collective"
+           All pages share this title until JS executes.
+   Fix:    Use react-helmet-async to inject titles server-side, or pre-render
+           pages so each HTML file contains the correct <title>.
+
+10. NO hreflang
+    Status: N/A (English only) — monitor if multilingual content is added.
+
+11. HTTPS
+    Status: ASSUMED OK (Cloudflare handles SSL)
+    Action: Verify HTTPS redirect is enforced for http:// requests.
+
+12. CORE WEB VITALS
+    Status: NOT MEASURED (audit is code-based)
+    Action: Run Lighthouse and PageSpeed Insights on live site.
+            Known risk: SPA hydration delay may affect LCP and FID.
+
+
+================================================================================
+SECTION 2: ON-PAGE SEO
+================================================================================
+
+CRITICAL ISSUES
+---------------
+
+13. NO OPEN GRAPH TAGS (all pages)
+    Status: MISSING
+    Detail: No og:title, og:description, og:image, og:url, og:type tags exist.
+            When anyone shares forgesalem.com on Facebook, LinkedIn, iMessage,
+            or Slack, no preview card is generated — just a bare URL.
+    Fix:    Add to index.html (global) and per-page via react-helmet-async:
+              <meta property="og:type" content="website">
+              <meta property="og:site_name" content="The Forge Salem">
+              <meta property="og:url" content="https://forgesalem.com">
+              <meta property="og:title" content="The Forge — Salem's Lifestyle Collective">
+              <meta property="og:description" content="Salem's premier lifestyle collective...">
+              <meta property="og:image" content="https://forgesalem.com/images/og-image.webp">
+
+14. NO TWITTER / X CARD TAGS
+    Status: MISSING
+    Detail: No twitter:card, twitter:title, twitter:description, or
+            twitter:image tags. Twitter/X will not generate a card preview.
+    Fix:    Add:
+              <meta name="twitter:card" content="summary_large_image">
+              <meta name="twitter:site" content="@theforgesalem">
+              <meta name="twitter:title" content="...">
+              <meta name="twitter:description" content="...">
+              <meta name="twitter:image" content="...">
+
+15. NO STRUCTURED DATA / SCHEMA.ORG (all pages)
+    Status: MISSING — see Section 4 (AEO/GEO) for full details.
+
+
+MODERATE ISSUES
+---------------
+
+16. HEADING HIERARCHY
+    Status: REVIEW NEEDED
+    Detail: Each page likely has an H1, but with CSR the HTML source contains
+            none. Crawlers reading the HTML shell see no headings at all.
+    Action: Verify H1 exists on every page. Confirm no page has multiple H1s.
+
+17. IMAGE ALT TEXT
+    Status: PARTIAL
+    Detail: Some images likely have alt attributes; others may not. With 40+
+            tenant logos and gallery images, gaps are likely.
+    Action: Audit all <img> tags in /src/pages/* and /src/components/*
+            for descriptive alt text. Decorative images should use alt="".
+
+18. INTERNAL LINKING
+    Status: ADEQUATE
+    Detail: Nav and footer link to all main pages. However, there is no
+            contextual interlinking between content (e.g., Ground Floor page
+            doesn't link to Women's Collective, FAQ doesn't link to Cellar 54).
+    Fix:    Add contextual cross-links where relevant to improve crawl depth
+            and distribute page authority.
+
+19. KEYWORD TARGETING
+    Status: UNVERIFIED
+    Detail: No keyword research evidence found in the codebase. Key local
+            terms like "Salem Oregon coworking," "Salem event venue,"
+            "Salem beauty suites," and "Salem restaurant collective" should
+            be naturally incorporated into headings and body copy.
+    Action: Perform keyword research and map terms to each page.
+
+20. URL STRUCTURE
+    Status: GOOD
+    Detail: URLs are clean and descriptive:
+              /ground-floor, /womens-collective, /cellar-54, /directory
+    Minor:  /anthem and /cellar-54 are brand names; consider whether
+            /event-venue or /financial-advisory would rank better.
+
+
+================================================================================
+SECTION 3: LOCAL SEO
+================================================================================
+
+CRITICAL ISSUES
+---------------
+
+21. NO Google Business Profile VERIFICATION SIGNAL
+    Status: UNKNOWN
+    Detail: The site should be linked to and consistent with a verified
+            Google Business Profile for "The Forge Salem."
+    Action: Verify GBP exists, is claimed, and NAP (Name, Address, Phone)
+            matches exactly what's on the website.
+
+22. NAP CONSISTENCY
+    Status: NEEDS VERIFICATION
+    Detail: Site contains:
+              Name:    The Forge Salem
+              Address: 285 Liberty St. N.E., Salem, Oregon 97301
+              Phone:   503-302-3237 (Cellar 54 only — no main number found)
+              Email:   inquiries@forgesalem.com
+    Issues: - No main phone number found (only Cellar 54 booking line)
+            - Address format should match GBP exactly across all citations
+    Fix:    Add a consistent main phone number. Ensure NAP appears in plain
+            HTML (not just JS-rendered) and in LocalBusiness schema.
+
+23. NO LocalBusiness SCHEMA
+    Status: MISSING — see Section 4 for full schema recommendations.
+
+24. NO LOCATION PAGE / DIRECTIONS CONTENT
+    Status: MISSING
+    Detail: No dedicated "Find Us" or "Hours & Location" page/section.
+            Local SEO benefits from rich location content.
+    Fix:    Add an embedded Google Map, hours of operation for each floor,
+            and turn-by-turn directions language to a dedicated section.
+
+25. CITATION BUILDING
+    Status: UNKNOWN (external, not in codebase)
+    Action: Ensure forgesalem.com is listed on:
+              Yelp, TripAdvisor, Visit Salem OR, Chamber of Commerce,
+              Apple Maps, Bing Places, Foursquare, Facebook Business.
+
+
+================================================================================
+SECTION 4: AEO (ANSWER ENGINE OPTIMIZATION) & GEO (GENERATIVE ENGINE OPTIMIZATION)
+================================================================================
+
+AEO focuses on appearing in featured snippets and voice search answers.
+GEO focuses on being cited by AI systems (ChatGPT, Perplexity, Gemini, Claude).
+
+CRITICAL ISSUES
+---------------
+
+26. NO STRUCTURED DATA (JSON-LD) — HIGHEST AEO/GEO IMPACT
+    Status: MISSING
+    Detail: Structured data is the primary signal AI and answer engines use
+            to understand and cite business content. The site has zero JSON-LD.
+
+    RECOMMENDED SCHEMAS:
+
+    A. LocalBusiness (homepage — index.html or root route)
+    -------------------------------------------------------
+    {
+      "@context": "https://schema.org",
+      "@type": "ShoppingCenter",
+      "name": "The Forge Salem",
+      "description": "Salem's premier lifestyle collective featuring dining, beauty, wellness, financial advisory, and event venues.",
+      "url": "https://forgesalem.com",
+      "telephone": "503-302-3237",
+      "email": "inquiries@forgesalem.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "285 Liberty St. N.E.",
+        "addressLocality": "Salem",
+        "addressRegion": "OR",
+        "postalCode": "97301",
+        "addressCountry": "US"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "44.9428",
+        "longitude": "-123.0351"
+      },
+      "sameAs": [
+        "https://www.instagram.com/theforgesalem"
+      ],
+      "hasMap": "https://maps.google.com/?q=285+Liberty+St+NE+Salem+OR",
+      "openingHoursSpecification": [...]
+    }
+
+    B. FAQPage schema (/faq route)
+    -------------------------------------------------------
+    This is the highest-value AEO schema for the site. FAQ schema enables
+    Google to show your answers directly in search results (accordions),
+    and AI models cite FAQ content heavily for question-based queries.
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Where is The Forge Salem located?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Forge Salem is located at 285 Liberty St. N.E., Salem, Oregon 97301."
+          }
+        },
+        ... (one entry per FAQ item)
+      ]
+    }
+
+    C. EventVenue schema (/cellar-54 route)
+    -------------------------------------------------------
+    {
+      "@context": "https://schema.org",
+      "@type": "EventVenue",
+      "name": "Cellar 54",
+      "description": "A private event venue in the lower level of The Forge Salem.",
+      "address": { ... same as above ... },
+      "url": "https://forgesalem.com/cellar-54"
+    }
+
+    D. FoodEstablishment schemas (/ground-floor)
+    -------------------------------------------------------
+    Separate Restaurant/CafeOrCoffeeShop schema entries for:
+    - Bonzai! (cafe/coffee)
+    - Jade Dumplings (restaurant)
+    - Noira (wine bar / BarOrPub)
+
+    E. HealthAndBeautyBusiness schema (/womens-collective)
+    -------------------------------------------------------
+    {
+      "@context": "https://schema.org",
+      "@type": "HealthAndBeautyBusiness",
+      "name": "The Women's Collective at The Forge",
+      ...
+    }
+
+    F. FinancialService schema (/anthem)
+    -------------------------------------------------------
+    {
+      "@context": "https://schema.org",
+      "@type": "FinancialService",
+      "name": "Anthem Strategists",
+      ...
+    }
+
+27. CONTENT NOT CRAWLABLE BY AI BOTS
+    Status: FAILING
+    Detail: AI systems (Perplexity, ChatGPT, Claude, Gemini) that crawl the
+            web to build knowledge bases will receive an empty HTML shell
+            from forgesalem.com. There is no indexable text content for
+            them to learn from or cite.
+    Fix:    Pre-render or SSG the site. Add descriptive, prose-rich text to
+            each page that explains what The Forge is, who its tenants are,
+            and what makes it unique in Salem. AI models cite sources with
+            substantive, authoritative text.
+
+28. NO FAQ / Q&A CONTENT OPTIMIZED FOR CONVERSATIONAL QUERIES
+    Status: PARTIAL
+    Detail: An FAQ page exists but it's rendered entirely in JavaScript.
+            FAQ content is the #1 source for featured snippets and AI answers
+            to queries like "What is The Forge in Salem?" or
+            "Does The Forge Salem have parking?"
+    Fix:    Pre-render the FAQ page. Add FAQPage JSON-LD schema. Expand
+            FAQ content to cover common local search queries:
+              - What restaurants are at The Forge Salem?
+              - Can I rent a beauty suite at The Forge?
+              - How do I book Cellar 54 for an event?
+              - What are the hours at The Forge Salem?
+              - Is The Forge Salem dog friendly?
+
+29. NO ABOUT/BRAND NARRATIVE PAGE
+    Status: MISSING
+    Detail: There is no "About Us" page or long-form brand story. AI systems
+            and answer engines heavily weight authoritative "About" content
+            when answering "What is X?" queries. Without this, The Forge is
+            unlikely to be cited or summarized by AI.
+    Fix:    Create an /about page with:
+              - Founding story and mission
+              - Description of all four floors
+              - Community/cultural role in Salem
+              - Notable tenants and offerings
+              - Press/media mentions (if any)
+
+30. ENTITY ESTABLISHMENT FOR GEO
+    Status: WEAK
+    Detail: For AI models to confidently cite a business, it needs to appear
+            consistently across multiple authoritative sources (Wikipedia,
+            news articles, review sites, social media, business directories).
+            A brand mentioned only on its own website is low-trust for GEO.
+    Fix:    - Pursue local press coverage (Salem Reporter, Statesman Journal)
+            - Encourage tenant-generated content linking to forgesalem.com
+            - Build out social profiles with consistent business info
+            - Submit to local business directories and "best of Salem" lists
+            - Consider a Wikipedia stub if notable enough
+
+
+================================================================================
+SECTION 5: CONTENT & AUTHORITY
+================================================================================
+
+31. NO BLOG / NEWS SECTION
+    Status: MISSING
+    Detail: No regularly updated content exists. Fresh content signals are
+            important for crawl frequency and topical authority.
+    Fix:    Add a /news or /events section featuring:
+              - Monthly event announcements
+              - Tenant spotlights
+              - Community stories
+            This content also becomes citable material for AI systems.
+
+32. THIN CONTENT ON TENANT PAGES
+    Status: WARNING
+    Detail: The directory lists 40+ tenants but likely with minimal text per
+            tenant (name, suite, category). This is low-value for SEO.
+    Fix:    Add 2-3 sentence descriptions for each tenant with relevant
+            keywords (e.g., "Salem hair salon," "Salem esthetician," etc.)
+            This creates a rich, locally-relevant page that can rank for
+            "{service} in Salem Oregon" queries.
+
+33. NO REVIEWS / TESTIMONIALS MARKUP
+    Status: MISSING
+    Detail: No customer testimonials or review aggregation exists on the site.
+            Review schema can produce star ratings in SERPs.
+    Fix:    Add curated testimonials with AggregateRating schema, or embed
+            a Google Reviews widget.
+
+34. EVENTS CONTENT
+    Status: DYNAMIC/TEMPORARY
+    Detail: Events are featured on the homepage but appear to be manually
+            updated (April events were recently removed per commit history).
+            Events with schema markup are eligible for Google's Event rich
+            results.
+    Fix:    Add Event schema for each featured event:
+            {
+              "@type": "Event",
+              "name": "Event Name",
+              "startDate": "2026-06-01T19:00",
+              "location": { "@type": "Place", "name": "The Forge Salem", ... },
+              "url": "https://forgesalem.com/#events"
+            }
+
+
+================================================================================
+SECTION 6: PERFORMANCE & ACCESSIBILITY
+================================================================================
+
+POSITIVE FINDINGS
+-----------------
++ WebP images used throughout (modern, compressed format)
++ Hero image is preloaded via <link rel="preload">
++ Google Fonts use preconnect for faster loading
++ Aggressive Cloudflare caching headers set (1 year for assets)
++ Tailwind CSS (minimal CSS bundle)
++ Vite build (optimized JS chunking)
++ Input sanitization on forms (XSS protection)
+
+ISSUES TO VERIFY
+----------------
+35. FONT LOADING PERFORMANCE
+    Status: REVIEW NEEDED
+    Detail: 3 font families (Playfair Display, Cormorant Garamond, Inter)
+            with multiple weights are loaded. This may be 200-400KB of
+            font data.
+    Fix:    Audit which weights are actually used. Consider subsetting fonts
+            or using font-display: swap.
+
+36. IMAGE LAZY LOADING
+    Status: LIKELY OK (verify)
+    Detail: Loading="lazy" should be on all below-fold images.
+    Action: Confirm hero image does NOT have loading="lazy" (it shouldn't),
+            and all other images do.
+
+37. ACCESSIBILITY (a11y)
+    Status: REVIEW NEEDED
+    Detail: Accessibility issues can affect SEO indirectly. Verify:
+            - All form inputs have associated <label> elements
+            - Color contrast meets WCAG 2.1 AA (cherry red on dark backgrounds)
+            - Focus styles are visible for keyboard navigation
+            - All interactive elements are keyboard accessible
+
+
+================================================================================
+SECTION 7: PRIORITY ACTION PLAN
+================================================================================
+
+IMMEDIATE (Highest ROI, implement first)
+-----------------------------------------
+[ ] 1. Add robots.txt and sitemap.xml to /public
+[ ] 2. Add meta descriptions to all 8 pages
+[ ] 3. Add Open Graph and Twitter Card tags (social sharing)
+[ ] 4. Add LocalBusiness JSON-LD schema to homepage
+[ ] 5. Add FAQPage JSON-LD schema to /faq
+[ ] 6. Fix favicon (add .ico + apple-touch-icon)
+[ ] 7. Add a custom 404 page
+
+SHORT-TERM (1-2 sprints)
+-------------------------
+[ ] 8. Pre-render or SSG the site (Astro migration or prerender service)
+[ ] 9. Add structured data for Cellar 54, Ground Floor, Women's Collective
+[ ] 10. Add canonical tags per page
+[ ] 11. Create an /about page with full brand narrative
+[ ] 12. Expand tenant directory with descriptions
+
+MEDIUM-TERM (ongoing)
+----------------------
+[ ] 13. Add a /news or /events blog section
+[ ] 14. Claim/optimize all local directory listings
+[ ] 15. Pursue local press coverage for GEO authority
+[ ] 16. Add Event schema for each event listing
+[ ] 17. Add reviews/testimonials with AggregateRating schema
+[ ] 18. Submit sitemap to Google Search Console and Bing Webmaster Tools
+[ ] 19. Set up Google Search Console and monitor Core Web Vitals
+[ ] 20. Perform keyword research and optimize page copy
+
+================================================================================
+SCORING SUMMARY
+================================================================================
+
+Category                     | Score | Notes
+-----------------------------|-------|------------------------------------------
+Technical SEO                |  3/10 | CSR, no robots/sitemap, no meta tags
+On-Page SEO                  |  4/10 | Good URLs/structure; no OG, no descriptions
+Local SEO                    |  4/10 | NAP present; no schema, no map embed
+AEO (Answer Engine Opt.)     |  1/10 | No FAQ schema, no crawlable content
+GEO (Generative Engine Opt.) |  1/10 | No structured data, no authority signals
+Content & Authority          |  3/10 | Good tenant info; no blog, thin descriptions
+Performance                  |  7/10 | Good image/caching; CSR hurts perceived perf.
+
+OVERALL                      |  3/10 | Solid foundation; critical SEO infrastructure
+                             |       | entirely absent
+
+================================================================================
+END OF AUDIT
+================================================================================
