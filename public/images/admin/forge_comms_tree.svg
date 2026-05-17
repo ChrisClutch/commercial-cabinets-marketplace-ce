@@ -1,0 +1,255 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1460" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .bg { fill: #FFFFFF; }
+      .black { fill: #1a1a1a; }
+      .red { fill: #C0272D; }
+      .gold { fill: #D4AF37; }
+      .white-text { fill: #FFFFFF; }
+      .black-text { fill: #1a1a1a; }
+      .red-text { fill: #C0272D; }
+      .muted-text { fill: #4a4a4a; }
+      .card-bg { fill: #FAFAFA; stroke: #1a1a1a; stroke-width: 1.5; }
+      .divider { stroke: #1a1a1a; stroke-width: 1; }
+      .title { font-weight: 700; letter-spacing: 1px; }
+      .label { font-weight: 700; letter-spacing: 0.5px; }
+      .body { font-weight: 400; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="1000" height="1460"/>
+
+  <!-- Header bar -->
+  <rect class="black" x="0" y="0" width="1000" height="90"/>
+  <text class="white-text title" x="40" y="42" font-size="22">THE FORGE</text>
+  <line x1="40" y1="54" x2="190" y2="54" stroke="#C0272D" stroke-width="2"/>
+  <text class="white-text" x="40" y="76" font-size="14" letter-spacing="2px">TENANT COMMUNICATION TREE</text>
+  <text class="white-text" x="960" y="56" font-size="12" text-anchor="end" letter-spacing="1px">285 LIBERTY ST NE  |  SALEM, OR</text>
+
+  <!-- Emergency banner -->
+  <rect class="red" x="0" y="90" width="1000" height="110"/>
+  <text class="white-text title" x="40" y="130" font-size="18" letter-spacing="2px">LIFE SAFETY EMERGENCY</text>
+  <text class="white-text body" x="40" y="156" font-size="14">Fire, medical, active threat, gas leak, or major water event.</text>
+  <text class="white-text label" x="40" y="182" font-size="15">CALL 911 FIRST  &#8594;  THEN NOTIFY BLUESTONE AT 503-222-3800</text>
+
+  <!-- Property Management and Security Contacts Section -->
+  <rect class="card-bg" x="0" y="200" width="1000" height="180"/>
+  <text class="black-text title" x="500" y="226" font-size="13" text-anchor="middle" letter-spacing="2px">PROPERTY MANAGEMENT &amp; SECURITY CONTACTS</text>
+  <line x1="350" y1="236" x2="650" y2="236" stroke="#C0272D" stroke-width="1.5"/>
+
+  <!-- Contact 1: Sarah Rigterink -->
+  <g>
+    <rect class="black" x="30" y="252" width="305" height="28"/>
+    <text class="white-text label" x="45" y="271" font-size="13" letter-spacing="1px">SARAH RIGTERINK</text>
+    <rect fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" x="30" y="280" width="305" height="82"/>
+    <text class="red-text label" x="45" y="300" font-size="10" letter-spacing="0.5px">PROPERTY MANAGER  |  BLUESTONE</text>
+    <text class="black-text body" x="45" y="322" font-size="12">srigterink@bluestonemgt.com</text>
+    <text class="black-text body" x="45" y="344" font-size="12">971-208-7584</text>
+  </g>
+
+  <!-- Contact 2: Lohi Wallin -->
+  <g>
+    <rect class="black" x="345" y="252" width="310" height="28"/>
+    <text class="white-text label" x="360" y="271" font-size="13" letter-spacing="1px">LOHI WALLIN</text>
+    <rect fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" x="345" y="280" width="310" height="82"/>
+    <text class="red-text label" x="360" y="300" font-size="10" letter-spacing="0.5px">ASSISTANT PROPERTY MANAGER  |  BLUESTONE</text>
+    <text class="black-text body" x="360" y="322" font-size="12">lwallin@bluestonemgt.com</text>
+    <text class="black-text body" x="360" y="344" font-size="12">503-455-8447</text>
+  </g>
+
+  <!-- Contact 3: Brian Johnson -->
+  <g>
+    <rect class="black" x="665" y="252" width="305" height="28"/>
+    <text class="white-text label" x="680" y="271" font-size="13" letter-spacing="1px">BRIAN JOHNSON</text>
+    <rect fill="#FFFFFF" stroke="#1a1a1a" stroke-width="1" x="665" y="280" width="305" height="82"/>
+    <text class="red-text label" x="680" y="300" font-size="10" letter-spacing="0.5px">AFTER HOURS SECURITY  |  CHIRON</text>
+    <text class="black-text body" x="680" y="322" font-size="12">Brian.J@ChironSS.com</text>
+    <text class="black-text body" x="680" y="344" font-size="11">Personal 503-409-4087  |  Patrol 503-449-0719</text>
+  </g>
+
+  <g transform="translate(0, 180)">
+
+  <!-- Section title for non-emergencies -->
+  <text class="black-text title" x="500" y="240" font-size="16" text-anchor="middle" letter-spacing="2px">NON-EMERGENCY  |  FIND YOUR ISSUE BELOW</text>
+  <line x1="350" y1="252" x2="650" y2="252" stroke="#C0272D" stroke-width="1.5"/>
+
+  <!-- ROW 1 -->
+  <!-- Card 1: Building & Maintenance -->
+  <g>
+    <rect class="card-bg" x="30" y="280" width="455" height="180" rx="4"/>
+    <rect class="red" x="30" y="280" width="40" height="180" rx="4"/>
+    <rect class="red" x="60" y="280" width="15" height="180"/>
+    <text class="white-text title" x="50" y="378" font-size="20" text-anchor="middle" transform="rotate(-90 50 378)">01</text>
+    <text class="black-text title" x="90" y="310" font-size="15" letter-spacing="1px">BUILDING &amp; MAINTENANCE</text>
+    <text class="muted-text body" x="90" y="332" font-size="11">HVAC, plumbing, electrical, lights, leaks, pests</text>
+    <line x1="90" y1="346" x2="465" y2="346" class="divider"/>
+    <text class="red-text label" x="90" y="368" font-size="11">FIRST STEP</text>
+    <text class="black-text body" x="90" y="384" font-size="12">Submit request via AppFolio tenant portal</text>
+    <text class="red-text label" x="90" y="408" font-size="11">PRIMARY</text>
+    <text class="black-text body" x="90" y="424" font-size="12">Bluestone</text>
+    <text class="red-text label" x="90" y="446" font-size="11">AFTER HOURS</text>
+    <text class="black-text body" x="195" y="446" font-size="12">503-222-3800 (on-call prompts)</text>
+  </g>
+
+  <!-- Card 2: Trash & Recycling -->
+  <g>
+    <rect class="card-bg" x="515" y="280" width="455" height="180" rx="4"/>
+    <rect class="red" x="515" y="280" width="40" height="180" rx="4"/>
+    <rect class="red" x="545" y="280" width="15" height="180"/>
+    <text class="white-text title" x="535" y="378" font-size="20" text-anchor="middle" transform="rotate(-90 535 378)">02</text>
+    <text class="black-text title" x="575" y="310" font-size="15" letter-spacing="1px">TRASH &amp; RECYCLING</text>
+    <text class="muted-text body" x="575" y="332" font-size="11">Overflow, cardboard, missed pickups, dumpster access</text>
+    <line x1="575" y1="346" x2="950" y2="346" class="divider"/>
+    <text class="red-text label" x="575" y="368" font-size="11">PRIMARY</text>
+    <text class="black-text body" x="660" y="368" font-size="12">Joe, Building Porter (Wed to Sun)</text>
+    <text class="red-text label" x="575" y="390" font-size="11">OFF DAYS</text>
+    <text class="black-text body" x="660" y="390" font-size="12">Bluestone</text>
+    <text class="red-text label" x="575" y="418" font-size="11">SCHEDULE</text>
+    <text class="black-text body" x="575" y="436" font-size="12">Trash: Mon / Wed / Fri</text>
+    <text class="black-text body" x="575" y="452" font-size="12">Recycling: Mon / Thu</text>
+  </g>
+
+  <!-- ROW 2 -->
+  <!-- Card 3: Internet & Tech -->
+  <g>
+    <rect class="card-bg" x="30" y="475" width="455" height="170" rx="4"/>
+    <rect class="red" x="30" y="475" width="40" height="170" rx="4"/>
+    <rect class="red" x="60" y="475" width="15" height="170"/>
+    <text class="white-text title" x="50" y="568" font-size="20" text-anchor="middle" transform="rotate(-90 50 568)">03</text>
+    <text class="black-text title" x="90" y="505" font-size="15" letter-spacing="1px">INTERNET &amp; TECHNOLOGY</text>
+    <text class="muted-text body" x="90" y="527" font-size="11">Connection, WiFi, digital signage</text>
+    <line x1="90" y1="541" x2="465" y2="541" class="divider"/>
+    <text class="red-text label" x="90" y="563" font-size="11">FIRST STEP</text>
+    <text class="black-text body" x="90" y="579" font-size="12">Power-cycle. In-suite vs building-wide?</text>
+    <text class="red-text label" x="90" y="601" font-size="11">IN-SUITE</text>
+    <text class="black-text body" x="155" y="601" font-size="12">Your ISP (Forge does not provide internet)</text>
+    <text class="red-text label" x="90" y="623" font-size="11">SIGNAGE / SCREENS</text>
+    <text class="black-text body" x="225" y="623" font-size="12">Kimmy &#8226; kimmy@builtvibrant.com</text>
+  </g>
+
+  <!-- Card 4: Security & Access -->
+  <g>
+    <rect class="card-bg" x="515" y="475" width="455" height="170" rx="4"/>
+    <rect class="red" x="515" y="475" width="40" height="170" rx="4"/>
+    <rect class="red" x="545" y="475" width="15" height="170"/>
+    <text class="white-text title" x="535" y="568" font-size="20" text-anchor="middle" transform="rotate(-90 535 568)">04</text>
+    <text class="black-text title" x="575" y="505" font-size="15" letter-spacing="1px">SECURITY &amp; ACCESS</text>
+    <text class="muted-text body" x="575" y="527" font-size="11">Key cards, locks, suspicious activity, camera footage</text>
+    <line x1="575" y1="541" x2="950" y2="541" class="divider"/>
+    <text class="red-text label" x="575" y="563" font-size="11">PRIMARY</text>
+    <text class="black-text body" x="660" y="563" font-size="12">Bluestone</text>
+    <text class="red-text label" x="575" y="585" font-size="11">AFTER HOURS</text>
+    <text class="black-text body" x="675" y="585" font-size="12">Brian Johnson, Chiron Security</text>
+    <text class="red-text label" x="575" y="607" font-size="11">SUSPICIOUS ACTIVITY</text>
+    <text class="black-text body" x="575" y="625" font-size="12">Salem PD non-emergency: 503-588-6123</text>
+  </g>
+
+  <!-- ROW 3 -->
+  <!-- Card 5: Noise & Music -->
+  <g>
+    <rect class="card-bg" x="30" y="660" width="455" height="160" rx="4"/>
+    <rect class="red" x="30" y="660" width="40" height="160" rx="4"/>
+    <rect class="red" x="60" y="660" width="15" height="160"/>
+    <text class="white-text title" x="50" y="748" font-size="20" text-anchor="middle" transform="rotate(-90 50 748)">05</text>
+    <text class="black-text title" x="90" y="690" font-size="15" letter-spacing="1px">NOISE &amp; MUSIC</text>
+    <text class="muted-text body" x="90" y="712" font-size="11">Neighbors, Cellar 54 events, common areas, construction</text>
+    <line x1="90" y1="726" x2="465" y2="726" class="divider"/>
+    <text class="red-text label" x="90" y="748" font-size="11">FIRST STEP</text>
+    <text class="black-text body" x="90" y="764" font-size="12">Friendly direct conversation if appropriate</text>
+    <text class="red-text label" x="90" y="786" font-size="11">CELLAR 54</text>
+    <text class="black-text body" x="175" y="786" font-size="12">info@cellar54salem.com</text>
+    <text class="red-text label" x="90" y="808" font-size="11">UNRESOLVED</text>
+    <text class="black-text body" x="195" y="808" font-size="12">Bluestone (written complaint w/ details)</text>
+  </g>
+
+  <!-- Card 6: Cleaning & Janitorial -->
+  <g>
+    <rect class="card-bg" x="515" y="660" width="455" height="160" rx="4"/>
+    <rect class="red" x="515" y="660" width="40" height="160" rx="4"/>
+    <rect class="red" x="545" y="660" width="15" height="160"/>
+    <text class="white-text title" x="535" y="748" font-size="20" text-anchor="middle" transform="rotate(-90 535 748)">06</text>
+    <text class="black-text title" x="575" y="690" font-size="15" letter-spacing="1px">CLEANING &amp; JANITORIAL</text>
+    <text class="muted-text body" x="575" y="712" font-size="11">Common areas, restrooms, spills</text>
+    <line x1="575" y1="726" x2="950" y2="726" class="divider"/>
+    <text class="red-text label" x="575" y="748" font-size="11">URGENT</text>
+    <text class="black-text body" x="660" y="748" font-size="12">Joe directly (Wed to Sun)</text>
+    <text class="red-text label" x="575" y="770" font-size="11">OFF DAYS / ESCALATION</text>
+    <text class="black-text body" x="575" y="788" font-size="12">Bluestone</text>
+    <text class="red-text label" x="575" y="810" font-size="11">IN-SUITE</text>
+    <text class="black-text body" x="660" y="810" font-size="12">Tenant responsibility (unless lease says otherwise)</text>
+  </g>
+
+  <!-- ROW 4 -->
+  <!-- Card 7: Events & Cellar 54 -->
+  <g>
+    <rect class="card-bg" x="30" y="835" width="455" height="140" rx="4"/>
+    <rect class="red" x="30" y="835" width="40" height="140" rx="4"/>
+    <rect class="red" x="60" y="835" width="15" height="140"/>
+    <text class="white-text title" x="50" y="913" font-size="20" text-anchor="middle" transform="rotate(-90 50 913)">07</text>
+    <text class="black-text title" x="90" y="865" font-size="15" letter-spacing="1px">EVENTS &amp; CELLAR 54</text>
+    <text class="muted-text body" x="90" y="887" font-size="11">Bookings, tenant partnerships, common area events</text>
+    <line x1="90" y1="901" x2="465" y2="901" class="divider"/>
+    <text class="red-text label" x="90" y="923" font-size="11">PRIMARY</text>
+    <text class="black-text body" x="175" y="923" font-size="12">Events Manager</text>
+    <text class="red-text label" x="90" y="945" font-size="11">EMAIL</text>
+    <text class="black-text body" x="160" y="945" font-size="12">info@cellar54salem.com</text>
+    <text class="muted-text body" x="90" y="965" font-size="11">Ask about the tenant rate.</text>
+  </g>
+
+  <!-- Card 8: Marketing -->
+  <g>
+    <rect class="card-bg" x="515" y="835" width="455" height="140" rx="4"/>
+    <rect class="red" x="515" y="835" width="40" height="140" rx="4"/>
+    <rect class="red" x="545" y="835" width="15" height="140"/>
+    <text class="white-text title" x="535" y="913" font-size="20" text-anchor="middle" transform="rotate(-90 535 913)">08</text>
+    <text class="black-text title" x="575" y="865" font-size="15" letter-spacing="1px">MARKETING &amp; SOCIAL</text>
+    <text class="muted-text body" x="575" y="887" font-size="11">Features, social posts, website listing, photo / video</text>
+    <line x1="575" y1="901" x2="950" y2="901" class="divider"/>
+    <text class="red-text label" x="575" y="923" font-size="11">PRIMARY</text>
+    <text class="black-text body" x="660" y="923" font-size="12">Kimmy, Marketing</text>
+    <text class="red-text label" x="575" y="945" font-size="11">EMAIL</text>
+    <text class="black-text body" x="645" y="945" font-size="12">kimmy@builtvibrant.com</text>
+    <text class="muted-text body" x="575" y="965" font-size="11">Response within 3 business days.</text>
+  </g>
+
+  <!-- ROW 5 -->
+  <!-- Card 9: Lease & Billing -->
+  <g>
+    <rect class="card-bg" x="30" y="990" width="455" height="140" rx="4"/>
+    <rect class="red" x="30" y="990" width="40" height="140" rx="4"/>
+    <rect class="red" x="60" y="990" width="15" height="140"/>
+    <text class="white-text title" x="50" y="1068" font-size="20" text-anchor="middle" transform="rotate(-90 50 1068)">09</text>
+    <text class="black-text title" x="90" y="1020" font-size="15" letter-spacing="1px">LEASE, RENT &amp; BILLING</text>
+    <text class="muted-text body" x="90" y="1042" font-size="11">Rent, CAM, NNN, COI, lease questions</text>
+    <line x1="90" y1="1056" x2="465" y2="1056" class="divider"/>
+    <text class="red-text label" x="90" y="1078" font-size="11">PRIMARY</text>
+    <text class="black-text body" x="175" y="1078" font-size="12">Bluestone</text>
+    <text class="red-text label" x="90" y="1100" font-size="11">LEASE-SPECIFIC</text>
+    <text class="black-text body" x="225" y="1100" font-size="12">Your assigned PM at Bluestone</text>
+    <text class="muted-text body" x="90" y="1120" font-size="11">Use your AppFolio portal for payments and documents.</text>
+  </g>
+
+  <!-- Card 10: General Inquiries -->
+  <g>
+    <rect class="card-bg" x="515" y="990" width="455" height="140" rx="4"/>
+    <rect class="red" x="515" y="990" width="40" height="140" rx="4"/>
+    <rect class="red" x="545" y="990" width="15" height="140"/>
+    <text class="white-text title" x="535" y="1068" font-size="20" text-anchor="middle" transform="rotate(-90 535 1068)">10</text>
+    <text class="black-text title" x="575" y="1020" font-size="15" letter-spacing="1px">GENERAL INQUIRIES</text>
+    <text class="muted-text body" x="575" y="1042" font-size="11">Doesn't fit elsewhere, or flag for ownership</text>
+    <line x1="575" y1="1056" x2="950" y2="1056" class="divider"/>
+    <text class="red-text label" x="575" y="1078" font-size="11">EMAIL</text>
+    <text class="black-text body" x="645" y="1078" font-size="12">inquiries@forgesalem.com</text>
+    <text class="red-text label" x="575" y="1100" font-size="11">RESPONSE</text>
+    <text class="black-text body" x="675" y="1100" font-size="12">Within 2 business days</text>
+  </g>
+
+  <!-- Footer bar -->
+  <rect class="black" x="0" y="1180" width="1000" height="100"/>
+  <line x1="40" y1="1200" x2="960" y2="1200" stroke="#C0272D" stroke-width="1.5"/>
+  <text class="white-text label" x="40" y="1228" font-size="12" letter-spacing="2px">QUICK REFERENCE</text>
+  <text class="white-text body" x="40" y="1250" font-size="12">911 emergency  &#8226;  Bluestone 503-222-3800 after hours  &#8226;  Salem PD non-emergency 503-588-6123</text>
+  <text class="white-text body" x="40" y="1268" font-size="11" opacity="0.7">forgesalem.com  &#8226;  inquiries@forgesalem.com</text>
+  </g>
+</svg>

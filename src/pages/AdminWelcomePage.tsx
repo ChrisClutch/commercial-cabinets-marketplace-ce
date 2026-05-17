@@ -95,6 +95,8 @@ export default function AdminWelcomePage() {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, status } : m))
   }
 
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+
   const pendingCount     = messages.filter(m => m.status === 'pending').length
   const filteredMessages = filter === 'all' ? messages : messages.filter(m => m.status === filter)
 
@@ -129,6 +131,35 @@ export default function AdminWelcomePage() {
           Sign Out
         </button>
       </header>
+
+      {/* ── Lightbox ── */}
+      {lightboxUrl && (
+        <div
+          onClick={() => setLightboxUrl(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(0,0,0,0.88)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '2rem', cursor: 'zoom-out',
+          }}
+        >
+          <img
+            src={lightboxUrl}
+            alt="Full size"
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: '4px' }}
+          />
+          <button
+            onClick={() => setLightboxUrl(null)}
+            style={{
+              position: 'absolute', top: '1rem', right: '1.25rem',
+              background: 'none', border: 'none', color: '#7a8a95',
+              fontSize: '1.5rem', cursor: 'pointer', lineHeight: 1,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* ── Main ── */}
       <main style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
@@ -321,7 +352,11 @@ export default function AdminWelcomePage() {
                         <img
                           src={msg.photo_url}
                           alt="Attached"
-                          style={{ height: '72px', width: 'auto', borderRadius: '3px', objectFit: 'cover', marginTop: '0.15rem' }}
+                          onClick={() => setLightboxUrl(msg.photo_url)}
+                          style={{
+                            height: '72px', width: 'auto', borderRadius: '3px', objectFit: 'cover',
+                            marginTop: '0.15rem', cursor: 'zoom-in',
+                          }}
                         />
                       )}
 
@@ -372,6 +407,36 @@ export default function AdminWelcomePage() {
           </div>
 
         </div>
+
+        {/* ── Tenant Communication Tree ── */}
+        <div style={{
+          marginTop: '1.5rem',
+          background: '#1f2e3c', border: '1px solid #2a3540', borderRadius: '4px', overflow: 'hidden',
+        }}>
+          <div style={{
+            padding: '1rem 1.25rem', borderBottom: '1px solid #2a3540',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <span style={{ color: '#e10600' }}>◇</span>
+              <span style={{ fontSize: '0.68rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#b7c0c8' }}>
+                Tenant Communication Tree
+              </span>
+            </div>
+            <span style={{ fontSize: '0.62rem', color: '#3c4b59', letterSpacing: '0.06em' }}>
+              Click to expand
+            </span>
+          </div>
+          <div style={{ padding: '1.25rem' }}>
+            <img
+              src="/images/admin/forge_comms_tree.svg"
+              alt="Tenant Communication Tree"
+              onClick={() => setLightboxUrl('/images/admin/forge_comms_tree.svg')}
+              style={{ width: '100%', display: 'block', borderRadius: '3px', cursor: 'zoom-in' }}
+            />
+          </div>
+        </div>
+
       </main>
     </div>
   )
