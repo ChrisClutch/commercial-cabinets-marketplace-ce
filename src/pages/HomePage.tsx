@@ -57,6 +57,8 @@ export default function HomePage() {
     return () => observer.disconnect()
   }, [navigate])
 
+  const [videoEnded, setVideoEnded] = useState(false)
+
   const [filter, setFilter] = useState('all')
   const [nlSubmitted, setNlSubmitted] = useState(false)
   const [nlEmail, setNlEmail] = useState('')
@@ -165,6 +167,20 @@ export default function HomePage() {
       {/* HERO */}
       <section id="hero">
         <div className="hero-bg" />
+        <video
+          src="/images/the_forge_hero.mp4"
+          autoPlay
+          muted
+          playsInline
+          onEnded={() => setVideoEnded(true)}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center 70%',
+            opacity: videoEnded ? 0 : 1,
+            transition: 'opacity 1.5s ease',
+          }}
+        />
         <div className="hero-overlay" />
         <div className="hero-content">
           <img
