@@ -885,7 +885,7 @@ behold-widget { --behold-num-cols: 6; --behold-gap: 3px; display: block; width: 
   .dir-intro { grid-template-columns: 1fr; gap: 1.5rem; }
   .info-grid { grid-template-columns: 1fr 1fr; }
   .ladies-split { grid-template-columns: 1fr; }
-  .ladies-imgs { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 220px); min-height: unset; width: 100%; }
+  .ladies-imgs { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 220px); min-height: 442px; height: 442px; width: 100%; }
   .ladies-imgs img:first-child { grid-row: span 2; }
   .ladies-info { padding: 3.5rem 3rem; }
 }
@@ -928,7 +928,7 @@ behold-widget { --behold-num-cols: 6; --behold-gap: 3px; display: block; width: 
   .clink-img { min-height: 360px; }
   .clink-info { padding: 3.5rem 1.5rem; }
   .ladies-split { grid-template-columns: 1fr; align-items: start; }
-  .ladies-imgs { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 180px); min-height: unset; }
+  .ladies-imgs { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 180px); min-height: 362px; height: 362px; }
   .ladies-imgs img:first-child { grid-row: span 2; }
   .ladies-info { padding: 3rem 1.5rem; }
   .event-types { grid-template-columns: 1fr; }
