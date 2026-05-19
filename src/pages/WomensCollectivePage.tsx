@@ -86,34 +86,42 @@ export default function WomensCollectivePage() {
             Independent practitioners. Curated community. Twenty-four reasons to make the second floor part of your routine.
           </p>
         </div>
-        <div className="tenant-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
+        <div className="tenant-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
           {[
-            { name: 'Halo Hair Studio',        type: 'Beauty & Salon',     suite: 'Suite 200' },
-            { name: 'Capital Mortgage Source', type: 'Financial',           suite: 'Suite 202' },
-            { name: 'Bungalow',                type: 'Health & Wellness',   suite: 'Suite 204' },
-            { name: 'Injection Studio',        type: 'Health & Wellness',   suite: 'Suite 208' },
-            { name: 'Allelu',                  type: 'Beauty & Salon',     suite: 'Suite 210' },
-            { name: 'Luxe Lash Studio',        type: 'Beauty & Salon',     suite: 'Suite 216' },
-            { name: 'Neon Republic Salon',     type: 'Beauty & Salon',     suite: 'Suite 218' },
-            { name: 'BLND',                    type: 'Beauty & Salon',     suite: 'Suite 222' },
-            { name: 'Clink!',                  type: 'Events & Venues',    suite: 'Suite 230' },
-            { name: 'Ivory Hair Co.',          type: 'Beauty & Salon',     suite: 'Suite 240' },
-            { name: 'The Esthetic Gallery',    type: 'Health & Wellness',   suite: 'Suite 250' },
-            { name: 'Full Circle Stretching',  type: 'Health & Wellness',   suite: 'Suite 252' },
-            { name: 'Shanti Soul Counseling',  type: 'Health & Wellness',   suite: 'Suite 254' },
-            { name: 'Studio Roux',             type: 'Beauty & Salon',     suite: 'Suite 256' },
-            { name: 'Kimmy Neal Marketing',    type: 'Office & Services',  suite: 'Suite 258' },
-            { name: 'Diosa Luxury Hair Lounge',type: 'Beauty & Salon',     suite: 'Suite 260' },
-            { name: 'Radiance by Ray',         type: 'Health & Wellness',   suite: 'Suite 262' },
-            { name: 'Satin & Stone',           type: 'Health & Wellness',   suite: 'Suite 264' },
-            { name: 'HH Aesthetics',           type: 'Health & Wellness',   suite: 'Suite 266' },
-            { name: 'The Hot Loft',            type: 'Health & Wellness',   suite: 'Suite 270' },
-            { name: 'PNW Smiles',              type: 'Health & Wellness',   suite: 'Suite 272' },
+            { name: 'Halo Hair Studio',        type: 'Beauty & Salon',    suite: 'Suite 200', logo: 'directory/second_floor/Halo_Hair_Studio.webp',          logoCircle: true,  website: 'https://halosalonsalem.com/' },
+            { name: 'Capital Mortgage Source', type: 'Financial',          suite: 'Suite 202', logo: 'directory/second_floor/Capital_Mortgage_Source.webp',                      website: 'https://capitalmortgagesource.com/' },
+            { name: 'Bungalow',                type: 'Health & Wellness',  suite: 'Suite 204', logo: 'directory/second_floor/Bungalow.webp',                  logoCircle: true,  website: 'https://www.instagram.com/thebungalow.hairstudio' },
+            { name: 'Injection Studio',        type: 'Health & Wellness',  suite: 'Suite 208', logo: 'directory/second_floor/Injection_Studio.webp',                             website: 'https://www.instagram.com/theinjectionstudiobymj/' },
+            { name: 'Allelu',                  type: 'Beauty & Salon',    suite: 'Suite 210', logo: 'directory/second_floor/Allelu.webp',                                       website: 'https://www.allelubeauty.com/' },
+            { name: 'The Magnetic Club',       type: 'Community',          suite: 'Suite 212', logo: 'directory/The Magnetic Club Logo.webp',                logoCircle: true,  website: 'https://stan.store/kimmyneal' },
+            { name: 'Satin & Stone',           type: 'Health & Wellness',  suite: 'Suite 214', logo: 'directory/second_floor/Satin_Stone.webp',              logoCircle: true,  website: 'https://www.satinandstone.net/' },
+            { name: 'Luxe Lash Studio',        type: 'Beauty & Salon',    suite: 'Suite 216', logo: 'directory/second_floor/Luxe_Lash_Studio.webp',          logoCircle: true,  website: 'https://www.luxelashstudiosalem.com/' },
+            { name: 'Neon Republic Salon',     type: 'Beauty & Salon',    suite: 'Suite 218', logo: 'directory/second_floor/Neon_Republic_Salon.webp',       logoCircle: true,  website: 'https://neonrepublicsalon.glossgenius.com/' },
+            { name: 'BLND',                    type: 'Beauty & Salon',    suite: 'Suite 222', logo: 'directory/second_floor/BLND.webp',                      logoCircle: true,  website: 'https://www.instagram.com/blnd.colorsuite/' },
+            { name: 'Clink!',                  type: 'Events & Venues',   suite: 'Suite 230', logo: 'directory/second_floor/Clink1.webp',                    logoCircle: true,  website: 'https://clinksalem.com/' },
+            { name: 'Ivory Hair Co.',          type: 'Beauty & Salon',    suite: 'Suite 240', logo: 'directory/second_floor/Ivory_Hair_Co.webp',                               website: 'https://www.theivoryhairco.com/' },
+            { name: 'The Esthetic Gallery',    type: 'Health & Wellness',  suite: 'Suite 250', logo: 'directory/second_floor/The_Esthetic_Gallery.webp',     logoCircle: true,  website: 'https://www.instagram.com/theestheticgallery/' },
+            { name: 'Full Circle Stretching',  type: 'Health & Wellness',  suite: 'Suite 252', logo: 'directory/second_floor/Full_Circle_Stretching.webp',                      website: 'https://www.fcstretching.com/' },
+            { name: 'Shanti Soul Counseling',  type: 'Health & Wellness',  suite: 'Suite 254', logo: 'directory/second_floor/Shanti_Soul_Counseling.webp',   logoCircle: true,  website: 'https://shantisoulcounseling.com/' },
+            { name: 'Studio Roux',             type: 'Beauty & Salon',    suite: 'Suite 256', logo: 'directory/second_floor/Studio_Roux.webp',               logoCircle: true,  website: 'https://studiorouxsalem.as.me/' },
+{ name: 'Diosa Luxury Hair Lounge',type: 'Beauty & Salon',    suite: 'Suite 260', logo: 'directory/second_floor/Diosa_Luxury_Hair_Lounge.webp',                     website: 'https://krystalmariehair.glossgenius.com/' },
+            { name: 'Radiance by Ray',         type: 'Health & Wellness',  suite: 'Suite 262', logo: 'directory/second_floor/Radiance_by_Ray.webp',                             website: 'https://raelynjo.glossgenius.com/' },
+            { name: 'HH Aesthetics',           type: 'Health & Wellness',  suite: 'Suite 266', logo: 'directory/second_floor/HH_Aesthetics.webp',            logoCircle: true,  website: 'https://www.hhaesthetics.net/' },
+            { name: 'The Hot Loft',            type: 'Health & Wellness',  suite: 'Suite 270', logo: 'directory/second_floor/Hot_Loft.webp',                 logoCircle: true,  website: 'https://www.thehotloft.com/' },
+            { name: 'PNW Smiles',              type: 'Health & Wellness',  suite: 'Suite 272', logo: 'directory/second_floor/PNW_smiles.webp',               logoCircle: true,  website: 'https://www.instagram.com/pnw.smiles/' },
           ].map((t, i) => (
             <div className="tenant-card section--paper" key={i} style={{ padding: '1.4rem 1.4rem' }}>
+              {t.logo && (
+                <div className={`dir-tenant-logo${t.logoCircle ? ' dir-tenant-logo--circle' : ''}`}>
+                  <img src={img(t.logo)} alt={`${t.name} logo`} />
+                </div>
+              )}
               <div className="tenant-card-name" style={{ fontSize: '1rem' }}>{t.name}</div>
               <div className="tenant-card-type">{t.type}</div>
               <div className="tenant-card-desc">{t.suite}</div>
+              {t.website && (
+                <a href={t.website} target="_blank" rel="noopener" className="dir-tenant-link">Visit Website →</a>
+              )}
             </div>
           ))}
         </div>

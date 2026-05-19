@@ -159,7 +159,7 @@ const TENANTS: Tenant[] = [
   },
   {
     floor: 'Ground Floor', floorKey: 'ground-floor',
-    name: 'Ivory Bull', category: 'Food & Drink', categoryKey: 'food-drink',
+    name: 'Ivory Bull', category: 'Retail', categoryKey: 'retail',
     suite: 'Suite 133',
     logo: 'directory/first_floor/ivory_bull_logo.webp',
     logoCircle: true,
@@ -200,7 +200,7 @@ const TENANTS: Tenant[] = [
   },
   {
     floor: 'Ground Floor', floorKey: 'ground-floor',
-    name: 'Noira', category: 'Retail', categoryKey: 'retail',
+    name: 'Noira', category: 'Food & Drink', categoryKey: 'food-drink',
     suite: 'Suite 135',
     logo: 'directory/first_floor/noira_logo.webp',
     website: 'https://www.barnoira.com/',
@@ -270,10 +270,10 @@ const TENANTS: Tenant[] = [
   {
     floor: 'The Forge', floorKey: 'the-forge',
     name: 'The Magnetic Club', category: 'Community', categoryKey: 'community',
-    suite: 'Suite 210',
+    suite: 'Suite 212',
     logo: 'directory/The Magnetic Club Logo.webp',
     logoCircle: true,
-    comingSoon: true,
+    website: 'https://stan.store/kimmyneal',
   },
   {
     floor: 'Second Floor', floorKey: 'second-floor',

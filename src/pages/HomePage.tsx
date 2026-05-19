@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 
 declare global {
   namespace JSX {
@@ -11,10 +11,23 @@ import { Link, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import { img } from '../utils/img'
+import { supabase } from '../lib/supabase'
 
-import { allEvents } from '../data/events'
+type SupabaseMessage = {
+  id: string
+  name: string
+  message: string
+  photo_url: string | null
+  submitted_at: string
+}
+
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
+const allEvents = [
+  { date: '2026-05-16', title: 'Grand Opening — Day 2', venue: 'The Forge', category: 'events', desc: 'Day two of The Forge Grand Opening celebration.' },
+  { date: '2026-05-30', title: 'Women\'s Boxing and Yoga', venue: 'The Forge', category: 'events', desc: 'Join us for a empowering session of boxing and yoga tailored for women.' },
+]
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -44,9 +57,34 @@ export default function HomePage() {
     return () => observer.disconnect()
   }, [navigate])
 
+  const [videoEnded, setVideoEnded] = useState(false)
+
   const [filter, setFilter] = useState('all')
   const [nlSubmitted, setNlSubmitted] = useState(false)
   const [nlEmail, setNlEmail] = useState('')
+
+  const [approvedMessages, setApprovedMessages] = useState<SupabaseMessage[]>([])
+  const [loadingMessages, setLoadingMessages] = useState(true)
+  const [boardName, setBoardName] = useState('')
+  const [boardMessage, setBoardMessage] = useState('')
+  const [boardFile, setBoardFile] = useState<File | null>(null)
+  const [boardImagePreview, setBoardImagePreview] = useState('')
+  const [boardSubmitted, setBoardSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const boardFileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    supabase
+      .from('community_messages')
+      .select('id, name, message, photo_url, submitted_at')
+      .eq('status', 'approved')
+      .order('submitted_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setApprovedMessages(data)
+        setLoadingMessages(false)
+      })
+  }, [])
 
   const filteredEvents = allEvents
     .filter(e => filter === 'all' || e.category === filter)
@@ -58,6 +96,70 @@ export default function HomePage() {
     setNlEmail('')
   }
 
+  function handleBoardImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBoardFile(file)
+    setBoardImagePreview(URL.createObjectURL(file))
+  }
+
+  function clearImage() {
+    setBoardFile(null)
+    setBoardImagePreview('')
+    if (boardFileRef.current) boardFileRef.current.value = ''
+  }
+
+  async function handleBoardSubmit(e: FormEvent) {
+    e.preventDefault()
+    if (submitting) return
+    setSubmitting(true)
+    setSubmitError('')
+
+    let photo_url: string | null = null
+
+    if (boardFile) {
+      const ext = boardFile.name.split('.').pop()?.toLowerCase()
+      const allowed = ['jpg', 'jpeg', 'png', 'webp']
+      if (!ext || !allowed.includes(ext)) {
+        setSubmitError('Only JPG, PNG, and WebP images are allowed.')
+        setSubmitting(false)
+        return
+      }
+      if (boardFile.size > 8 * 1024 * 1024) {
+        setSubmitError('Image must be under 8 MB.')
+        setSubmitting(false)
+        return
+      }
+      const filename = `${crypto.randomUUID()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('community-photos')
+        .upload(filename, boardFile)
+      if (uploadError) {
+        setSubmitError('Image upload failed. Please try again.')
+        setSubmitting(false)
+        return
+      }
+      photo_url = supabase.storage.from('community-photos').getPublicUrl(filename).data.publicUrl
+    }
+
+    const { error } = await supabase.from('community_messages').insert({
+      name: boardName.trim() || 'Anonymous',
+      message: boardMessage.trim(),
+      photo_url,
+    })
+
+    setSubmitting(false)
+    if (error) {
+      setSubmitError('Something went wrong. Please try again.')
+      return
+    }
+
+    setBoardSubmitted(true)
+    setBoardName('')
+    setBoardMessage('')
+    clearImage()
+  }
+
   return (
     <>
       <Nav />
@@ -65,6 +167,20 @@ export default function HomePage() {
       {/* HERO */}
       <section id="hero">
         <div className="hero-bg" />
+        <video
+          src="/images/the_forge_hero.mp4"
+          autoPlay
+          muted
+          playsInline
+          onEnded={() => setVideoEnded(true)}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center 70%',
+            opacity: videoEnded ? 0 : 1,
+            transition: 'opacity 1.5s ease',
+          }}
+        />
         <div className="hero-overlay" />
         <div className="hero-content">
           <img
@@ -179,6 +295,151 @@ export default function HomePage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* COMMUNITY BOARD */}
+      <section className="section section--paper" id="community" style={{ paddingTop: '3rem', background: 'var(--cream)' }}>
+        <div className="events-header">
+          <div>
+            <span className="section-label">From Our Community</span>
+            <h2 className="section-title">Community Board</h2>
+          </div>
+          <p style={{ fontFamily: 'var(--display)', fontSize: '1rem', fontWeight: 400, letterSpacing: '0.06em', color: 'var(--ink)' }}>
+            Share your experience
+          </p>
+        </div>
+
+        {/* Approved messages grid */}
+        {loadingMessages && (
+          <p style={{ fontSize: '0.78rem', color: 'rgba(183,192,200,0.5)', marginBottom: '1.5rem' }}>Loading messages…</p>
+        )}
+        {!loadingMessages && approvedMessages.length > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
+            {approvedMessages.map(msg => (
+              <div key={msg.id} style={{ background: '#fff', border: '1px solid #e8e2d9', borderRadius: '6px', overflow: 'hidden' }}>
+                {msg.photo_url && (
+                  <img src={msg.photo_url} alt="" style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
+                )}
+                <div style={{ padding: '1.25rem' }}>
+                  <p style={{
+                    fontFamily: 'var(--display)', fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)',
+                    fontStyle: 'italic', color: 'var(--ink)', lineHeight: 1.7, marginBottom: '0.75rem',
+                  }}>
+                    "{msg.message}"
+                  </p>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em' }}>— {msg.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Submission form */}
+        <div style={{ background: 'var(--void)', borderRadius: '6px', padding: '2rem 2.25rem', maxWidth: '560px' }}>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: '1.4rem', fontWeight: 300, color: '#f3eedf', marginBottom: '0.4rem' }}>
+            Leave a Note
+          </h3>
+          <p style={{ fontSize: '0.75rem', color: 'rgba(183,192,200,0.55)', marginBottom: '1.5rem', fontWeight: 300 }}>
+            Your message will appear here after review.
+          </p>
+
+          {boardSubmitted ? (
+            <p style={{ fontSize: '0.85rem', color: '#5aac7a', fontWeight: 400, letterSpacing: '0.04em' }}>
+              ✓ Thanks! Your note is pending review.
+            </p>
+          ) : (
+            <form onSubmit={handleBoardSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+              <input
+                type="text"
+                placeholder="Your name (optional)"
+                value={boardName}
+                onChange={e => setBoardName(e.target.value)}
+                maxLength={120}
+                style={{
+                  background: '#1f2e3c', border: '1px solid #2a3540', borderRadius: '3px',
+                  color: '#f3eedf', fontSize: '0.82rem', padding: '0.65rem 0.9rem',
+                  outline: 'none', fontFamily: 'Inter, system-ui, sans-serif',
+                }}
+              />
+              <textarea
+                placeholder="Share your experience at The Forge…"
+                required
+                value={boardMessage}
+                onChange={e => setBoardMessage(e.target.value)}
+                maxLength={2000}
+                rows={3}
+                style={{
+                  background: '#1f2e3c', border: '1px solid #2a3540', borderRadius: '3px',
+                  color: '#f3eedf', fontSize: '0.82rem', padding: '0.65rem 0.9rem',
+                  outline: 'none', fontFamily: 'Inter, system-ui, sans-serif',
+                  resize: 'vertical', lineHeight: 1.6,
+                }}
+              />
+
+              {/* Image upload */}
+              <div>
+                <input
+                  ref={boardFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleBoardImage}
+                  style={{ display: 'none' }}
+                  id="board-image-upload"
+                />
+                <label
+                  htmlFor="board-image-upload"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                    background: 'none', border: '1px solid #2a3540', borderRadius: '3px',
+                    color: boardFile ? '#5aac7a' : '#7a8a95',
+                    fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                    padding: '0.55rem 1rem', cursor: 'pointer',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                  }}
+                >
+                  {boardFile ? '✓ Image attached' : '+ Attach image'}
+                </label>
+                {boardFile && (
+                  <button
+                    type="button"
+                    onClick={clearImage}
+                    style={{
+                      background: 'none', border: 'none', color: '#7a8a95',
+                      fontSize: '0.65rem', cursor: 'pointer', marginLeft: '0.75rem',
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
+                {boardImagePreview && (
+                  <div style={{ marginTop: '0.65rem' }}>
+                    <img src={boardImagePreview} alt="Preview" style={{ height: '80px', width: 'auto', borderRadius: '3px', objectFit: 'cover' }} />
+                  </div>
+                )}
+              </div>
+
+              {submitError && (
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#e10600' }}>{submitError}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{
+                  alignSelf: 'flex-start', background: 'var(--cherry)', color: '#fff',
+                  border: 'none', borderRadius: '3px', padding: '0.65rem 1.6rem',
+                  fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600,
+                  opacity: submitting ? 0.7 : 1,
+                }}
+              >
+                {submitting ? 'Submitting…' : 'Submit'}
+              </button>
+            </form>
+          )}
+        </div>
       </section>
 
       {/* SOCIAL */}
