@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { img } from '../utils/img'
 import { allEvents } from '../data/events'
 import { supabase } from '../lib/supabase'
@@ -180,7 +181,9 @@ export default function InformationPage() {
         display: 'flex', flexDirection: 'column', gap: '0.5rem',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <img src={img('logo2.webp')} alt="The Forge" style={{ height: '40px', width: 'auto' }} />
+          <Link to="/">
+            <img src={img('logo2.webp')} alt="The Forge" style={{ height: '40px', width: 'auto', display: 'block' }} />
+          </Link>
           <span style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#7a8a95' }}>
             Visitor Guide
           </span>
