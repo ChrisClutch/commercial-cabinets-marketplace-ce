@@ -180,7 +180,7 @@ export default function HomePage() {
       <section id="hero">
         <video
           ref={videoRef}
-          src="/images/the_forge_hero.mp4"
+          src="/images/forge_hero.mp4"
           autoPlay
           muted
           playsInline
