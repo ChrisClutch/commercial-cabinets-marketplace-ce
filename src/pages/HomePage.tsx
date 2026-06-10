@@ -227,7 +227,7 @@ export default function HomePage() {
             <div className="floor-card-body">
               <span className="floor-level">Ground Floor</span>
               <div className="floor-name">Dining &amp;<br />The Heart</div>
-              <div className="floor-tenants">Bonzai! · Jade Dumplings · Dreamies Creamery<br />Retail · Boutiques · Services</div>
+              <div className="floor-tenants">Bonzai! · Jade Dumpling & Noodle House · Dreamies Creamery<br />Retail · Boutiques · Services</div>
               <span className="floor-explore">Explore</span>
             </div>
           </Link>
@@ -491,13 +491,13 @@ export default function HomePage() {
               <div>
                 <span style={{ fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: '0.3rem' }}>Hours</span>
                 <p style={{ fontSize: '0.87rem', fontWeight: 300, lineHeight: 2 }}>
-                  Monday: 8:00 AM – 7:00 PM<br />
+                  Monday: 8:00 AM – 9:00 PM<br />
                   Tuesday: 8:00 AM – 7:00 PM<br />
                   Wednesday: 8:00 AM – 9:00 PM<br />
                   Thursday: 8:00 AM – 9:00 PM<br />
-                  Friday: 8:00 AM – 9:00 PM<br />
-                  Saturday: 8:30 AM – 9:00 PM<br />
-                  Sunday: 8:30 AM – 9:00 PM
+                  Friday: 8:00 AM – 10:00 PM<br />
+                  Saturday: 8:00 AM – 10:00 PM<br />
+                  Sunday: 8:00 AM – 9:00 PM
                 </p>
               </div>
             </div>

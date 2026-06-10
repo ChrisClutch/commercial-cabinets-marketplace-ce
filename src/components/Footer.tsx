@@ -33,6 +33,9 @@ export default function Footer() {
           <div className="footer-social">
             <a href="https://www.facebook.com/theforgesalem/" target="_blank" rel="noopener">Facebook</a>
             <a href="https://www.instagram.com/theforgesalem/" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://www.tiktok.com/@theforgesalem" target="_blank" rel="noopener">TikTok</a>
+            <a href="https://www.youtube.com/@TheForgeSalem" target="_blank" rel="noopener">YouTube</a>
+            <a href="https://www.linkedin.com/company/the-forge-salem" target="_blank" rel="noopener">LinkedIn</a>
             <a href="https://www.instagram.com/clinksalem/" target="_blank" rel="noopener">Clink!</a>
           </div>
         </div>

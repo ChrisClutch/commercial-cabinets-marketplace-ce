@@ -18,7 +18,7 @@ export default function WomensCollectivePage() {
         <div className="page-hero-content">
           <span className="page-floor-label" style={{ color: 'var(--confidence)' }}>Second Floor · 285 Liberty St. N.E.</span>
           <h1 className="page-title">Women's<br />Collective</h1>
-          <p className="page-tagline">Twenty-four suites. A champagne bar. The best bathroom in Oregon. The second floor has opinions.</p>
+          <p className="page-tagline">Twenty-three suites. A champagne bar. The best bathroom in Oregon. The second floor has opinions.</p>
         </div>
       </div>
 
@@ -36,7 +36,7 @@ export default function WomensCollectivePage() {
         </div>
         <div>
           <p style={{ fontSize: '.95rem', lineHeight: 1.85, opacity: .85, marginBottom: '1rem' }}>
-            The second floor of The Forge is home to Salem's most curated gathering of wellness, beauty, and community. Twenty-four suites house independent practitioners who chose this floor because they wanted to be part of something larger than their own four walls.
+            The second floor of The Forge is home to Salem's most curated gathering of wellness, beauty, and community. Twenty-three suites house independent practitioners who chose this floor because they wanted to be part of something larger than their own four walls.
           </p>
           <p style={{ fontSize: '.95rem', lineHeight: 1.85, opacity: .85 }}>
             From Clink!'s cherry blossom champagne bar to The Hot Loft's 6am infrared pilates to Luxe Lash's perpetual waiting list — this floor has range. Come up for one thing. Leave having found three more.
@@ -83,7 +83,7 @@ export default function WomensCollectivePage() {
             <h2 className="section-title">The Suites</h2>
           </div>
           <p style={{ fontSize: '.82rem', color: 'var(--muted)', maxWidth: '320px', textAlign: 'right', lineHeight: 1.6 }}>
-            Independent practitioners. Curated community. Twenty-four reasons to make the second floor part of your routine.
+            Independent practitioners. Curated community. Twenty-three reasons to make the second floor part of your routine.
           </p>
         </div>
         <div className="tenant-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
@@ -92,7 +92,7 @@ export default function WomensCollectivePage() {
             { name: 'Capital Mortgage Source', type: 'Financial',          suite: 'Suite 202', logo: 'directory/second_floor/Capital_Mortgage_Source.webp',                      website: 'https://capitalmortgagesource.com/' },
             { name: 'Bungalow',                type: 'Health & Wellness',  suite: 'Suite 204', logo: 'directory/second_floor/Bungalow.webp',                  logoCircle: true,  website: 'https://www.instagram.com/thebungalow.hairstudio' },
             { name: 'Injection Studio',        type: 'Health & Wellness',  suite: 'Suite 208', logo: 'directory/second_floor/Injection_Studio.webp',                             website: 'https://www.instagram.com/theinjectionstudiobymj/' },
-            { name: 'Allelu',                  type: 'Beauty & Salon',    suite: 'Suite 210', logo: 'directory/second_floor/Allelu.webp',                                       website: 'https://www.allelubeauty.com/' },
+            { name: 'Allelu Beauty & Ink',     type: 'Beauty & Salon',    suite: 'Suite 210', logo: 'directory/second_floor/Allelu.webp',                                       website: 'https://www.allelubeauty.com/' },
             { name: 'The Magnetic Club',       type: 'Community',          suite: 'Suite 212', logo: 'directory/The Magnetic Club Logo.webp',                logoCircle: true,  website: 'https://stan.store/kimmyneal' },
             { name: 'Satin & Stone',           type: 'Health & Wellness',  suite: 'Suite 214', logo: 'directory/second_floor/Satin_Stone.webp',              logoCircle: true,  website: 'https://www.satinandstone.net/' },
             { name: 'Luxe Lash Studio',        type: 'Beauty & Salon',    suite: 'Suite 216', logo: 'directory/second_floor/Luxe_Lash_Studio.webp',          logoCircle: true,  website: 'https://www.luxelashstudiosalem.com/' },
@@ -100,10 +100,12 @@ export default function WomensCollectivePage() {
             { name: 'BLND',                    type: 'Beauty & Salon',    suite: 'Suite 222', logo: 'directory/second_floor/BLND.webp',                      logoCircle: true,  website: 'https://www.instagram.com/blnd.colorsuite/' },
             { name: 'Clink!',                  type: 'Events & Venues',   suite: 'Suite 230', logo: 'directory/second_floor/Clink1.webp',                    logoCircle: true,  website: 'https://clinksalem.com/' },
             { name: 'Ivory Hair Co.',          type: 'Beauty & Salon',    suite: 'Suite 240', logo: 'directory/second_floor/Ivory_Hair_Co.webp',                               website: 'https://www.theivoryhairco.com/' },
-            { name: 'The Esthetic Gallery',    type: 'Health & Wellness',  suite: 'Suite 250', logo: 'directory/second_floor/The_Esthetic_Gallery.webp',     logoCircle: true,  website: 'https://www.instagram.com/theestheticgallery/' },
+            { name: 'Moth Wing Tattoo',        type: 'Beauty & Salon',    suite: 'Suite 250', logo: 'directory/second_floor/Moth_Wing_Tattoo.webp',       logoCircle: true,  website: 'https://www.instagram.com/mckay.lines/' },
+            { name: 'The Esthetic Gallery',    type: 'Health & Wellness',  suite: 'Suite 264', logo: 'directory/second_floor/The_Esthetic_Gallery.webp',     logoCircle: true,  website: 'https://www.instagram.com/theestheticgallery/' },
             { name: 'Full Circle Stretching',  type: 'Health & Wellness',  suite: 'Suite 252', logo: 'directory/second_floor/Full_Circle_Stretching.webp',                      website: 'https://www.fcstretching.com/' },
             { name: 'Shanti Soul Counseling',  type: 'Health & Wellness',  suite: 'Suite 254', logo: 'directory/second_floor/Shanti_Soul_Counseling.webp',   logoCircle: true,  website: 'https://shantisoulcounseling.com/' },
             { name: 'Studio Roux',             type: 'Beauty & Salon',    suite: 'Suite 256', logo: 'directory/second_floor/Studio_Roux.webp',               logoCircle: true,  website: 'https://studiorouxsalem.as.me/' },
+            { name: 'Be Well Esthetics',       type: 'Beauty & Salon',    suite: 'Suite 258', logo: 'directory/second_floor/Be_Well_Esthetics.webp',      logoCircle: true,  website: 'https://www.instagram.com/bewellesthetics/' },
 { name: 'Diosa Luxury Hair Lounge',type: 'Beauty & Salon',    suite: 'Suite 260', logo: 'directory/second_floor/Diosa_Luxury_Hair_Lounge.webp',                     website: 'https://krystalmariehair.glossgenius.com/' },
             { name: 'Radiance by Ray',         type: 'Health & Wellness',  suite: 'Suite 262', logo: 'directory/second_floor/Radiance_by_Ray.webp',                             website: 'https://raelynjo.glossgenius.com/' },
             { name: 'HH Aesthetics',           type: 'Health & Wellness',  suite: 'Suite 266', logo: 'directory/second_floor/HH_Aesthetics.webp',            logoCircle: true,  website: 'https://www.hhaesthetics.net/' },
@@ -149,7 +151,7 @@ export default function WomensCollectivePage() {
 
       <div className="pull-quote" style={{ padding: '4rem var(--section-h)' }}>
         <div className="pull-quote-mark">"</div>
-        <p className="pull-quote-text">Twenty-four suites. A champagne bar. The best bathroom in Oregon. The second floor has opinions.</p>
+        <p className="pull-quote-text">Twenty-three suites. A champagne bar. The best bathroom in Oregon. The second floor has opinions.</p>
         <span className="pull-quote-attr">— The Forge Women's Collective</span>
       </div>
 

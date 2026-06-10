@@ -161,6 +161,7 @@ nav.nav--light { background: var(--void); }
 .btn--filled:hover { background: var(--cherry); border-color: var(--cherry); }
 .btn--ghost { border-color: rgba(250,245,241,0.4); color: #faf5f1; }
 .btn--ghost:hover { background: rgba(250,245,241,0.1); border-color: #faf5f1; }
+.btn--static:hover { background: var(--ink); border-color: var(--ink); color: var(--cream); }
 .btn--gold { border-color: var(--gold); color: var(--gold); }
 .btn--gold:hover { background: var(--gold); color: var(--void); border-color: var(--gold); }
 
@@ -317,7 +318,7 @@ nav.nav--light { background: var(--void); }
 .feature-body--void .feature-text,
 .feature-body--deep .feature-text { color: rgba(255,249,227,0.65); opacity: 1; }
 .feature-meta {
-  display: flex; gap: 3rem; margin: 2.2rem 0;
+  display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; margin: 2.2rem 0;
   padding-top: 2rem; border-top: 1px solid rgba(42,53,64,0.1);
 }
 .feature-body--void .feature-meta,
@@ -492,7 +493,7 @@ footer {
   text-transform: uppercase; color: rgba(250,245,241,0.2);
 }
 .footer-social {
-  display: flex; gap: 1.5rem; justify-content: flex-end; margin-top: 1.5rem;
+  display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; justify-content: flex-end; margin-top: 1.5rem; max-width: 220px; margin-left: auto;
 }
 .footer-social a {
   font-size: 0.58rem; font-weight: 500; letter-spacing: 0.15em;

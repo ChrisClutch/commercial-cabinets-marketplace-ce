@@ -35,7 +35,7 @@ const FLOORS = [
     level: 'GF',
     name: 'Ground Floor',
     tag: 'Dining · Retail · The Heart',
-    tenants: ['Bonzai!', 'Jade Dumplings', 'Dreamies Creamery', 'Retail & Boutiques'],
+    tenants: ['Bonzai!', 'Jade Dumpling & Noodle House', 'Dreamies Creamery', 'Retail & Boutiques'],
     note: 'Main entrance — 285 Liberty St. N.E.',
     accent: '#f3eedf',
   },

@@ -39,7 +39,7 @@ const FAQ_SECTIONS: FaqSection[] = [
           <table className="hours-table">
             <thead><tr><th>Day</th><th>Hours</th></tr></thead>
             <tbody>
-              {[['Monday','8:00 AM – 7:00 PM'],['Tuesday','8:00 AM – 7:00 PM'],['Wednesday','8:00 AM – 9:00 PM'],['Thursday','8:00 AM – 9:00 PM'],['Friday','8:00 AM – 9:00 PM'],['Saturday','8:30 AM – 9:00 PM'],['Sunday','8:30 AM – 9:00 PM']].map(([d,h]) => (
+              {[['Monday','8:00 AM – 9:00 PM'],['Tuesday','8:00 AM – 7:00 PM'],['Wednesday','8:00 AM – 9:00 PM'],['Thursday','8:00 AM – 9:00 PM'],['Friday','8:00 AM – 10:00 PM'],['Saturday','8:00 AM – 10:00 PM'],['Sunday','8:00 AM – 9:00 PM']].map(([d,h]) => (
                 <tr key={d}><td><strong>{d}</strong></td><td>{h}</td></tr>
               ))}
             </tbody>
@@ -61,7 +61,12 @@ const FAQ_SECTIONS: FaqSection[] = [
     items: [
       { q: 'Do I need an appointment to visit the Women\'s Collective?', a: "Most of the beauty and wellness suites are appointment-based — book directly with the individual tenant. Clink! is walk-in friendly, though reservations are recommended on weekends. The floor is open to browse and the energy is worth the trip even if you don't have an appointment." },
       { q: 'Are men welcome on the second floor?', a: "Absolutely. The Women's Collective is women-centric in spirit and programming, but the floor is open to everyone. Clink! welcomes all guests. The suites serve all clients. The remarkable bathroom is technically for the ladies, but we appreciate the admiration from everyone who hears about it." },
-      { q: 'Are there suites available for lease?', a: <>Yes — a small number of suites remain available. If you're a wellness or beauty professional looking to join the Collective, <a href="mailto:inquiries@forgesalem.com">email us</a> with your background and what you'd bring to the floor. We're selective but always interested in the right fit.</> },
+    ]
+  },
+  {
+    id: 'leasing', icon: '◧', title: 'Leasing',
+    items: [
+      { q: 'Are there suites available for lease?', a: <>Yes — there are a few first floor suites still available. <Link to="/leasing">Visit our leasing page</Link> to learn more and get in touch.</> },
     ]
   },
   {
@@ -87,6 +92,7 @@ export default function FaqPage() {
     'hours-0': true,
     'events-faq-0': true,
     'womens-collective-faq-0': true,
+    'leasing-0': true,
     'getting-here-0': true,
   })
   const [activeSidebarId, setActiveSidebarId] = useState('parking')
@@ -161,6 +167,9 @@ export default function FaqPage() {
                     <div className="contact-card"><strong>General Inquiries</strong><a href="mailto:inquiries@forgesalem.com">inquiries@forgesalem.com</a></div>
                     <div className="contact-card"><strong>Events &amp; Private Bookings</strong><a href="https://cellar54salem.com" target="_blank" rel="noopener">cellar54salem.com</a> · <a href="tel:5033023237">503-302-3237</a></div>
                     <div className="contact-card"><strong>Instagram</strong><a href="https://www.instagram.com/theforgesalem/" target="_blank" rel="noopener">@theforgesalem</a></div>
+                    <div className="contact-card"><strong>TikTok</strong><a href="https://www.tiktok.com/@theforgesalem" target="_blank" rel="noopener">@theforgesalem</a></div>
+                    <div className="contact-card"><strong>YouTube</strong><a href="https://www.youtube.com/@TheForgeSalem" target="_blank" rel="noopener">@TheForgeSalem</a></div>
+                    <div className="contact-card"><strong>LinkedIn</strong><a href="https://www.linkedin.com/company/the-forge-salem" target="_blank" rel="noopener">The Forge Salem</a></div>
                     <div className="contact-card"><strong>Website</strong><a href="https://forgesalem.com" target="_blank" rel="noopener">forgesalem.com</a></div>
                   </div>
                 </>

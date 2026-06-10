@@ -60,9 +60,13 @@ export default function Cellar54Page() {
           <p style={{ fontSize: '.95rem', lineHeight: 1.85, opacity: .85, marginBottom: '1rem' }}>
             The exposed brick, the intimate scale, the careful lighting — everything about Cellar 54 is designed to make your event feel deliberate and memorable. This is where milestones are celebrated, where deals get closed over dinner, and where weddings find the room that fits exactly right.
           </p>
-          <p style={{ fontSize: '.95rem', lineHeight: 1.85, opacity: .85 }}>
+          <p style={{ fontSize: '.95rem', lineHeight: 1.85, opacity: .85, marginBottom: '1.5rem' }}>
             Full-service events team. In-house catering coordination. A bar setup that means your guests never have to go far.
           </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <a href="https://cellar54salem.com" target="_blank" rel="noopener noreferrer" className="btn btn--cherry" style={{ background: 'var(--cherry)', color: '#fff' }}>Visit cellar54salem.com</a>
+            <a href="mailto:info@cellar54salem.com" className="btn btn--filled btn--static">Email Us!</a>
+          </div>
         </div>
       </div>
 
@@ -123,7 +127,7 @@ export default function Cellar54Page() {
         </div>
         <div className="booking-form-section">
           <h2>Inquire About<br />Your Event</h2>
-          <p>Tell us a bit about what you're planning. Our events team will be in touch within one business day.</p>
+          <p>Tell us a bit about what you're planning. Our events team will be in touch within one business day. You can also reach us directly at <a href="mailto:info@cellar54salem.com">info@cellar54salem.com</a> or visit <a href="https://cellar54salem.com" target="_blank" rel="noopener noreferrer">cellar54salem.com</a>.</p>
           {submitted ? (
             <div style={{ background: '#3a5a3a', color: '#fff', padding: '1.2rem 1.5rem', fontSize: '.9rem' }}>
               ✓ &nbsp;Inquiry sent — we'll be in touch within one business day.

@@ -22,24 +22,25 @@ type Tenant = {
 const TENANTS: Tenant[] = [
   {
     floor: 'Ground Floor', floorKey: 'ground-floor',
-    name: 'A Wonderful World', category: 'Retail', categoryKey: 'retail',
+    name: 'A Wonderful World PNW', category: 'Retail', categoryKey: 'retail',
     suite: 'Suite 145',
     logo: 'directory/first_floor/a_wonderful_world.webp',
     website: 'https://www.instagram.com/a_wonderful_world_pnw/',
   },
   {
     floor: 'Second Floor', floorKey: 'second-floor',
-    name: 'Allelu', category: 'Beauty & Salon', categoryKey: 'beauty-salon',
+    name: 'Allelu Beauty & Ink', category: 'Beauty & Salon', categoryKey: 'beauty-salon',
     suite: 'Suite 210',
     logo: 'directory/second_floor/Allelu.webp',
     website: 'https://www.allelubeauty.com/',
   },
   {
     floor: 'Ground Floor', floorKey: 'ground-floor',
-    name: 'Aloe', category: 'Health & Wellness', categoryKey: 'wellness',
+    name: 'Aloe Restorative Retreat', category: 'Health & Wellness', categoryKey: 'wellness',
     suite: 'Suite 160',
     logo: 'directory/first_floor/aloe_logo.webp',
     logoCircle: true,
+    logoStyle: { objectFit: 'contain', transform: 'scale(0.7)' },
     comingSoon: true,
   },
   {
@@ -49,6 +50,14 @@ const TENANTS: Tenant[] = [
     logoCircle: true,
     website: '#',
     link: '/anthem',
+  },
+  {
+    floor: 'Second Floor', floorKey: 'second-floor',
+    name: 'Be Well Esthetics', category: 'Beauty & Salon', categoryKey: 'beauty-salon',
+    suite: 'Suite 258',
+    logo: 'directory/second_floor/Be_Well_Esthetics.webp',
+    logoCircle: true,
+    website: 'https://www.instagram.com/bewellesthetics/',
   },
   {
     floor: 'Ground Floor', floorKey: 'ground-floor',
@@ -159,7 +168,7 @@ const TENANTS: Tenant[] = [
   },
   {
     floor: 'Ground Floor', floorKey: 'ground-floor',
-    name: 'Ivory Bull', category: 'Retail', categoryKey: 'retail',
+    name: 'Ivory Bull & Co', category: 'Retail', categoryKey: 'retail',
     suite: 'Suite 133',
     logo: 'directory/first_floor/ivory_bull_logo.webp',
     logoCircle: true,
@@ -175,11 +184,11 @@ const TENANTS: Tenant[] = [
   },
   {
     floor: 'Ground Floor', floorKey: 'ground-floor',
-    name: 'Jade Dumplings', category: 'Food & Drink', categoryKey: 'food-drink',
+    name: 'Jade Dumpling & Noodle House', category: 'Food & Drink', categoryKey: 'food-drink',
     suite: 'Suite 116',
     logo: 'directory/first_floor/jade_dumpling.webp',
     logoCircle: true,
-    website: 'https://www.jadedumplingor.com/',
+    website: 'https://www.instagram.com/jade_dumpling_oregon/',
     link: '/ground-floor',
   },
   {
@@ -189,6 +198,14 @@ const TENANTS: Tenant[] = [
     logo: 'directory/second_floor/Luxe_Lash_Studio.webp',
     logoCircle: true,
     website: 'https://www.luxelashstudiosalem.com/',
+  },
+  {
+    floor: 'Second Floor', floorKey: 'second-floor',
+    name: 'Moth Wing Tattoo', category: 'Beauty & Salon', categoryKey: 'beauty-salon',
+    suite: 'Suite 250',
+    logo: 'directory/second_floor/Moth_Wing_Tattoo.webp',
+    logoCircle: true,
+    website: 'https://www.instagram.com/mckay.lines/',
   },
   {
     floor: 'Second Floor', floorKey: 'second-floor',
@@ -254,7 +271,7 @@ const TENANTS: Tenant[] = [
   {
     floor: 'Second Floor', floorKey: 'second-floor',
     name: 'The Esthetic Gallery', category: 'Health & Wellness', categoryKey: 'wellness',
-    suite: 'Suite 250',
+    suite: 'Suite 264',
     logo: 'directory/second_floor/The_Esthetic_Gallery.webp',
     logoCircle: true,
     website: 'https://www.instagram.com/theestheticgallery/',
