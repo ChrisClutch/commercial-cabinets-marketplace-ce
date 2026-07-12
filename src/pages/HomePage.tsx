@@ -96,7 +96,7 @@ export default function HomePage() {
   }, [])
 
   const filteredEvents = allEvents
-    .filter(e => filter === 'all' || e.category === filter)
+    .filter(e => filter === 'all' || (Array.isArray(e.category) ? e.category.includes(filter as typeof e.category[number]) : e.category === filter))
     .sort((a, b) => a.date.localeCompare(b.date))
 
   function handleNL(e: FormEvent) {
@@ -295,7 +295,11 @@ export default function HomePage() {
                     <span className="event-day">{String(dy).padStart(2, '0')}</span>
                     <span className="event-month-year">{MONTHS[mo - 1]}<br />{yr}</span>
                   </div>
-                  <span className={`event-cat ${ev.category}`}>{ev.category}</span>
+                  <span className="event-cat-group">
+                    {(Array.isArray(ev.category) ? ev.category : [ev.category]).map(cat => (
+                      <span className={`event-cat ${cat}`} key={cat}>{cat}</span>
+                    ))}
+                  </span>
                   <h3 className="event-title">{ev.title}</h3>
                   <p className="event-venue">{ev.venue}</p>
                   <p className="event-desc">{ev.desc}</p>

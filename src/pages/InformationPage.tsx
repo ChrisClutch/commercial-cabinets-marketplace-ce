@@ -277,7 +277,7 @@ export default function InformationPage() {
                         fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
                         color: '#e10600',
                       }}>
-                        {ev.category}
+                        {(Array.isArray(ev.category) ? ev.category : [ev.category]).join(' / ')}
                       </span>
                       <h3 style={{ margin: '0 0 0.3rem', fontSize: '1rem', fontWeight: 600, color: '#161f28', fontFamily: '"Cormorant Garamond", serif' }}>
                         {ev.title}

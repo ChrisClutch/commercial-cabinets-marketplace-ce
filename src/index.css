@@ -613,6 +613,7 @@ footer {
 .event-date-tag { display: flex; align-items: baseline; gap: 0.55rem; margin-bottom: 1.1rem; }
 .event-day { font-family: var(--display); font-size: 3rem; font-weight: 300; color: var(--cherry); line-height: 1; }
 .event-month-year { font-size: 0.57rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); line-height: 1.5; }
+.event-cat-group { display: inline-flex; gap: 0.4rem; }
 .event-cat { display: inline-block; font-size: 0.54rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; padding: 0.22rem 0.65rem; margin-bottom: 0.85rem; background: var(--paper); }
 .event-cat.dining  { color: var(--gold); }
 .event-cat.events  { color: var(--cherry); }
