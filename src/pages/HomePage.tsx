@@ -220,7 +220,7 @@ export default function HomePage() {
         </div>
         <div className="floors-grid">
           <Link to="/ground-floor" className="floor-card">
-            <img src={img('ground-floor.webp')} alt="Ground Floor" />
+            <img src={img('ground-floor.webp')} alt="Ground Floor dining and retail at The Forge, Downtown Salem, Oregon" />
             <div className="floor-card-body">
               <span className="floor-level">Ground Floor</span>
               <div className="floor-name">Dining &amp;<br />The Heart</div>
@@ -229,7 +229,7 @@ export default function HomePage() {
             </div>
           </Link>
           <Link to="/womens-collective" className="floor-card">
-            <img src={img('womens-collective.webp')} alt="Women's Collective" />
+            <img src={img('womens-collective.webp')} alt="Women's Collective boutiques and salons at The Forge, Downtown Salem" />
             <div className="floor-card-body">
               <span className="floor-level">Second Floor</span>
               <div className="floor-name">Women's<br />Collective</div>
@@ -238,7 +238,7 @@ export default function HomePage() {
             </div>
           </Link>
           <Link to="/cellar-54" className="floor-card">
-            <img src={img('cellar54.webp')} alt="Cellar 54 — Lower Level" />
+            <img src={img('cellar54.webp')} alt="Cellar 54 private event space, Downtown Salem, Oregon" />
             <div className="floor-card-body">
               <span className="floor-level">Lower Level</span>
               <div className="floor-name">Cellar 54</div>
@@ -247,7 +247,7 @@ export default function HomePage() {
             </div>
           </Link>
           <Link to="/anthem" className="floor-card">
-            <img src={img('anthem.webp')} alt="Anthem — Third Floor" />
+            <img src={img('anthem.webp')} alt="Anthem Strategists financial planning office, third floor of The Forge, Salem" />
             <div className="floor-card-body">
               <span className="floor-level">Third Floor</span>
               <div className="floor-name">Anthem</div>
@@ -331,7 +331,7 @@ export default function HomePage() {
             {approvedMessages.map(msg => (
               <div key={msg.id} style={{ background: '#fff', border: '1px solid #e8e2d9', borderRadius: '6px', overflow: 'hidden' }}>
                 {msg.photo_url && (
-                  <img src={msg.photo_url} alt="" style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
+                  <img src={msg.photo_url} alt={`Photo shared by ${msg.name}`} style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
                 )}
                 <div style={{ padding: '1.25rem' }}>
                   <p style={{

@@ -68,7 +68,7 @@ export default function AnthemPage() {
       {/* EXPERIENCE SPLIT */}
       <div className="experience-grid">
         <div className="experience-img">
-          <img src={img('anthem2.webp')} alt="Anthem Strategists — third floor" loading="lazy" />
+          <img src={img('anthem2.webp')} alt="Anthem Strategists financial planning and advisory office, third floor of The Forge, Downtown Salem" loading="lazy" />
         </div>
         <div className="experience-content">
           <span className="section-label" style={{ color: 'var(--confidence)' }}>The Location</span>

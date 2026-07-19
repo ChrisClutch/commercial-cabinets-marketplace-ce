@@ -49,7 +49,7 @@ export default function LeasingPage() {
       {/* INTRO SPLIT */}
       <div className="lease-intro">
         <div className="lease-intro-img">
-          <img src={img('FAQ/ForgeSpace.webp')} alt="The Forge interior" loading="lazy" />
+          <img src={img('FAQ/ForgeSpace.webp')} alt="The Forge interior — available leasing space, Downtown Salem, Oregon" loading="lazy" />
         </div>
         <div className="lease-intro-body">
           <div className="lease-eyebrow">Leasing at The Forge</div>
@@ -89,7 +89,7 @@ export default function LeasingPage() {
       {/* INQUIRY FORM */}
       <div className="inquiry-wrap" id="inquiry">
         <div className="inquiry-img">
-          <img src={img('FAQ/ForgeSpace2.webp')} alt="The Forge space" loading="lazy" />
+          <img src={img('FAQ/ForgeSpace2.webp')} alt="Available suite for lease at The Forge, Downtown Salem" loading="lazy" />
         </div>
         <div className="inquiry-form-col">
           <h2>Express Interest</h2>

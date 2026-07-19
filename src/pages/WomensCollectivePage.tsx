@@ -50,10 +50,10 @@ export default function WomensCollectivePage() {
       <div className="clink-split" id="clink">
         <div className="clink-img">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', height: '100%', gap: '2px' }}>
-            <img src={img('clink_bar.webp')} alt="Clink! bar" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            <img src={img('womens_collective/Clink3.webp')} alt="Clink! interior" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            <img src={img('womens_collective/Clink2.webp')} alt="Clink! dining" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            <img src={img('womens_collective/Clink1.webp')} alt="Clink! ambiance" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={img('clink_bar.webp')} alt="Clink! champagne bar at The Forge, Downtown Salem, Oregon" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={img('womens_collective/Clink3.webp')} alt="Clink! French-inspired restaurant interior, Downtown Salem" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={img('womens_collective/Clink2.webp')} alt="Clink! dining room, Downtown Salem, Oregon" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={img('womens_collective/Clink1.webp')} alt="Clink! restaurant seating and ambiance, Salem" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
           <img src={img('directory/second_floor/Clink1.webp')} alt="Clink! logo" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '100px', height: '100px', objectFit: 'cover', borderRadius: '50%', zIndex: 2 }} />
           <span className="clink-badge">Now Open</span>
@@ -115,7 +115,7 @@ export default function WomensCollectivePage() {
             <div className="tenant-card section--paper" key={i} style={{ padding: '1.4rem 1.4rem' }}>
               {t.logo && (
                 <div className={`dir-tenant-logo${t.logoCircle ? ' dir-tenant-logo--circle' : ''}`}>
-                  <img src={img(t.logo)} alt={`${t.name} logo`} />
+                  <img src={img(t.logo)} alt={`${t.name} — ${t.type} at The Forge, Downtown Salem`} />
                 </div>
               )}
               <div className="tenant-card-name" style={{ fontSize: '1rem' }}>{t.name}</div>
@@ -132,11 +132,11 @@ export default function WomensCollectivePage() {
       {/* LADIES ROOM */}
       <div className="ladies-split" id="ladies-room">
         <div className="ladies-imgs">
-          <div><img src={img('ladies_room.webp')} alt="The Ladies' Room" loading="lazy" /></div>
-          <div><img src={img('pink_marble_sinks.webp')} alt="Pink marble sinks" loading="lazy" /></div>
-          <div><img src={img('ladies_room_neon.webp')} alt="The Ladies Room neon sign" loading="lazy" style={{ objectPosition: 'center 30%' }} /></div>
-          <div><img src={img('womens_collective/Womens_lounge.webp')} alt="Women's Collective lounge" loading="lazy" /></div>
-          <div><img src={img('womens_collective/Womens_lounge2.webp')} alt="Women's Collective lounge" loading="lazy" /></div>
+          <div><img src={img('ladies_room.webp')} alt="The Forge's designer ladies' room with crystal chandeliers, Downtown Salem" loading="lazy" /></div>
+          <div><img src={img('pink_marble_sinks.webp')} alt="Pink marble vessel sinks in The Forge's ladies' room, Salem, Oregon" loading="lazy" /></div>
+          <div><img src={img('ladies_room_neon.webp')} alt="Neon sign in The Forge's designer ladies' room, Downtown Salem" loading="lazy" style={{ objectPosition: 'center 30%' }} /></div>
+          <div><img src={img('womens_collective/Womens_lounge.webp')} alt="Women's Collective lounge seating area at The Forge, Salem" loading="lazy" /></div>
+          <div><img src={img('womens_collective/Womens_lounge2.webp')} alt="Women's Collective lounge with velvet chairs at The Forge, Salem" loading="lazy" /></div>
         </div>
         <div className="ladies-info">
           <span className="ladies-eyebrow">Yes, We Need to Talk About This</span>

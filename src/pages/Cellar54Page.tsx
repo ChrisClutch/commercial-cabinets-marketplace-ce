@@ -111,19 +111,19 @@ export default function Cellar54Page() {
           </div>
         </div>
         <div className="gallery-grid">
-          <div className="gal-item"><img src={img('cellar54/cellar54_3.webp')} alt="Cellar 54 interior" loading="lazy" /><span className="gal-cap">The Space</span></div>
-          <div className="gal-item"><img src={img('cellar54/cellar54_2.webp')} alt="Cellar 54 venue" loading="lazy" /><span className="gal-cap">The Venue</span></div>
-          <div className="gal-item"><img src={img('cellar54/cellar54_tables.webp')} alt="Cellar 54 table setting" loading="lazy" /><span className="gal-cap">Dinner Setting</span></div>
-          <div className="gal-item"><img src={img('cellar54/green_room.webp')} alt="Cellar 54 green room" loading="lazy" /><span className="gal-cap">Green Room</span></div>
-          <div className="gal-item"><img src={img('cellar54/cellar54_2.webp')} alt="Cellar 54 event space" loading="lazy" /><span className="gal-cap">Event Night</span></div>
-          <div className="gal-item"><img src={img('cellar54/cellar54_4.webp')} alt="Cellar 54" loading="lazy" /><span className="gal-cap">The Experience</span></div>
+          <div className="gal-item"><img src={img('cellar54/cellar54_3.webp')} alt="Cellar 54 underground event space interior, Downtown Salem, Oregon" loading="lazy" /><span className="gal-cap">The Space</span></div>
+          <div className="gal-item"><img src={img('cellar54/cellar54_2.webp')} alt="Cellar 54 private event venue below street level, Salem" loading="lazy" /><span className="gal-cap">The Venue</span></div>
+          <div className="gal-item"><img src={img('cellar54/cellar54_tables.webp')} alt="Cellar 54 dinner table setting for private events, Downtown Salem" loading="lazy" /><span className="gal-cap">Dinner Setting</span></div>
+          <div className="gal-item"><img src={img('cellar54/green_room.webp')} alt="Cellar 54 green room for private events, Downtown Salem, Oregon" loading="lazy" /><span className="gal-cap">Green Room</span></div>
+          <div className="gal-item"><img src={img('cellar54/cellar54_2.webp')} alt="Private event hosted at Cellar 54, Salem's underground event space" loading="lazy" /><span className="gal-cap">Event Night</span></div>
+          <div className="gal-item"><img src={img('cellar54/cellar54_4.webp')} alt="Guests at a private event inside Cellar 54, Downtown Salem" loading="lazy" /><span className="gal-cap">The Experience</span></div>
         </div>
       </div>
 
       {/* BOOKING */}
       <div className="booking-split" id="booking">
         <div className="booking-img">
-          <img src={img('cellar54.webp')} alt="Cellar 54" loading="lazy" />
+          <img src={img('cellar54.webp')} alt="Cellar 54, Salem's premier private event space, Downtown Salem, Oregon" loading="lazy" />
         </div>
         <div className="booking-form-section">
           <h2>Inquire About<br />Your Event</h2>

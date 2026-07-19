@@ -31,7 +31,7 @@ export default function GroundFloorPage() {
       {/* BONZAI */}
       <div className="feature-split" style={{ minHeight: '100vh' }}>
         <div className="feature-visual">
-          <img src={img('groundfloor/Bonzai_Entrance.webp')} alt="Bonzai restaurant" loading="lazy" />
+          <img src={img('groundfloor/Bonzai_Entrance.webp')} alt="Bonzai! Japanese-American coffee and matcha shop entrance, Downtown Salem" loading="lazy" />
         </div>
         <div className="feature-body feature-body--paper">
           <div className="feature-eyebrow">Ground Floor</div>
@@ -77,7 +77,7 @@ export default function GroundFloorPage() {
       {/* NOIRA */}
       <div className="feature-split feature-split--rev">
         <div className="feature-visual">
-          <img src={img('groundfloor/Noira1.webp')} alt="Noira" loading="lazy" />
+          <img src={img('groundfloor/Noira1.webp')} alt="Noira wine bar interior at The Forge, Downtown Salem, Oregon" loading="lazy" />
         </div>
         <div className="feature-body feature-body--paper">
           <div className="feature-eyebrow">Ground Floor</div>
@@ -117,7 +117,7 @@ export default function GroundFloorPage() {
             <div className="tenant-card section--paper" key={i} style={{ padding: '1.4rem 1.4rem' }}>
               {t.logo && (
                 <div className={`dir-tenant-logo${t.logoCircle ? ' dir-tenant-logo--circle' : ''}`}>
-                  <img src={img(t.logo)} alt={`${t.name} logo`} style={t.logoStyle} />
+                  <img src={img(t.logo)} alt={`${t.name} — ${t.type} at The Forge, Downtown Salem`} style={t.logoStyle} />
                 </div>
               )}
               <div className="tenant-card-name" style={{ fontSize: '1rem' }}>{t.name}</div>
@@ -142,13 +142,13 @@ export default function GroundFloorPage() {
           </div>
         </div>
         <div className="gallery-6">
-          <div className="g6-banner"><img src={img('groundfloor/Bonzai_Overview.webp')} alt="Bonzai overview" loading="lazy" /></div>
-          <div><img src={img('groundfloor/Ivory_Bull.webp')} alt="Ivory Bull" loading="lazy" /></div>
+          <div className="g6-banner"><img src={img('groundfloor/Bonzai_Overview.webp')} alt="Bonzai! coffee, matcha, and boba shop, Downtown Salem, Oregon" loading="lazy" /></div>
+          <div><img src={img('groundfloor/Ivory_Bull.webp')} alt="Ivory Bull & Co. retail boutique storefront at The Forge, Salem" loading="lazy" /></div>
           <div className="g6-placeholder">
             <img src={img('hero.webp')} alt="The Forge" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-          <div className="g6-hide-mobile"><img src={img('groundfloor/Dreamies_Creamery.webp')} alt="Dreamies Creamery" loading="lazy" /></div>
-          <div className="g6-banner"><img src={img('ground-floor.webp')} alt="Ground floor dining area" loading="lazy" /></div>
+          <div className="g6-hide-mobile"><img src={img('groundfloor/Dreamies_Creamery.webp')} alt="Dreamies Creamery ice cream shop at The Forge, Downtown Salem" loading="lazy" /></div>
+          <div className="g6-banner"><img src={img('ground-floor.webp')} alt="Ground floor dining and shopping area at The Forge, Downtown Salem, Oregon" loading="lazy" /></div>
         </div>
       </div>
 

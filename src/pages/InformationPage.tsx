@@ -303,7 +303,7 @@ export default function InformationPage() {
               {messages.map(msg => (
                 <div key={msg.id} style={{ ...S.card, overflow: 'hidden' }}>
                   {msg.photo_url && (
-                    <img src={msg.photo_url} alt="" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', display: 'block' }} />
+                    <img src={msg.photo_url} alt={`Photo shared by ${msg.name}`} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', display: 'block' }} />
                   )}
                   <div style={{ padding: '1.25rem' }}>
                     <p style={{

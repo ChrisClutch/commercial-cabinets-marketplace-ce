@@ -379,7 +379,7 @@ export default function DirectoryPage() {
               <div className="dir-tenant-card" key={i}>
                 {t.logo && (
                   <div className={`dir-tenant-logo${t.logoCircle ? ' dir-tenant-logo--circle' : ''}`}>
-                    <img src={img(t.logo)} alt={`${t.name} logo`} style={t.logoStyle} />
+                    <img src={img(t.logo)} alt={`${t.name} — ${t.category} at The Forge, Downtown Salem`} style={t.logoStyle} />
                   </div>
                 )}
                 <div className="dir-tenant-floor">{t.floor}{t.suite && <span className="dir-tenant-suite"> · {t.suite}</span>}</div>
