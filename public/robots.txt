@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/welcome
+
+Sitemap: https://forgesalem.com/sitemap.xml
