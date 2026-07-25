@@ -1,0 +1,92 @@
+THE FORGE (forgesalem.com) — SEO REPORT
+Generated: 2026-07-24
+
+OVERALL GRADE: C+ (72/100)
+
+Solid technical foundation (robots.txt, sitemap, homepage schema) undercut by one
+big structural problem: this is a client-side-rendered React SPA with NO per-page
+metadata, which flattens every route's SEO/social identity down to the homepage's.
+
+--------------------------------------------------------------------------------
+WHAT'S WORKING
+--------------------------------------------------------------------------------
+- robots.txt + sitemap.xml both present, linked, and correct. Admin routes
+  properly disallowed.
+- Homepage has full meta tags: title, description, OG, Twitter Card.
+- Sitewide JSON-LD (ShoppingCenter) with address, hours, sameAs profiles — good
+  local SEO signal for Google Business/Maps alignment.
+- Clean, readable URLs (/ground-floor, /directory, /leasing, /faq, etc.).
+- Images almost universally have alt text; site uses modern .webp format.
+- Static assets (JS/CSS/images/fonts) cached aggressively via _headers; HTML set
+  to no-cache so deploys go live instantly. Good caching hygiene.
+- Most inner pages (Anthem, Cellar 54, Directory, FAQ, Ground Floor, Leasing,
+  Women's Collective) have a single H1 and update document.title per route.
+
+--------------------------------------------------------------------------------
+CRITICAL ISSUE: NO PER-PAGE METADATA (biggest fix, do this first)
+--------------------------------------------------------------------------------
+The site is a Vite + React SPA with no SSR/prerendering. index.html ships ONE
+static <title>, meta description, OG tags, and Twitter Card — identical for
+every route. Pages only update `document.title` client-side via useEffect;
+description/OG/Twitter tags are never touched.
+
+Impact:
+  - Search snippets for /directory, /faq, /leasing, /ground-floor, etc. will
+    likely show the homepage's description, not page-specific copy.
+  - Social shares (Facebook, LinkedIn, Slack, iMessage, Twitter/X previews) read
+    OG tags from raw HTML BEFORE JavaScript runs — every shared link (e.g. the
+    FAQ page or a specific store page) will preview as "The Forge — Salem's
+    Lifestyle Collective" with the generic hero image, not the actual page.
+  - No <link rel="canonical"> anywhere on the site.
+
+Fix: add react-helmet-async (or manually inject/update <title>, <meta
+name="description">, og:title, og:description, og:url, og:image, and a
+canonical link per route). For true crawler/social-bot reliability, consider
+prerendering (vite-plugin-ssr, react-snap, or a Netlify prerender) since this
+appears to be hosted on Netlify (_headers/_redirects present).
+
+--------------------------------------------------------------------------------
+OTHER FINDINGS
+--------------------------------------------------------------------------------
+1. Missing H1 — HomePage.tsx and InformationPage.tsx have no <h1> at all (only
+   <h2> section titles). Every indexable page should have exactly one H1.
+
+2. Structured data underused — only one sitewide JSON-LD block (ShoppingCenter)
+   in index.html. No BreadcrumbList, no per-tenant/store schema on Ground Floor
+   / Women's Collective / Cellar 54 pages.
+   NOTE: /faq is intentionally NOT meant to be search-discoverable — it's a
+   QR-code-only utility page (restroom code info, community board) for
+   on-site guests, not a landing page. It has been removed from sitemap.xml
+   and disallowed in robots.txt (2026-07-24). For a fully airtight
+   de-index, add a page-specific <meta name="robots" content="noindex"> once
+   per-page metadata is wired up (see Critical Issue above).
+
+3. Unoptimized image weight — several images exceed 400-600KB despite being
+   .webp, which will hurt LCP/Core Web Vitals, especially on mobile:
+     Dreamies_Creamery.webp   620 KB
+     Bonzai_Couches.webp      617 KB
+     Noira2.webp              473 KB
+     ground_dining.webp       426 KB
+     Bonzai_Dining.webp       426 KB
+     Bonzai_Entrance1.webp    383 KB
+     Bonzai_Entrance.webp     364 KB
+     Bonzai_Pergola.webp      356 KB
+   Recommend re-compressing/resizing (target most content images <150-200KB)
+   and using responsive srcset for hero/large images.
+
+4. Admin pages (/admin, /admin/welcome) correctly excluded via robots.txt — good,
+   no action needed.
+
+--------------------------------------------------------------------------------
+PRIORITY ACTION LIST
+--------------------------------------------------------------------------------
+1. [High]  Add unique title + meta description + OG/Twitter tags + canonical
+           per route (react-helmet-async or equivalent).
+2. [High]  Add a single <h1> to HomePage and InformationPage.
+3. [Med]   Compress/resize the 8 images listed above; add responsive srcset for
+           hero and large gallery images.
+4. [Low]   Add BreadcrumbList schema and light per-tenant schema on store pages.
+5. [Low]   Consider prerendering key routes for bots that don't execute JS
+           (social share scrapers especially).
+6. [Done]  /faq removed from sitemap.xml + disallowed in robots.txt since it's
+           a QR-only utility page, not meant for search discovery.

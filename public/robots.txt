@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin/welcome
+Disallow: /faq
 
 Sitemap: https://forgesalem.com/sitemap.xml
