@@ -198,7 +198,7 @@ export default function HomePage() {
             className="hero-logo-img"
             style={{ height: 'clamp(260px,40vw,480px)', width: 'auto', display: 'block', marginLeft: '-4rem', marginBottom: '0.5rem' }}
           />
-          <p className="hero-tagline"><em>Elevated. Unapologetic. Unforgettable.</em></p>
+          <h1 className="hero-tagline"><em>Elevated. Unapologetic. Unforgettable.</em></h1>
           <div className="hero-actions">
             <a href="#floors" className="btn btn--ghost">Explore the Building</a>
             <a href="#events" className="btn btn--cherry" style={{ background: 'var(--cherry)', color: '#fff' }}>See What's On</a>

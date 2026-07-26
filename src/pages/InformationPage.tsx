@@ -184,9 +184,9 @@ export default function InformationPage() {
           <Link to="/">
             <img src={img('logo2.webp')} alt="The Forge" style={{ height: '40px', width: 'auto', display: 'block' }} />
           </Link>
-          <span style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#7a8a95' }}>
+          <h1 style={{ margin: 0, fontSize: '0.6rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#7a8a95' }}>
             Visitor Guide
-          </span>
+          </h1>
         </div>
         <p style={{ margin: 0, fontSize: '0.72rem', color: '#3c4b59', letterSpacing: '0.04em' }}>
           285 Liberty St. N.E. &nbsp;·&nbsp; Downtown Salem, Oregon
