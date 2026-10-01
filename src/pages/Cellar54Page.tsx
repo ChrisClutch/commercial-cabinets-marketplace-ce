@@ -65,7 +65,7 @@ export default function Cellar54Page() {
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <a href="https://cellar54salem.com" target="_blank" rel="noopener noreferrer" className="btn btn--cherry" style={{ background: 'var(--cherry)', color: '#fff' }}>Visit cellar54salem.com</a>
-            <a href="mailto:info@cellar54salem.com" className="btn btn--filled btn--static">Email Us!</a>
+            <a href="mailto:inquiries@forgesalem.com" className="btn btn--filled btn--static">Email Us!</a>
           </div>
         </div>
       </div>
