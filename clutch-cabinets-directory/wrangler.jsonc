@@ -18,9 +18,12 @@
   //  1. Your domain uses Cloudflare DNS and Email Routing is enabled on it.
   //  2. FORM_TO is a *verified* destination address in Email Routing.
   //  3. FORM_FROM is an address on that same domain (it doesn't need a mailbox).
-  "send_email": [
-    { "name": "FORM_EMAIL", "destination_address": "you@example.com" }
-  ],
+  //  4. Then remove the // in front of the three send_email lines below and push.
+  //     (Left off so the first deploy works before Email Routing is set up.
+  //      Until then, form submissions show an error page.)
+  // "send_email": [
+  //   { "name": "FORM_EMAIL", "destination_address": "you@example.com" }
+  // ],
   "vars": {
     "FORM_TO": "you@example.com",
     "FORM_FROM": "forms@example.com",

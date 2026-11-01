@@ -71,7 +71,7 @@ You need your domain on Cloudflare DNS for the form emails to work. If it's regi
    Every push to `main` now deploys automatically.
 3. **Turn on form emails:**
    1. Dashboard → your domain → **Email → Email Routing → Enable**. Add your inbox under **Destination addresses** and click the verification link Cloudflare emails you.
-   2. In `wrangler.jsonc`, set `destination_address` and `FORM_TO` to that verified inbox, and `FORM_FROM` to any address on your domain (e.g. `forms@yourdomain.com`; it doesn't need a mailbox).
+   2. In `wrangler.jsonc`, uncomment the `send_email` block, then set `destination_address` and `FORM_TO` to that verified inbox, and `FORM_FROM` to any address on your domain (e.g. `forms@yourdomain.com`; it doesn't need a mailbox).
    3. Commit and push.
 
    Each quote arrives as an email. Hitting Reply goes straight to the visitor.
