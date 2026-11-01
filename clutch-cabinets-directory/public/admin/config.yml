@@ -5,8 +5,11 @@
 # from the four paths below.
 
 backend:
-  name: git-gateway
-  branch: main            # the branch Netlify deploys from
+  name: github
+  repo: ChrisClutch/forgesalem-website   # change if you move the site to its own repo
+  branch: main                           # the branch Cloudflare deploys from
+  base_url: https://www.example.com      # your live site URL (no trailing slash)
+  auth_endpoint: api/auth                # handled by worker/index.js
 
 # Lets you use the admin locally: run `npm run cms` in one terminal and
 # `npm run dev` in another, then open http://localhost:4321/admin/
@@ -89,7 +92,8 @@ collections:
           - { name: operatorName, label: "Operator name", widget: string }
           - { name: operatorUrl, label: "Operator website", widget: string }
           - { name: contactEmail, label: "Public contact email", widget: string }
-          - { name: quoteEmail, label: "Quote email (reference only — set notifications in Netlify)", widget: string }
+          - { name: turnstileSiteKey, label: "Turnstile site key (optional spam check; leave blank to turn off)", widget: string, required: false }
+          - { name: quoteEmail, label: "Quote email (reference only — the real address is FORM_TO in wrangler.jsonc)", widget: string }
           - name: colors
             label: Colors
             widget: object

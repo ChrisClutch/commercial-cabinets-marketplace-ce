@@ -36,10 +36,6 @@ const year = new Date().getFullYear();
     <link rel="sitemap" href="/sitemap-index.xml" />
     <style set:html={`:root{--primary:${c.primary};--primary-dark:${c.primaryDark};--accent:${c.accent};--ink:${c.ink};--muted:${c.muted};--surface:${c.surface};--line:${c.line};}`}></style>
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
-    <script is:inline>
-      // Netlify Identity invite/recovery links land on the homepage; send them to the CMS admin.
-      if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash)) location.replace('/admin/' + location.hash);
-    </script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>

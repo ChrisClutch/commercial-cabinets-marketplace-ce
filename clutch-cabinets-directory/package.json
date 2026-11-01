@@ -8,10 +8,15 @@
     "build": "astro build",
     "preview": "astro preview",
     "cms": "cd .. && npx decap-server",
-    "test": "node tests/smoke.mjs"
+    "test": "node tests/smoke.mjs",
+    "cf:dev": "astro build && wrangler dev --var ALLOW_NO_EMAIL:true",
+    "deploy": "astro build && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",
     "astro": "5.18.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.0"
   }
 }

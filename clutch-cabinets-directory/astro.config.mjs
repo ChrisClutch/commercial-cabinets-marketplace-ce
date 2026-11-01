@@ -10,7 +10,7 @@ export default defineConfig({
   build: { format: 'file' },
   integrations: [
     sitemap({
-      filter: (page) => !/\/(thanks|request-update)$/.test(page),
+      filter: (page) => !/\/(thanks|request-update|404)$/.test(page),
     }),
   ],
 });

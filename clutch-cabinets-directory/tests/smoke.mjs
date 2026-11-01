@@ -1,5 +1,5 @@
 // End-to-end smoke test. Run `npm run build` first, then `npm test`.
-// Starts `astro preview`, drives Chromium with Playwright, and checks the key features.
+// Starts the real Cloudflare Worker locally (`wrangler dev`), drives Chromium with Playwright, and checks the key features.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -8,10 +8,12 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = await im
 
 const PORT = 4329;
 const BASE = `http://localhost:${PORT}`;
-const server = spawn('npx', ['astro', 'preview', '--port', String(PORT)], { stdio: 'pipe' });
+const server = spawn('npx', ['wrangler', 'dev', '--port', String(PORT), '--var', 'ALLOW_NO_EMAIL:true'], { stdio: 'pipe', env: { ...process.env, WRANGLER_SEND_METRICS: 'false', CI: '1' }, detached: true });
 await new Promise((res, rej) => {
-  const t = setTimeout(() => rej(new Error('preview did not start')), 20000);
-  server.stdout.on('data', (d) => { if (String(d).includes(String(PORT))) { clearTimeout(t); res(); } });
+  const t = setTimeout(() => rej(new Error('wrangler dev did not start')), 60000);
+  const onData = (d) => { if (String(d).includes('Ready on')) { clearTimeout(t); res(); } };
+  server.stdout.on('data', onData);
+  server.stderr.on('data', onData);
 });
 
 let failures = 0;
@@ -96,7 +98,7 @@ try {
 
   // Quote form
   await page.goto(`${BASE}/quote`);
-  check(await page.locator('form[name="quote"][data-netlify="true"]').count() === 1, 'quote form is a Netlify form');
+  check(await page.locator('form[name="quote"][action="/api/form"]').count() === 1, 'quote form posts to the Worker');
   const unlabeled = await page.$$eval('#quote-form input:not([type=hidden]):not([name=bot-field]), #quote-form select, #quote-form textarea',
     (els) => els.filter((e) => !document.querySelector(`label[for="${e.id}"]`)).map((e) => e.name));
   check(unlabeled.length === 0, `all quote fields have labels ${unlabeled.join(',')}`);
@@ -114,6 +116,15 @@ try {
   await page.goto(`${BASE}/quote`);
   await page.click('#quote-form button[type=submit]');
   check(page.url().endsWith('/quote'), 'empty quote submit is blocked by required fields');
+  // Full submission through the Worker
+  await page.goto(`${BASE}/quote?shop=sample-shop-a`);
+  await page.fill('#name', 'Test Person'); await page.fill('#email', 'test@example.com');
+  await page.selectOption('#size', 'residential'); await page.selectOption('#type', 'Kitchen');
+  await page.fill('#location', 'Salem');
+  await Promise.all([page.waitForURL('**/thanks'), page.click('#quote-form button[type=submit]')]);
+  check(page.url().endsWith('/thanks'), 'quote form submits through the Worker and lands on /thanks');
+  const nf = await page.goto(`${BASE}/no-such-page`);
+  check(nf.status() === 404 && (await page.textContent('h1')).includes('not found'), 'unknown URL returns the 404 page');
   await page.goto(`${BASE}/request-update?shop=sample-shop-b`);
   check((await page.inputValue('#shop')) === 'sample-shop-b', 'request-update preselects shop');
 
@@ -128,7 +139,7 @@ try {
   check(errors.length === 0, `no JS errors ${errors.join(' | ')}`);
 } finally {
   await browser.close();
-  server.kill();
+  try { process.kill(-server.pid); } catch { server.kill(); }
 }
 console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');
 process.exit(failures ? 1 : 0);

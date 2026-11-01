@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import site from '../config/site.json';
 import { getShops, SEGMENTS } from '../lib/shops';
+import Turnstile from '../components/Turnstile.astro';
 const shops = await getShops();
 const operator = shops.find((s) => s.operator);
 const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential', 'New home build', 'Office / retail / medical', 'Multifamily', 'Assisted living / senior living', 'Hospitality', 'Student / workforce housing', 'Tenant improvement', 'Other'];
@@ -22,7 +23,7 @@ const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential'
         <p id="route-live" class="route-live" role="status" aria-live="polite"></p>
       </div>
 
-      <form name="quote" method="POST" action="/thanks" data-netlify="true" netlify-honeypot="bot-field" id="quote-form">
+      <form name="quote" method="POST" action="/api/form" id="quote-form">
         <input type="hidden" name="form-name" value="quote" />
         <input type="hidden" name="route-to" id="route-to" value="" />
         <p class="hp"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
@@ -99,6 +100,7 @@ const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential'
           <div class="field"><label for="details">Project details</label><textarea id="details" name="details" placeholder="Finish, style, plans available, GC or owner, bid date…"></textarea></div>
         </fieldset>
 
+        <Turnstile />
         <button class="btn" type="submit">Send request</button>
         <p class="small muted">Fields marked * are required.</p>
       </form>
