@@ -35,6 +35,18 @@ collections:
       - { name: state, label: State, widget: string, default: "OR" }
       - { name: serviceArea, label: "Service area", widget: string, hint: "e.g. Salem, Keizer and Polk County" }
       - { name: specialties, label: Specialties, widget: list, hint: "Comma-separated, e.g. Kitchens, Multifamily, Built-ins" }
+      - name: segments
+        label: "Markets"
+        widget: select
+        multiple: true
+        required: false
+        hint: "Each market gets its own page at /markets/<market>."
+        options:
+          - { label: "Custom Residential", value: "custom-residential" }
+          - { label: "Commercial & Tenant Improvement", value: "commercial" }
+          - { label: "Multifamily", value: "multifamily" }
+          - { label: "Assisted Living & Senior Living", value: "assisted-living" }
+          - { label: "Other Large-Volume Installation", value: "large-volume-installation" }
       - name: projectSizes
         label: "Project sizes"
         widget: select

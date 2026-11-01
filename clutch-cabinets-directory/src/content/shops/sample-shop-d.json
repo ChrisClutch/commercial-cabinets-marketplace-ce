@@ -4,9 +4,27 @@
   "city": "Bend",
   "state": "OR",
   "serviceArea": "Bend, Sisters, Redmond",
-  "specialties": ["Hospitality", "Multifamily", "Kitchens"],
-  "projectSizes": ["light-commercial", "commercial"],
-  "capacity": { "unitsPerMonth": 35, "cncAutomated": true, "commercialProjectsCompleted": 9, "maxProjectUnits": 40, "leadTimeWeeks": 6 },
+  "specialties": [
+    "Hospitality",
+    "Multifamily",
+    "Kitchens"
+  ],
+  "segments": [
+    "commercial",
+    "multifamily",
+    "large-volume-installation"
+  ],
+  "projectSizes": [
+    "light-commercial",
+    "commercial"
+  ],
+  "capacity": {
+    "unitsPerMonth": 35,
+    "cncAutomated": true,
+    "commercialProjectsCompleted": 9,
+    "maxProjectUnits": 40,
+    "leadTimeWeeks": 6
+  },
   "phone": "(555) 010-0004",
   "email": "hello@example.com",
   "website": "https://example.com",

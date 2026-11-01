@@ -12,6 +12,9 @@ const shops = defineCollection({
     state: z.string().default('OR'),
     serviceArea: z.string(),
     specialties: z.array(z.string()).default([]),
+    segments: z
+      .array(z.enum(['custom-residential', 'commercial', 'multifamily', 'assisted-living', 'large-volume-installation']))
+      .default([]),
     projectSizes: z.array(z.enum(['residential', 'light-commercial', 'commercial'])).min(1),
     capacity: z
       .object({

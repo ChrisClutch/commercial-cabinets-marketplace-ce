@@ -52,6 +52,26 @@ try {
   await page.goto(`${BASE}/directory?size=residential`);
   check((await visible()).length === 5, 'entry link ?size=residential → 5 shops');
 
+  // Market filter + market pages
+  await page.goto(`${BASE}/directory?market=multifamily`);
+  check((await visible()).length === 2, 'market filter multifamily → 2 shops (Clutch, D)');
+  await page.goto(`${BASE}/directory?market=assisted-living`);
+  check((await visible()).join() === 'clutch cabinets nw', 'market filter assisted-living → Clutch only');
+  for (const m of ['custom-residential', 'commercial', 'multifamily', 'assisted-living', 'large-volume-installation']) {
+    const r = await page.goto(`${BASE}/markets/${m}`);
+    check(r.status() === 200, `/markets/${m} returns 200`);
+  }
+  await page.goto(`${BASE}/markets/multifamily`);
+  check((await page.$$eval('[data-operator-list] [data-shop-card]', (e) => e.map((x) => x.dataset.name))).join() === 'clutch cabinets nw', 'multifamily page: operator pinned first');
+  await page.goto(`${BASE}/markets/custom-residential`);
+  const alpha = await page.$$eval('[data-alpha-list] [data-shop-card]', (e) => e.map((x) => x.dataset.name));
+  check(alpha.length === 5 && JSON.stringify(alpha) === JSON.stringify([...alpha].sort()) && (await page.locator('[data-operator-list]').count()) === 0, 'custom residential page: alphabetical, no pinning');
+  await page.goto(`${BASE}/quote?market=assisted-living&size=commercial`);
+  check((await page.inputValue('#market')) === 'assisted-living' && (await page.textContent('#route-live')).includes('Clutch Cabinets NW'), 'quote from ALF page → market prefilled, routes to Clutch');
+  await page.goto(`${BASE}/quote`);
+  await page.selectOption('#market', 'multifamily');
+  check((await page.inputValue('#size')) === 'commercial', 'choosing a high-volume market sets size to commercial');
+
   // Shop pages
   for (const slug of ['clutch-cabinets-nw', 'sample-shop-a', 'sample-shop-b']) {
     const r = await page.goto(`${BASE}/shops/${slug}`);
@@ -99,7 +119,7 @@ try {
 
   // Mobile: no horizontal scroll
   await page.setViewportSize({ width: 375, height: 800 });
-  for (const p of ['/', '/directory', '/commercial', '/quote', '/shops/clutch-cabinets-nw']) {
+  for (const p of ['/', '/directory', '/commercial', '/quote', '/shops/clutch-cabinets-nw', '/markets/assisted-living']) {
     await page.goto(BASE + p);
     const over = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     check(!over, `no horizontal scroll at 375px on ${p}`);

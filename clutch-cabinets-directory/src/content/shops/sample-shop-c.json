@@ -4,9 +4,25 @@
   "city": "Albany",
   "state": "OR",
   "serviceArea": "Albany, Corvallis, Lebanon",
-  "specialties": ["Built-ins", "Furniture-grade cabinetry", "Restoration"],
-  "projectSizes": ["residential", "light-commercial"],
-  "capacity": { "unitsPerMonth": 8, "cncAutomated": false, "commercialProjectsCompleted": 3, "maxProjectUnits": 4, "leadTimeWeeks": 14 },
+  "specialties": [
+    "Built-ins",
+    "Furniture-grade cabinetry",
+    "Restoration"
+  ],
+  "segments": [
+    "custom-residential"
+  ],
+  "projectSizes": [
+    "residential",
+    "light-commercial"
+  ],
+  "capacity": {
+    "unitsPerMonth": 8,
+    "cncAutomated": false,
+    "commercialProjectsCompleted": 3,
+    "maxProjectUnits": 4,
+    "leadTimeWeeks": 14
+  },
   "phone": "(555) 010-0003",
   "email": "hello@example.com",
   "website": "https://example.com",

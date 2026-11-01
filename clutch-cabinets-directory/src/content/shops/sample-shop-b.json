@@ -4,9 +4,27 @@
   "city": "Eugene",
   "state": "OR",
   "serviceArea": "Eugene, Springfield, Lane County",
-  "specialties": ["Commercial casework", "Office millwork", "Kitchens"],
-  "projectSizes": ["residential", "light-commercial", "commercial"],
-  "capacity": { "unitsPerMonth": 60, "cncAutomated": true, "commercialProjectsCompleted": 18, "maxProjectUnits": 80, "leadTimeWeeks": 8 },
+  "specialties": [
+    "Commercial casework",
+    "Office millwork",
+    "Kitchens"
+  ],
+  "segments": [
+    "custom-residential",
+    "commercial"
+  ],
+  "projectSizes": [
+    "residential",
+    "light-commercial",
+    "commercial"
+  ],
+  "capacity": {
+    "unitsPerMonth": 60,
+    "cncAutomated": true,
+    "commercialProjectsCompleted": 18,
+    "maxProjectUnits": 80,
+    "leadTimeWeeks": 8
+  },
   "phone": "(555) 010-0002",
   "email": "hello@example.com",
   "website": "https://example.com",

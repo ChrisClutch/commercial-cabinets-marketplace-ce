@@ -4,9 +4,24 @@
   "city": "Salem",
   "state": "OR",
   "serviceArea": "Salem, Keizer, Silverton",
-  "specialties": ["Kitchens", "Bathroom vanities", "Built-ins"],
-  "projectSizes": ["residential"],
-  "capacity": { "unitsPerMonth": 12, "cncAutomated": false, "commercialProjectsCompleted": 0, "maxProjectUnits": 2, "leadTimeWeeks": 10 },
+  "specialties": [
+    "Kitchens",
+    "Bathroom vanities",
+    "Built-ins"
+  ],
+  "segments": [
+    "custom-residential"
+  ],
+  "projectSizes": [
+    "residential"
+  ],
+  "capacity": {
+    "unitsPerMonth": 12,
+    "cncAutomated": false,
+    "commercialProjectsCompleted": 0,
+    "maxProjectUnits": 2,
+    "leadTimeWeeks": 10
+  },
   "phone": "(555) 010-0001",
   "email": "hello@example.com",
   "website": "https://example.com",

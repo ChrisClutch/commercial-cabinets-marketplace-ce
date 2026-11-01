@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ShopCard from '../components/ShopCard.astro';
 import site from '../config/site.json';
-import { getShops, commercialRanking } from '../lib/shops';
+import { getShops, commercialRanking, SEGMENTS } from '../lib/shops';
 const shops = await getShops();
 const { operator, others } = commercialRanking(shops);
 const featuredCommercial = [...operator, ...others].slice(0, 3);
@@ -45,6 +45,10 @@ const jsonLd = {
           </a>
         ))}
       </div>
+      <h2 class="h-markets">Or browse by market</h2>
+      <ul class="market-links">
+        {SEGMENTS.map((s) => <li><a href={`/markets/${s.slug}`}><strong>{s.label}</strong><span>{s.blurb}</span></a></li>)}
+      </ul>
     </div>
   </section>
 
@@ -87,4 +91,10 @@ const jsonLd = {
   .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 20px; }
   .row p { max-width: 62ch; margin: 0; }
   .cta { text-align: center; }
+  .h-markets { margin-top: 40px; font-size: 1.25rem; }
+  .market-links { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+  .market-links a { display: block; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: var(--ink); height: 100%; }
+  .market-links a:hover { border-color: var(--primary); }
+  .market-links strong { display: block; color: var(--primary); }
+  .market-links span { font-size: .9rem; color: var(--muted); }
 </style>

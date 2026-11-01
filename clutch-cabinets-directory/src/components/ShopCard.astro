@@ -1,5 +1,5 @@
 ---
-import { SIZE_LABELS, initials, telHref, commercialScore, type Shop } from '../lib/shops';
+import { SIZE_LABELS, SEGMENT_LABELS, initials, telHref, commercialScore, type Shop } from '../lib/shops';
 interface Props { shop: Shop; rank?: number; showScore?: boolean; headingLevel?: 2 | 3; }
 const { shop, rank, showScore = false, headingLevel = 3 } = Astro.props;
 const H = `h${headingLevel}` as 'h2' | 'h3';
@@ -13,6 +13,7 @@ const keywords = [shop.name, shop.city, shop.serviceArea, shop.description, ...s
   data-name={shop.name.toLowerCase()}
   data-city={shop.city}
   data-sizes={shop.projectSizes.join('|')}
+  data-segments={shop.segments.join('|')}
   data-specialties={shop.specialties.join('|')}
   data-keywords={keywords}
   data-score={score}
@@ -35,6 +36,7 @@ const keywords = [shop.name, shop.city, shop.serviceArea, shop.description, ...s
   <ul class="tags" aria-label="Specialties">
     {shop.specialties.map((s) => <li class="tag">{s}</li>)}
   </ul>
+  {shop.segments.length > 0 && <p class="sizes"><strong>Markets:</strong> {shop.segments.map((s) => SEGMENT_LABELS[s]).join(', ')}</p>}
   <p class="sizes"><strong>Project size:</strong> {shop.projectSizes.map((s) => SIZE_LABELS[s]).join(', ')}</p>
   {showScore && <p class="sizes"><strong>Capacity score:</strong> {noCapacity ? 'Not yet published' : `${score}/100`}</p>}
   <div class="contact">

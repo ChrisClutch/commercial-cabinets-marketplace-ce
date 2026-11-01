@@ -4,9 +4,26 @@
   "city": "Salem",
   "state": "OR",
   "serviceArea": "Marion and Polk counties",
-  "specialties": ["Kitchens", "Closets", "Bathroom vanities"],
-  "projectSizes": ["residential", "light-commercial"],
-  "capacity": { "unitsPerMonth": 20, "cncAutomated": true, "commercialProjectsCompleted": 2, "maxProjectUnits": 6, "leadTimeWeeks": 5 },
+  "specialties": [
+    "Kitchens",
+    "Closets",
+    "Bathroom vanities"
+  ],
+  "segments": [
+    "custom-residential",
+    "commercial"
+  ],
+  "projectSizes": [
+    "residential",
+    "light-commercial"
+  ],
+  "capacity": {
+    "unitsPerMonth": 20,
+    "cncAutomated": true,
+    "commercialProjectsCompleted": 2,
+    "maxProjectUnits": 6,
+    "leadTimeWeeks": 5
+  },
   "phone": "(555) 010-0005",
   "email": "hello@example.com",
   "website": "https://example.com",

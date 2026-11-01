@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ShopCard from '../components/ShopCard.astro';
 import site from '../config/site.json';
-import { getShops, SIZE_LABELS } from '../lib/shops';
+import { getShops, SIZE_LABELS, SEGMENTS } from '../lib/shops';
 const shops = await getShops();
 const cities = [...new Set(shops.map((s) => s.city))].sort();
 const specialties = [...new Set(shops.flatMap((s) => s.specialties))].sort();
@@ -30,6 +30,13 @@ const specialties = [...new Set(shops.flatMap((s) => s.specialties))].sort();
           <select id="specialty" name="specialty">
             <option value="">All specialties</option>
             {specialties.map((s) => <option value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="market">Market</label>
+          <select id="market" name="market">
+            <option value="">All markets</option>
+            {SEGMENTS.map((s) => <option value={s.slug}>{s.label}</option>)}
           </select>
         </div>
         <div class="field">
@@ -64,7 +71,7 @@ const specialties = [...new Set(shops.flatMap((s) => s.specialties))].sort();
   const cards = [...document.querySelectorAll<HTMLElement>('[data-shop-card]')];
   const count = document.getElementById('count')!;
   const empty = document.getElementById('empty')!;
-  const fields = ['q', 'city', 'specialty', 'size'] as const;
+  const fields = ['q', 'city', 'specialty', 'market', 'size'] as const;
 
   // Prefill from URL (?q=...&size=...)
   const params = new URLSearchParams(location.search);
@@ -77,7 +84,7 @@ const specialties = [...new Set(shops.flatMap((s) => s.specialties))].sort();
   function apply() {
     const get = (f: string) => ((form.elements.namedItem(f) as HTMLInputElement).value || '').trim();
     const terms = get('q').toLowerCase().split(/\s+/).filter(Boolean);
-    const city = get('city'), specialty = get('specialty'), size = get('size');
+    const city = get('city'), specialty = get('specialty'), size = get('size'), market = get('market');
     let shown = 0;
     for (const c of cards) {
       const d = c.dataset;
@@ -85,7 +92,8 @@ const specialties = [...new Set(shops.flatMap((s) => s.specialties))].sort();
         terms.every((t) => d.keywords!.includes(t)) &&
         (!city || d.city === city) &&
         (!specialty || d.specialties!.split('|').includes(specialty)) &&
-        (!size || d.sizes!.split('|').includes(size));
+        (!size || d.sizes!.split('|').includes(size)) &&
+        (!market || d.segments!.split('|').includes(market));
       c.hidden = !ok;
       if (ok) shown++;
     }

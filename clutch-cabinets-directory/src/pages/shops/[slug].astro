@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import site from '../../config/site.json';
-import { getShops, SIZE_LABELS, RANKING_FACTORS, scoreBreakdown, initials, telHref, hasTodo, type Shop } from '../../lib/shops';
+import { getShops, SIZE_LABELS, SEGMENTS, RANKING_FACTORS, scoreBreakdown, initials, telHref, hasTodo, type Shop } from '../../lib/shops';
 
 export async function getStaticPaths() {
   const shops = await getShops();
@@ -65,6 +65,12 @@ const updateHref = `/request-update?shop=${encodeURIComponent(shop.slug)}`;
           <p>{shop.description}</p>
           <h2>Specialties</h2>
           <ul class="tags">{shop.specialties.map((s) => <li class="tag">{s}</li>)}</ul>
+          {shop.segments.length > 0 && (
+            <>
+              <h2 class="mt">Markets served</h2>
+              <ul class="tags">{SEGMENTS.filter((g) => (shop.segments as string[]).includes(g.slug)).map((g) => <li><a class="tag" href={`/markets/${g.slug}`}>{g.label}</a></li>)}</ul>
+            </>
+          )}
           <h2 class="mt">Project sizes</h2>
           <ul class="tags">{shop.projectSizes.map((s) => <li class="tag">{SIZE_LABELS[s]}</li>)}</ul>
 

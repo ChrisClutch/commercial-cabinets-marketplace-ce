@@ -1,10 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import site from '../config/site.json';
-import { getShops } from '../lib/shops';
+import { getShops, SEGMENTS } from '../lib/shops';
 const shops = await getShops();
 const operator = shops.find((s) => s.operator);
-const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential', 'New home build', 'Office / retail / medical', 'Multifamily', 'Hospitality', 'Senior living', 'Tenant improvement', 'Other'];
+const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential', 'New home build', 'Office / retail / medical', 'Multifamily', 'Assisted living / senior living', 'Hospitality', 'Student / workforce housing', 'Tenant improvement', 'Other'];
 ---
 <Base title="Request a Cabinet Quote" description={`Send one quote request to custom cabinet shops in ${site.region}. Commercial, multifamily and residential projects.`}>
   <section class="section">
@@ -47,6 +47,13 @@ const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential'
                 <option value="residential">Residential</option>
                 <option value="light-commercial">Light commercial</option>
                 <option value="commercial">Commercial / high-volume</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="market">Market</label>
+              <select id="market" name="market">
+                <option value="">Choose one</option>
+                {SEGMENTS.map((s) => <option value={s.slug}>{s.label}</option>)}
               </select>
             </div>
             <div class="field">
@@ -121,6 +128,14 @@ const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential'
   const params = new URLSearchParams(location.search);
   if (params.get('shop')) shop.value = params.get('shop');
   if (params.get('size')) size.value = params.get('size');
+  const market = document.getElementById('market');
+  if (params.get('market')) market.value = params.get('market');
+  // Every market except custom residential is commercial / high-volume.
+  market.addEventListener('change', () => {
+    if (market.value && market.value !== 'custom-residential') size.value = 'commercial';
+    else if (market.value === 'custom-residential' && size.value === 'commercial') size.value = 'residential';
+    update();
+  });
 
   function update() {
     if (size.value === 'commercial' && operatorName) {

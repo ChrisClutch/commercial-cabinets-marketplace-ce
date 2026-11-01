@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import ShopCard from '../../components/ShopCard.astro';
+import site from '../../config/site.json';
+import { getShops, segmentRanking, SEGMENTS, type SegmentSlug } from '../../lib/shops';
+
+export function getStaticPaths() {
+  return SEGMENTS.map((s) => ({ params: { segment: s.slug } }));
+}
+const slug = Astro.params.segment as SegmentSlug;
+const seg = SEGMENTS.find((s) => s.slug === slug)!;
+const shops = await getShops();
+const { operator, others, ranked } = segmentRanking(shops, slug);
+const quoteSize = ranked ? 'commercial' : 'residential';
+---
+<Base title={`${seg.label} Cabinet Shops in ${site.region}`} description={`${seg.label} cabinet shops serving ${site.region}. ${seg.blurb}`}>
+  <section class={ranked ? 'hero dark' : 'hero'}>
+    <div class="wrap">
+      <nav aria-label="Breadcrumb" class="small crumbs"><a href="/directory">Directory</a> / <span>Markets</span></nav>
+      <h1>{seg.label} cabinet shops</h1>
+      <p class="lead">{seg.intro}</p>
+      <a class="btn" href={`/quote?size=${quoteSize}&market=${seg.slug}`}>Request a quote</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <nav aria-label="Other markets" class="markets">
+        {SEGMENTS.map((s) => <a href={`/markets/${s.slug}`} aria-current={s.slug === slug ? 'page' : undefined}>{s.label}</a>)}
+      </nav>
+
+      {operator.length > 0 && (
+        <>
+          <h2 class="sub">Directory operator</h2>
+          <div class="grid" data-operator-list>{operator.map((s) => <ShopCard shop={s} showScore />)}</div>
+        </>
+      )}
+      <h2 class="sub">{ranked ? (operator.length ? 'Other shops, ranked by capacity score' : 'Shops, ranked by capacity score') : 'Shops, listed alphabetically'}</h2>
+      {others.length ? (
+        ranked ? (
+          <ol class="grid ranked" data-ranked-list>{others.map((s, i) => <li><ShopCard shop={s} rank={i + 1} showScore /></li>)}</ol>
+        ) : (
+          <div class="grid" data-alpha-list>{others.map((s) => <ShopCard shop={s} />)}</div>
+        )
+      ) : <p>No other shops are listed for this market yet. <a href="/request-update">Add your shop</a>.</p>}
+
+      {ranked && <p class="small muted note">{site.operatorName} operates this directory and its listing is shown first. Other shops are ranked by the <a href="/commercial#how-ranked">published capacity score</a>.</p>}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { background: var(--surface); border-bottom: 1px solid var(--line); padding: 44px 0 40px; }
+  .hero.dark { background: var(--ink); color: #f1ede6; border: 0; }
+  .hero.dark h1 { color: #fff; }
+  .hero.dark .lead { color: #d9d3c9; }
+  .hero.dark a:not(.btn) { color: #f3c77a; }
+  .hero.dark .btn { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+  .lead { font-size: 1.12rem; max-width: 66ch; color: var(--muted); }
+  .crumbs { margin-bottom: 12px; }
+  .markets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .markets a { border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: .92rem; }
+  .markets a[aria-current="page"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .sub { margin-top: 1.4em; color: var(--muted); font-size: 1rem; text-transform: uppercase; letter-spacing: .04em; }
+  .ranked { list-style: none; padding: 0; margin: 0; }
+  .ranked > li { display: flex; }
+  .ranked > li > :global(.card) { flex: 1; }
+  .note { margin-top: 20px; }
+</style>

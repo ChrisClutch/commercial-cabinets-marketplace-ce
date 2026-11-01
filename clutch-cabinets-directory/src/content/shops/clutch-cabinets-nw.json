@@ -4,8 +4,23 @@
   "city": "Salem",
   "state": "OR",
   "serviceArea": "TODO: confirm service area (e.g. Salem, Eugene, Sisters and the Willamette Valley)",
-  "specialties": ["Multifamily", "Commercial casework", "Kitchens"],
-  "projectSizes": ["residential", "light-commercial", "commercial"],
+  "specialties": [
+    "Multifamily",
+    "Commercial casework",
+    "Kitchens"
+  ],
+  "segments": [
+    "custom-residential",
+    "commercial",
+    "multifamily",
+    "assisted-living",
+    "large-volume-installation"
+  ],
+  "projectSizes": [
+    "residential",
+    "light-commercial",
+    "commercial"
+  ],
   "capacity": {
     "unitsPerMonth": null,
     "cncAutomated": null,

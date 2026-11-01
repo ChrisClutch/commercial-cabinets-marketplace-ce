@@ -2,15 +2,10 @@
 import Base from '../layouts/Base.astro';
 import ShopCard from '../components/ShopCard.astro';
 import site from '../config/site.json';
-import { getShops, commercialRanking, RANKING_FACTORS } from '../lib/shops';
+import { getShops, commercialRanking, RANKING_FACTORS, SEGMENTS } from '../lib/shops';
 const shops = await getShops();
 const { operator, others } = commercialRanking(shops);
-const useCases = [
-  { t: 'Multifamily', d: 'Repeat kitchen and bath packages across dozens or hundreds of units, delivered floor by floor to match your schedule.' },
-  { t: 'Hospitality', d: 'Guest-room vanities, wardrobes and front-of-house millwork built to a standard across every room.' },
-  { t: 'Senior living', d: 'Accessible heights, ADA-compliant vanities, durable finishes and consistent units for assisted and independent living.' },
-  { t: 'Tenant improvements', d: 'Breakrooms, reception desks, storage walls and casework on tight TI schedules for office, retail and medical space.' },
-];
+const useCases = SEGMENTS.filter((s) => s.ranked);
 ---
 <Base title="Commercial & High-Volume Cabinet Shops" description={`Commercial and high-volume cabinet production in ${site.region} for developers, general contractors and property managers. Multifamily, hospitality, senior living and tenant improvements.`}>
   <section class="hero">
@@ -24,9 +19,9 @@ const useCases = [
 
   <section class="section">
     <div class="wrap">
-      <h2>Project types</h2>
+      <h2>Browse by market</h2>
       <div class="uses">
-        {useCases.map((u) => <div class="use"><h3>{u.t}</h3><p>{u.d}</p></div>)}
+        {useCases.map((u) => <div class="use"><h3><a href={`/markets/${u.slug}`}>{u.label}</a></h3><p>{u.blurb}</p></div>)}
       </div>
     </div>
   </section>
@@ -77,6 +72,8 @@ const useCases = [
   .hero .btn:hover { background: #fff; border-color: #fff; }
   .uses { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
   .use { border-left: 4px solid var(--primary); padding: 4px 0 4px 16px; }
+  .use h3 a { color: var(--ink); }
+  .use h3 a:hover { color: var(--primary); }
   .use p { color: var(--muted); margin: 0; }
   .sub { margin-top: 1.2em; color: var(--muted); font-size: 1rem; text-transform: uppercase; letter-spacing: .04em; }
   .ranked { list-style: none; padding: 0; margin: 0; }

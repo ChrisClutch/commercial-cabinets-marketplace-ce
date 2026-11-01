@@ -90,3 +90,56 @@ export const initials = (name: string) =>
 export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 
 export const hasTodo = (v?: string) => !v || TODO_RE.test(v);
+
+/** Market segments. `ranked` markets use the operator-pinned capacity ranking; others list alphabetically. */
+export const SEGMENTS = [
+  {
+    slug: 'custom-residential',
+    label: 'Custom Residential',
+    ranked: false,
+    blurb: 'Kitchens, baths, built-ins and whole-home cabinetry for homeowners, remodelers and custom builders.',
+    intro: 'Custom residential shops build one home at a time, matching your layout, finish and style. Listed alphabetically.',
+  },
+  {
+    slug: 'commercial',
+    label: 'Commercial & Tenant Improvement',
+    ranked: true,
+    blurb: 'Office, retail, medical and restaurant casework, reception desks, breakrooms and TI build-outs.',
+    intro: 'Commercial casework for offices, retail, medical and restaurant space, built to drawings and delivered on a GC schedule.',
+  },
+  {
+    slug: 'multifamily',
+    label: 'Multifamily',
+    ranked: true,
+    blurb: 'Repeat kitchen and bath packages for apartments, condos, student housing and affordable housing.',
+    intro: 'Multifamily projects need repeatable unit packages, phased delivery floor by floor, and a shop with the capacity to keep up with the framing schedule.',
+  },
+  {
+    slug: 'assisted-living',
+    label: 'Assisted Living & Senior Living',
+    ranked: true,
+    blurb: 'ALF, memory care and independent living: accessible heights, ADA vanities and durable finishes.',
+    intro: 'Assisted living, memory care and independent living facilities need ADA-compliant vanities, accessible counter heights, durable easy-clean finishes and consistent units across the building.',
+  },
+  {
+    slug: 'large-volume-installation',
+    label: 'Other Large-Volume Installation',
+    ranked: true,
+    blurb: 'Hospitality, dormitories, workforce housing, schools and other projects counted in units, not rooms.',
+    intro: 'Hotels, dormitories, workforce housing, schools and other projects where cabinets are produced and installed by the dozens or hundreds.',
+  },
+] as const;
+
+export type SegmentSlug = (typeof SEGMENTS)[number]['slug'];
+export const SEGMENT_LABELS = Object.fromEntries(SEGMENTS.map((s) => [s.slug, s.label])) as Record<string, string>;
+
+export function segmentRanking(shops: Shop[], slug: SegmentSlug) {
+  const inSeg = shops.filter((s) => (s.segments as string[]).includes(slug));
+  const def = SEGMENTS.find((s) => s.slug === slug)!;
+  if (!def.ranked) return { operator: [] as Shop[], others: [...inSeg].sort(byName), ranked: false };
+  return {
+    operator: inSeg.filter((s) => s.operator),
+    others: inSeg.filter((s) => !s.operator).sort((a, b) => commercialScore(b) - commercialScore(a) || byName(a, b)),
+    ranked: true,
+  };
+}

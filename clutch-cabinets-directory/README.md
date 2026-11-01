@@ -7,7 +7,7 @@ clutch-cabinets-directory/
 ├── src/config/site.json        ← site name, region, emails, colors (one place)
 ├── src/content/shops/*.json    ← one file per shop (edited via /admin)
 ├── src/lib/shops.ts            ← commercial ranking formula
-├── src/pages/                  ← home, directory, shops/[slug], commercial, quote, about…
+├── src/pages/                  ← home, directory, shops/[slug], markets/[segment], commercial, quote, about…
 ├── public/admin/               ← Decap CMS (config.yml = admin form fields)
 ├── public/images/shops/        ← uploaded logos/photos
 └── tests/smoke.mjs             ← end-to-end test (Playwright)
@@ -15,7 +15,7 @@ clutch-cabinets-directory/
 
 ## Before launch: TODO list
 The build prints a `[TODO]` warning until these are filled in.
-1. **Clutch Cabinets NW listing**: `src/content/shops/clutch-cabinets-nw.json`. Fill in the real capacity numbers, service area, phone, email and description. Use only numbers you can back up. Until then the commercial pages show "Capacity score: Not yet published."
+1. **Clutch Cabinets NW listing**: confirm which **Markets** Clutch should be listed in (currently all five), in `src/content/shops/clutch-cabinets-nw.json`. Fill in the real capacity numbers, service area, phone, email and description. Use only numbers you can back up. Until then the commercial pages show "Capacity score: Not yet published."
 2. **Site settings**: `src/config/site.json`. Replace `[SITE NAME]`, `[REGION…]`, `[YOUR-EMAIL]` and `siteUrl`.
 3. **Delete the 5 sample shops** (`sample-shop-*.json`) and add real ones.
 4. Read through the copy for promises you need to keep. The site currently says shops never pay for ranking, listings are free, and visitor info isn't shared beyond the shop handling the request. Edit these lines if any of them won't stay true: `commercial.astro`, `about.astro`, `quote.astro`.
@@ -39,6 +39,7 @@ npm run build && npm test   // the test needs Playwright: npm i -D playwright &&
 
 Field tips:
 - **URL slug**: lowercase letters, numbers and dashes. It becomes `/shops/<slug>`.
+- **Markets**: choose any of Custom Residential, Commercial & Tenant Improvement, Multifamily, Assisted Living & Senior Living, and Other Large-Volume Installation. Each market has its own page (`/markets/multifamily`, `/markets/assisted-living`, …) and a filter in the directory. Custom Residential is listed alphabetically. The other four list the operator first, then rank shops by capacity score.
 - **Capacity fields**: these drive the commercial ranking. Leave a field blank if you don't know it (blank scores 0).
 - **Operator**: keep this on for Clutch Cabinets NW only. It pins Clutch first on `/commercial` with an "Operator" label.
 - **Featured**: adds a "Featured" label. It doesn't change any ranking.
