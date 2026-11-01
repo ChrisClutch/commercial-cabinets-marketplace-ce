@@ -1,0 +1,63 @@
+---
+import { SIZE_LABELS, initials, telHref, commercialScore, type Shop } from '../lib/shops';
+interface Props { shop: Shop; rank?: number; showScore?: boolean; headingLevel?: 2 | 3; }
+const { shop, rank, showScore = false, headingLevel = 3 } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const score = commercialScore(shop);
+const noCapacity = Object.values(shop.capacity ?? {}).every((v) => v === null || v === undefined);
+const keywords = [shop.name, shop.city, shop.serviceArea, shop.description, ...shop.specialties].join(' ').toLowerCase();
+---
+<article
+  class="card"
+  data-shop-card
+  data-name={shop.name.toLowerCase()}
+  data-city={shop.city}
+  data-sizes={shop.projectSizes.join('|')}
+  data-specialties={shop.specialties.join('|')}
+  data-keywords={keywords}
+  data-score={score}
+>
+  <div class="card-top">
+    {shop.logo ? (
+      <img class="logo" src={shop.logo} alt={`${shop.name} logo`} width="56" height="56" loading="lazy" />
+    ) : (
+      <div class="logo mono" aria-hidden="true">{initials(shop.name)}</div>
+    )}
+    <div>
+      <H class="card-title">
+        {rank && <span class="rank">#{rank}</span>}
+        <a href={`/shops/${shop.slug}`}>{shop.name}</a>
+      </H>
+      <p class="loc">{shop.city}, {shop.state} · <span class="muted">{shop.serviceArea}</span></p>
+      {shop.operator ? <span class="badge">Operator</span> : shop.featured ? <span class="badge featured">Featured</span> : null}
+    </div>
+  </div>
+  <ul class="tags" aria-label="Specialties">
+    {shop.specialties.map((s) => <li class="tag">{s}</li>)}
+  </ul>
+  <p class="sizes"><strong>Project size:</strong> {shop.projectSizes.map((s) => SIZE_LABELS[s]).join(', ')}</p>
+  {showScore && <p class="sizes"><strong>Capacity score:</strong> {noCapacity ? 'Not yet published' : `${score}/100`}</p>}
+  <div class="contact">
+    {shop.phone && <a href={telHref(shop.phone)}>{shop.phone}</a>}
+    {shop.email && <a href={`mailto:${shop.email}`}>Email</a>}
+    {shop.website && <a href={shop.website} rel="noopener">Website<span class="sr"> for {shop.name}</span></a>}
+    <a href={`/shops/${shop.slug}`} class="more">Details<span class="sr"> for {shop.name}</span> →</a>
+  </div>
+</article>
+
+<style>
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 18px; background: #fff; display: flex; flex-direction: column; gap: 12px; }
+  .card[hidden] { display: none; }
+  .card-top { display: flex; gap: 14px; align-items: flex-start; }
+  .logo { width: 56px; height: 56px; border-radius: 6px; object-fit: cover; flex: none; }
+  .mono { display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); font-weight: 800; color: var(--primary); }
+  .card-title { margin: 0 0 2px; font-size: 1.1rem; }
+  .card-title a { color: var(--ink); text-decoration: none; }
+  .card-title a:hover { text-decoration: underline; }
+  .rank { color: var(--primary); margin-right: 6px; }
+  .loc { margin: 0 0 6px; font-size: .92rem; }
+  .sizes { margin: 0; font-size: .92rem; }
+  .contact { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .92rem; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line); }
+  .more { margin-left: auto; font-weight: 700; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

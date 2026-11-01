@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import ShopCard from '../components/ShopCard.astro';
+import site from '../config/site.json';
+import { getShops, commercialRanking, RANKING_FACTORS } from '../lib/shops';
+const shops = await getShops();
+const { operator, others } = commercialRanking(shops);
+const useCases = [
+  { t: 'Multifamily', d: 'Repeat kitchen and bath packages across dozens or hundreds of units, delivered floor by floor to match your schedule.' },
+  { t: 'Hospitality', d: 'Guest-room vanities, wardrobes and front-of-house millwork built to a standard across every room.' },
+  { t: 'Senior living', d: 'Accessible heights, ADA-compliant vanities, durable finishes and consistent units for assisted and independent living.' },
+  { t: 'Tenant improvements', d: 'Breakrooms, reception desks, storage walls and casework on tight TI schedules for office, retail and medical space.' },
+];
+---
+<Base title="Commercial & High-Volume Cabinet Shops" description={`Commercial and high-volume cabinet production in ${site.region} for developers, general contractors and property managers. Multifamily, hospitality, senior living and tenant improvements.`}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">For developers, GCs, property managers and builders</p>
+      <h1>Commercial &amp; high-volume cabinet production</h1>
+      <p class="lead">When your project is counted in units, not rooms, you need a shop with the production capacity, scheduling and commercial experience to deliver on time. These shops take on commercial work in {site.region}.</p>
+      <a class="btn" href="/quote?size=commercial">Request a commercial quote</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Project types</h2>
+      <div class="uses">
+        {useCases.map((u) => <div class="use"><h3>{u.t}</h3><p>{u.d}</p></div>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Commercial shops</h2>
+      {operator.length > 0 && (
+        <>
+          <h3 class="sub">Directory operator</h3>
+          <div class="grid" data-operator-list>
+            {operator.map((s) => <ShopCard shop={s} showScore />)}
+          </div>
+        </>
+      )}
+      <h3 class="sub">Other qualifying shops, ranked by capacity score</h3>
+      {others.length ? (
+        <ol class="grid ranked" data-ranked-list>
+          {others.map((s, i) => <li><ShopCard shop={s} rank={i + 1} showScore /></li>)}
+        </ol>
+      ) : <p>No other commercial shops are listed yet.</p>}
+    </div>
+  </section>
+
+  <section class="section" id="how-ranked">
+    <div class="wrap narrow">
+      <h2>How shops are ranked</h2>
+      <p><strong>{site.operatorName} operates this directory.</strong> Its listing is shown first in its own labeled section. All other shops that take commercial work are ranked by a 100-point capacity score built from the information each shop provides:</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th scope="col">Factor</th><th scope="col">Max points</th><th scope="col">How it's scored</th></tr></thead>
+          <tbody>
+            {RANKING_FACTORS.map((f) => <tr><td>{f.label}</td><td>{f.max}</td><td>{f.rule}</td></tr>)}
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted">A blank value scores zero for that factor. Shops never pay for ranking position. Ties are broken alphabetically. Residential and light-commercial listings in the <a href="/directory">directory</a> are shown alphabetically with no ranking. Shop owners can <a href="/request-update">submit updated capacity details</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { background: var(--ink); color: #f1ede6; padding: 56px 0 48px; }
+  .hero h1 { color: #fff; }
+  .eyebrow { font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  .lead { font-size: 1.15rem; max-width: 64ch; color: #d9d3c9; }
+  .hero .btn { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+  .hero .btn:hover { background: #fff; border-color: #fff; }
+  .uses { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+  .use { border-left: 4px solid var(--primary); padding: 4px 0 4px 16px; }
+  .use p { color: var(--muted); margin: 0; }
+  .sub { margin-top: 1.2em; color: var(--muted); font-size: 1rem; text-transform: uppercase; letter-spacing: .04em; }
+  .ranked { list-style: none; padding: 0; margin: 0; }
+  .ranked > li { display: flex; }
+  .ranked > li > :global(.card) { flex: 1; }
+  .narrow { max-width: 820px; }
+</style>

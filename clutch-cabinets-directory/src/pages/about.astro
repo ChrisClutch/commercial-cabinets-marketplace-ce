@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import site from '../config/site.json';
+---
+<Base title="About This Directory" description={`Who runs ${site.siteName}, how listings are chosen and how commercial shops are ranked.`}>
+  <section class="section">
+    <div class="wrap" style="max-width:780px">
+      <h1>About {site.siteName}</h1>
+      <p class="callout"><strong>This directory is operated by <a href={site.operatorUrl}>{site.operatorName}</a>.</strong> We're a cabinet shop too, and our own listing is marked "Operator" wherever it appears.</p>
+
+      <h2>Why we built it</h2>
+      <p>Homeowners, builders and developers in {site.region} kept asking us the same question: who does what? Some shops are best at one beautiful kitchen; others are set up to produce cabinets for a 200-unit building. This directory puts that information in one place so you can find a shop that fits the size of your project.</p>
+
+      <h2>How listings are ordered</h2>
+      <ul>
+        <li><strong>Directory and residential searches:</strong> alphabetical, with no ranking or boosting.</li>
+        <li><strong>Commercial &amp; high-volume page:</strong> our listing appears first in its own labeled "Directory operator" section. Every other shop is ranked by a published capacity score. <a href="/commercial#how-ranked">See exactly how it's calculated</a>.</li>
+        <li><strong>"Featured" label:</strong> a shop the site operator has chosen to highlight. Featuring a shop doesn't change its place in any ranking.</li>
+      </ul>
+
+      <h2>Quote requests</h2>
+      <p>Quote requests are received by {site.operatorName} and forwarded to the shop you choose. Commercial and high-volume requests come to us directly. <a href="/quote#routing">Details on the quote page</a>.</p>
+
+      <h2>Corrections</h2>
+      <p>If your shop's information is wrong or missing, <a href="/request-update">request an update</a> or email <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>. Listings are free.</p>
+    </div>
+  </section>
+</Base>

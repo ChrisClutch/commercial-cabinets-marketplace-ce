@@ -1,0 +1,17 @@
+{
+  "name": "clutch-cabinets-directory",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "cms": "cd .. && npx decap-server",
+    "test": "node tests/smoke.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.4",
+    "astro": "5.18.2"
+  }
+}

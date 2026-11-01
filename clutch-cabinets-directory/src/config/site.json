@@ -1,0 +1,19 @@
+{
+  "siteName": "[SITE NAME]",
+  "tagline": "Compare local custom cabinet shops, from single kitchens to 300-unit buildings.",
+  "region": "[REGION, e.g. Willamette Valley, OR]",
+  "siteUrl": "https://www.example.com",
+  "operatorName": "Clutch Cabinets NW",
+  "operatorUrl": "https://www.clutchcabinetsnw.com",
+  "contactEmail": "[YOUR-EMAIL]",
+  "quoteEmail": "[YOUR-EMAIL]",
+  "colors": {
+    "primary": "#7a3e12",
+    "primaryDark": "#5c2e0c",
+    "accent": "#e0a63a",
+    "ink": "#1d2125",
+    "muted": "#525a63",
+    "surface": "#f6f3ee",
+    "line": "#ddd6cb"
+  }
+}

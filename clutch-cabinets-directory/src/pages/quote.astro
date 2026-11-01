@@ -1,0 +1,145 @@
+---
+import Base from '../layouts/Base.astro';
+import site from '../config/site.json';
+import { getShops } from '../lib/shops';
+const shops = await getShops();
+const operator = shops.find((s) => s.operator);
+const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home residential', 'New home build', 'Office / retail / medical', 'Multifamily', 'Hospitality', 'Senior living', 'Tenant improvement', 'Other'];
+---
+<Base title="Request a Cabinet Quote" description={`Send one quote request to custom cabinet shops in ${site.region}. Commercial, multifamily and residential projects.`}>
+  <section class="section">
+    <div class="wrap narrow">
+      <h1>Request a quote</h1>
+      <p class="muted">Tell us about the project. The more detail on quantities and timeline, the faster you'll get an accurate number.</p>
+
+      <div class="callout" id="routing">
+        <h2 class="h3">Where your request goes</h2>
+        <ul>
+          <li><strong>Commercial &amp; high-volume projects</strong> go to {site.operatorName}, the operator of this directory.</li>
+          <li><strong>Residential and light-commercial projects</strong> go to the shop you choose below. If you don't choose one, the site owner will suggest a shop that fits.</li>
+          <li>Every request is received first by {site.operatorName}, which runs this site, and is then forwarded. We don't sell or share your information beyond the shop handling your request.</li>
+        </ul>
+        <p id="route-live" class="route-live" role="status" aria-live="polite"></p>
+      </div>
+
+      <form name="quote" method="POST" action="/thanks" data-netlify="true" netlify-honeypot="bot-field" id="quote-form">
+        <input type="hidden" name="form-name" value="quote" />
+        <input type="hidden" name="route-to" id="route-to" value="" />
+        <p class="hp"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+
+        <fieldset>
+          <legend>Your details</legend>
+          <div class="two">
+            <div class="field"><label for="name">Name <span aria-hidden="true">*</span></label><input id="name" name="name" required autocomplete="name" /></div>
+            <div class="field"><label for="company">Company</label><input id="company" name="company" autocomplete="organization" /></div>
+            <div class="field"><label for="email">Email <span aria-hidden="true">*</span></label><input id="email" name="email" type="email" required autocomplete="email" /></div>
+            <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" autocomplete="tel" /></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Your project</legend>
+          <div class="two">
+            <div class="field">
+              <label for="size">Project size <span aria-hidden="true">*</span></label>
+              <select id="size" name="project-size" required>
+                <option value="">Choose one</option>
+                <option value="residential">Residential</option>
+                <option value="light-commercial">Light commercial</option>
+                <option value="commercial">Commercial / high-volume</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="type">Project type <span aria-hidden="true">*</span></label>
+              <select id="type" name="project-type" required>
+                <option value="">Choose one</option>
+                {projectTypes.map((t) => <option>{t}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for="qty">Approximate quantity</label>
+              <input id="qty" name="quantity" inputmode="decimal" placeholder="e.g. 120" aria-describedby="qty-hint" />
+              <p class="hint" id="qty-hint">Enter a number, then choose the unit.</p>
+            </div>
+            <div class="field">
+              <label for="qty-unit">Quantity unit</label>
+              <select id="qty-unit" name="quantity-unit">
+                <option>Units (apartments, rooms, keys)</option>
+                <option>Rooms</option>
+                <option>Linear feet of cabinetry</option>
+              </select>
+            </div>
+            <div class="field"><label for="location">Project location <span aria-hidden="true">*</span></label><input id="location" name="location" required placeholder="City or address" /></div>
+            <div class="field">
+              <label for="timeline">Timeline</label>
+              <select id="timeline" name="timeline">
+                <option>Ready now / within 1 month</option>
+                <option>1–3 months</option>
+                <option>3–6 months</option>
+                <option>6+ months</option>
+                <option>Budgeting only</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" id="shop-field">
+            <label for="shop">Preferred shop</label>
+            <select id="shop" name="preferred-shop" aria-describedby="shop-hint">
+              <option value="">No preference: let the site owner suggest one</option>
+              {shops.map((s) => <option value={s.slug}>{s.name}{s.operator ? ' (operator)' : ''}</option>)}
+            </select>
+            <p class="hint" id="shop-hint">Commercial &amp; high-volume requests go to {site.operatorName}.</p>
+          </div>
+          <div class="field"><label for="details">Project details</label><textarea id="details" name="details" placeholder="Finish, style, plans available, GC or owner, bid date…"></textarea></div>
+        </fieldset>
+
+        <button class="btn" type="submit">Send request</button>
+        <p class="small muted">Fields marked * are required.</p>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow { max-width: 780px; }
+  .h3 { font-size: 1.15rem; }
+  .callout ul { margin: 0 0 4px; padding-left: 20px; }
+  .callout li { margin-bottom: 6px; }
+  .route-live:empty { display: none; }
+  .route-live { font-weight: 700; margin: 8px 0 0; }
+  form { margin-top: 28px; }
+  fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 16px 16px 0; margin: 0 0 20px; }
+  legend { font-weight: 800; padding: 0 6px; }
+  .two { display: grid; gap: 0 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+  .hp { position: absolute; left: -9999px; }
+</style>
+
+<script define:vars={{ operatorName: operator?.name ?? '', operatorSlug: operator?.slug ?? '' }}>
+  const size = document.getElementById('size');
+  const shop = document.getElementById('shop');
+  const routeTo = document.getElementById('route-to');
+  const live = document.getElementById('route-live');
+  const params = new URLSearchParams(location.search);
+  if (params.get('shop')) shop.value = params.get('shop');
+  if (params.get('size')) size.value = params.get('size');
+
+  function update() {
+    if (size.value === 'commercial' && operatorName) {
+      shop.value = operatorSlug;
+      shop.disabled = true;
+      routeTo.value = operatorName;
+      live.textContent = `This request will go to ${operatorName}.`;
+    } else {
+      shop.disabled = false;
+      const opt = shop.options[shop.selectedIndex];
+      routeTo.value = shop.value ? opt.text : 'Site owner to suggest a shop';
+      live.textContent = size.value
+        ? (shop.value ? `This request will be forwarded to ${opt.text}.` : 'The site owner will suggest a shop that fits.')
+        : '';
+    }
+  }
+  size.addEventListener('change', update);
+  shop.addEventListener('change', update);
+  // Disabled fields aren't submitted; make sure the chosen shop is.
+  document.getElementById('quote-form').addEventListener('submit', () => { shop.disabled = false; });
+  update();
+</script>

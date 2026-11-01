@@ -1,0 +1,23 @@
+{
+  "name": "Clutch Cabinets NW",
+  "slug": "clutch-cabinets-nw",
+  "city": "Salem",
+  "state": "OR",
+  "serviceArea": "TODO: confirm service area (e.g. Salem, Eugene, Sisters and the Willamette Valley)",
+  "specialties": ["Multifamily", "Commercial casework", "Kitchens"],
+  "projectSizes": ["residential", "light-commercial", "commercial"],
+  "capacity": {
+    "unitsPerMonth": null,
+    "cncAutomated": null,
+    "commercialProjectsCompleted": null,
+    "maxProjectUnits": null,
+    "leadTimeWeeks": null
+  },
+  "phone": "",
+  "email": "",
+  "website": "https://www.clutchcabinetsnw.com",
+  "logo": "",
+  "featured": true,
+  "operator": true,
+  "description": "Clutch Cabinets NW operates this directory. TODO: replace with a short, factual description of the shop."
+}

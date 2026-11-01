@@ -1,0 +1,17 @@
+{
+  "name": "Sample Shop A – Placeholder",
+  "slug": "sample-shop-a",
+  "city": "Salem",
+  "state": "OR",
+  "serviceArea": "Salem, Keizer, Silverton",
+  "specialties": ["Kitchens", "Bathroom vanities", "Built-ins"],
+  "projectSizes": ["residential"],
+  "capacity": { "unitsPerMonth": 12, "cncAutomated": false, "commercialProjectsCompleted": 0, "maxProjectUnits": 2, "leadTimeWeeks": 10 },
+  "phone": "(555) 010-0001",
+  "email": "hello@example.com",
+  "website": "https://example.com",
+  "logo": "",
+  "featured": false,
+  "operator": false,
+  "description": "Placeholder listing. A small residential shop focused on painted and stained kitchens. Replace or delete this sample before launch."
+}

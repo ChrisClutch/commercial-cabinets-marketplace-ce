@@ -1,0 +1,104 @@
+---
+import Base from '../layouts/Base.astro';
+import ShopCard from '../components/ShopCard.astro';
+import site from '../config/site.json';
+import { getShops, SIZE_LABELS } from '../lib/shops';
+const shops = await getShops();
+const cities = [...new Set(shops.map((s) => s.city))].sort();
+const specialties = [...new Set(shops.flatMap((s) => s.specialties))].sort();
+---
+<Base title="Cabinet Shop Directory" description={`Browse and filter custom cabinet shops in ${site.region} by city, specialty and project size. Search by name or keyword.`}>
+  <section class="section">
+    <div class="wrap">
+      <h1>Cabinet shop directory</h1>
+      <p class="muted">Shops are listed alphabetically. Use the filters to narrow the list.</p>
+
+      <form id="filters" class="filters" role="search" aria-label="Filter shops">
+        <div class="field">
+          <label for="q">Search</label>
+          <input id="q" name="q" type="search" placeholder="Name or keyword" />
+        </div>
+        <div class="field">
+          <label for="city">Location</label>
+          <select id="city" name="city">
+            <option value="">All locations</option>
+            {cities.map((c) => <option value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="specialty">Specialty</label>
+          <select id="specialty" name="specialty">
+            <option value="">All specialties</option>
+            {specialties.map((s) => <option value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="size">Project size</label>
+          <select id="size" name="size">
+            <option value="">All sizes</option>
+            {Object.entries(SIZE_LABELS).map(([v, l]) => <option value={v}>{l}</option>)}
+          </select>
+        </div>
+        <div class="field actions">
+          <button type="reset" class="btn ghost">Clear</button>
+        </div>
+      </form>
+
+      <p id="count" class="count" role="status" aria-live="polite">{shops.length} shops</p>
+      <div class="grid" id="results">
+        {shops.map((s) => <ShopCard shop={s} />)}
+      </div>
+      <p id="empty" class="callout" hidden>No shops match those filters. <a href="/directory">Clear filters</a> or <a href="/quote">send a quote request</a> and we'll point you to a shop.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .filters { display: grid; gap: 0 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); align-items: end; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 16px 0; margin: 20px 0; }
+  .actions .btn { width: 100%; }
+  .count { font-weight: 700; }
+</style>
+
+<script>
+  const form = document.getElementById('filters') as HTMLFormElement;
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-shop-card]')];
+  const count = document.getElementById('count')!;
+  const empty = document.getElementById('empty')!;
+  const fields = ['q', 'city', 'specialty', 'size'] as const;
+
+  // Prefill from URL (?q=...&size=...)
+  const params = new URLSearchParams(location.search);
+  for (const f of fields) {
+    const el = form.elements.namedItem(f) as HTMLInputElement | HTMLSelectElement;
+    const v = params.get(f);
+    if (v && el) el.value = v;
+  }
+
+  function apply() {
+    const get = (f: string) => ((form.elements.namedItem(f) as HTMLInputElement).value || '').trim();
+    const terms = get('q').toLowerCase().split(/\s+/).filter(Boolean);
+    const city = get('city'), specialty = get('specialty'), size = get('size');
+    let shown = 0;
+    for (const c of cards) {
+      const d = c.dataset;
+      const ok =
+        terms.every((t) => d.keywords!.includes(t)) &&
+        (!city || d.city === city) &&
+        (!specialty || d.specialties!.split('|').includes(specialty)) &&
+        (!size || d.sizes!.split('|').includes(size));
+      c.hidden = !ok;
+      if (ok) shown++;
+    }
+    count.textContent = `${shown} ${shown === 1 ? 'shop' : 'shops'}`;
+    empty.hidden = shown > 0;
+    const next = new URLSearchParams();
+    for (const f of fields) { const v = get(f); if (v) next.set(f, v); }
+    const qs = next.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+  }
+
+  form.addEventListener('input', apply);
+  form.addEventListener('submit', (e) => { e.preventDefault(); apply(); });
+  form.addEventListener('reset', () => setTimeout(apply, 0));
+  apply();
+</script>

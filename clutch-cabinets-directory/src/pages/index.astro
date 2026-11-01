@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/Base.astro';
+import ShopCard from '../components/ShopCard.astro';
+import site from '../config/site.json';
+import { getShops, commercialRanking } from '../lib/shops';
+const shops = await getShops();
+const { operator, others } = commercialRanking(shops);
+const featuredCommercial = [...operator, ...others].slice(0, 3);
+const entry = [
+  { size: 'residential', title: 'Residential', text: 'Kitchens, baths, built-ins and closets for homeowners and remodelers.' },
+  { size: 'light-commercial', title: 'Light Commercial', text: 'Offices, retail, clinics and small multi-unit projects.' },
+  { size: 'commercial', title: 'Commercial & High-Volume', text: 'Multifamily, hospitality, senior living and tenant improvements.', href: '/commercial' },
+];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: site.siteName,
+  url: site.siteUrl,
+  potentialAction: { '@type': 'SearchAction', target: `${site.siteUrl}/directory?q={search_term_string}`, 'query-input': 'required name=search_term_string' },
+};
+---
+<Base title={site.siteName} description={`Compare custom cabinet shops in ${site.region}. Filter by city, specialty and project size, from one kitchen to multifamily and commercial production.`} jsonLd={jsonLd}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Custom cabinet shops · {site.region}</p>
+      <h1>Find the right cabinet shop for the size of your project.</h1>
+      <p class="lead">{site.tagline} Each listing shows the shop's specialties, the project sizes it takes on and its contact details.</p>
+      <form action="/directory" method="get" role="search" class="search">
+        <label for="home-q" class="vh">Search shops by name, city or keyword</label>
+        <input id="home-q" name="q" type="search" placeholder="Search by name, city or keyword (e.g. vanities, Eugene)" />
+        <button class="btn" type="submit">Search</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Start with your project size</h2>
+      <div class="entry">
+        {entry.map((e) => (
+          <a class="entry-card" href={e.href ?? `/directory?size=${e.size}`}>
+            <h3>{e.title}</h3>
+            <p>{e.text}</p>
+            <span class="go">Browse shops →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="row">
+        <div>
+          <h2>Commercial &amp; high-volume production</h2>
+          <p class="muted">For developers, general contractors and property managers. The operator's listing appears first and is labeled. Other shops are ranked by <a href="/commercial#how-ranked">published capacity criteria</a>.</p>
+        </div>
+        <a class="btn ghost" href="/commercial">See all commercial shops</a>
+      </div>
+      <div class="grid">
+        {featuredCommercial.map((s) => <ShopCard shop={s} showScore={!s.operator} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap cta">
+      <h2>Have a project ready to price?</h2>
+      <p>Send one request with your quantities and timeline. <a href="/quote#routing">See where requests go</a>.</p>
+      <a class="btn" href="/quote">Request a quote</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { background: var(--surface); border-bottom: 1px solid var(--line); padding: 56px 0 48px; }
+  .eyebrow { font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  .lead { font-size: 1.15rem; max-width: 62ch; color: var(--muted); }
+  .search { display: flex; gap: 8px; max-width: 640px; flex-wrap: wrap; }
+  .search input { flex: 1 1 260px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .entry { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+  .entry-card { display: block; border: 1px solid var(--line); border-top: 4px solid var(--primary); border-radius: 8px; padding: 20px; text-decoration: none; color: var(--ink); background: #fff; }
+  .entry-card:hover { border-color: var(--primary); }
+  .entry-card p { color: var(--muted); }
+  .go { font-weight: 700; color: var(--primary); }
+  .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 20px; }
+  .row p { max-width: 62ch; margin: 0; }
+  .cta { text-align: center; }
+</style>

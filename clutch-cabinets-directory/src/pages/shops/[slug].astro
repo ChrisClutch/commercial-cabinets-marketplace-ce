@@ -1,0 +1,114 @@
+---
+import Base from '../../layouts/Base.astro';
+import site from '../../config/site.json';
+import { getShops, SIZE_LABELS, RANKING_FACTORS, scoreBreakdown, initials, telHref, hasTodo, type Shop } from '../../lib/shops';
+
+export async function getStaticPaths() {
+  const shops = await getShops();
+  return shops.map((shop) => ({ params: { slug: shop.slug }, props: { shop } }));
+}
+const { shop } = Astro.props as { shop: Shop };
+const { parts, total } = scoreBreakdown(shop);
+const cap = shop.capacity ?? {};
+const fmt = (v: unknown, unit = '') => (v === null || v === undefined ? 'Not yet published' : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : `${v}${unit}`);
+const capRows = [
+  ['Production capacity', fmt(cap.unitsPerMonth, ' cabinet units/month')],
+  ['CNC / automated production', fmt(cap.cncAutomated)],
+  ['Completed commercial projects', fmt(cap.commercialProjectsCompleted)],
+  ['Largest project size', fmt(cap.maxProjectUnits, ' units')],
+  ['Typical lead time', fmt(cap.leadTimeWeeks, ' weeks')],
+];
+const pageUrl = `${site.siteUrl}/shops/${shop.slug}`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': `${pageUrl}#business`,
+  name: shop.name,
+  description: hasTodo(shop.description) ? undefined : shop.description,
+  url: shop.website || pageUrl,
+  telephone: shop.phone || undefined,
+  email: shop.email || undefined,
+  image: shop.logo ? new URL(shop.logo, site.siteUrl).href : undefined,
+  address: { '@type': 'PostalAddress', addressLocality: shop.city, addressRegion: shop.state, addressCountry: 'US' },
+  areaServed: hasTodo(shop.serviceArea) ? shop.city : shop.serviceArea,
+  knowsAbout: shop.specialties,
+  sameAs: shop.website ? [shop.website] : undefined,
+};
+const updateHref = `/request-update?shop=${encodeURIComponent(shop.slug)}`;
+---
+<Base
+  title={`${shop.name}: Custom Cabinets in ${shop.city}, ${shop.state}`}
+  description={`${shop.name} is a custom cabinet shop in ${shop.city}, ${shop.state}. Specialties: ${shop.specialties.join(', ') || 'custom cabinetry'}. Project sizes: ${shop.projectSizes.map((s) => SIZE_LABELS[s]).join(', ')}.`}
+  jsonLd={jsonLd}
+>
+  <section class="section">
+    <div class="wrap">
+      <nav aria-label="Breadcrumb" class="crumbs small"><a href="/directory">Directory</a> / <span>{shop.name}</span></nav>
+      <div class="head">
+        {shop.logo ? (
+          <img class="logo" src={shop.logo} alt={`${shop.name} logo`} width="96" height="96" />
+        ) : (
+          <div class="logo mono" aria-hidden="true">{initials(shop.name)}</div>
+        )}
+        <div>
+          <h1>{shop.name} {shop.operator ? <span class="badge">Operator</span> : shop.featured ? <span class="badge featured">Featured</span> : null}</h1>
+          <p class="muted">{shop.city}, {shop.state} · Serves {shop.serviceArea}</p>
+        </div>
+      </div>
+      {shop.operator && (
+        <p class="callout">{shop.name} operates this directory. <a href="/about">How the directory works</a>.</p>
+      )}
+
+      <div class="cols">
+        <div>
+          <h2>About the shop</h2>
+          <p>{shop.description}</p>
+          <h2>Specialties</h2>
+          <ul class="tags">{shop.specialties.map((s) => <li class="tag">{s}</li>)}</ul>
+          <h2 class="mt">Project sizes</h2>
+          <ul class="tags">{shop.projectSizes.map((s) => <li class="tag">{SIZE_LABELS[s]}</li>)}</ul>
+
+          <h2 class="mt">Capacity</h2>
+          <div class="table-scroll">
+            <table>
+              <tbody>
+                {capRows.map(([k, v]) => <tr><th scope="row">{k}</th><td>{v}</td></tr>)}
+              </tbody>
+            </table>
+          </div>
+          {shop.projectSizes.includes('commercial') && (
+            <p class="small muted">Commercial capacity score: <strong>{Object.values(cap).every((v) => v === null || v === undefined) ? 'not yet published' : `${total}/100`}</strong> (
+              {RANKING_FACTORS.map((f, i) => `${f.label} ${Math.round(parts[f.key])}/${f.max}${i < RANKING_FACTORS.length - 1 ? ', ' : ''}`).join('')}
+            ). <a href="/commercial#how-ranked">How scores work</a>.</p>
+          )}
+        </div>
+        <aside class="contact-box" aria-labelledby="contact-h">
+          <h2 id="contact-h">Contact</h2>
+          <ul>
+            {shop.phone && <li><strong>Phone:</strong> <a href={telHref(shop.phone)}>{shop.phone}</a></li>}
+            {shop.email && <li><strong>Email:</strong> <a href={`mailto:${shop.email}`}>{shop.email}</a></li>}
+            {shop.website && <li><strong>Website:</strong> <a href={shop.website} rel="noopener">{shop.website.replace(/^https?:\/\//, '')}</a></li>}
+            <li><strong>Location:</strong> {shop.city}, {shop.state}</li>
+          </ul>
+          <a class="btn" href={`/quote?shop=${shop.slug}`}>Request a quote</a>
+          <p class="small update">Is this your shop? <a href={updateHref}>Request an update</a></p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .crumbs { margin-bottom: 16px; }
+  .head { display: flex; gap: 18px; align-items: center; margin-bottom: 16px; }
+  .head h1 { margin: 0 0 4px; }
+  .head p { margin: 0; }
+  .logo { width: 96px; height: 96px; border-radius: 8px; object-fit: cover; flex: none; }
+  .mono { display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); font-weight: 800; font-size: 1.8rem; color: var(--primary); }
+  .cols { display: grid; gap: 32px; margin-top: 24px; }
+  @media (min-width: 860px) { .cols { grid-template-columns: 2fr 1fr; } }
+  .mt { margin-top: 1.4em; }
+  .contact-box { border: 1px solid var(--line); border-radius: 8px; padding: 20px; background: var(--surface); align-self: start; }
+  .contact-box ul { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; overflow-wrap: anywhere; }
+  .update { margin: 14px 0 0; }
+</style>

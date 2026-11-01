@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import site from '../config/site.json';
+import { getShops } from '../lib/shops';
+const shops = await getShops();
+---
+<Base title="Request a Listing Update" description="Shop owners: add, correct or remove your cabinet shop listing." noindex>
+  <section class="section">
+    <div class="wrap" style="max-width:720px">
+      <h1>Request a listing update</h1>
+      <p>Own or work at a listed shop? Tell us what to add, correct or remove, including capacity details used in the <a href="/commercial#how-ranked">commercial ranking</a>. Not listed yet? Choose "My shop isn't listed." We review every request.</p>
+      <form name="listing-update" method="POST" action="/thanks" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="listing-update" />
+        <p style="position:absolute;left:-9999px"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+        <div class="field">
+          <label for="shop">Shop</label>
+          <select id="shop" name="shop" required>
+            <option value="">Choose a shop</option>
+            <option value="new">My shop isn't listed</option>
+            {shops.map((s) => <option value={s.slug}>{s.name}</option>)}
+          </select>
+        </div>
+        <div class="field"><label for="name">Your name</label><input id="name" name="name" required autocomplete="name" /></div>
+        <div class="field"><label for="role">Your role at the shop</label><input id="role" name="role" placeholder="Owner, manager…" /></div>
+        <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email" /></div>
+        <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" autocomplete="tel" /></div>
+        <div class="field"><label for="changes">What should change?</label><textarea id="changes" name="changes" required></textarea></div>
+        <button class="btn" type="submit">Send update request</button>
+        <p class="small muted">Or email <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.</p>
+      </form>
+    </div>
+  </section>
+</Base>
+<script>
+  const v = new URLSearchParams(location.search).get('shop');
+  if (v) (document.getElementById('shop') as HTMLSelectElement).value = v;
+</script>

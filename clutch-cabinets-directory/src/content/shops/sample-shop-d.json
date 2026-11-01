@@ -1,0 +1,17 @@
+{
+  "name": "Sample Shop D – Placeholder",
+  "slug": "sample-shop-d",
+  "city": "Bend",
+  "state": "OR",
+  "serviceArea": "Bend, Sisters, Redmond",
+  "specialties": ["Hospitality", "Multifamily", "Kitchens"],
+  "projectSizes": ["light-commercial", "commercial"],
+  "capacity": { "unitsPerMonth": 35, "cncAutomated": true, "commercialProjectsCompleted": 9, "maxProjectUnits": 40, "leadTimeWeeks": 6 },
+  "phone": "(555) 010-0004",
+  "email": "hello@example.com",
+  "website": "https://example.com",
+  "logo": "",
+  "featured": false,
+  "operator": false,
+  "description": "Placeholder listing. A Central Oregon shop doing hotel and short-term-rental casework. Replace or delete this sample before launch."
+}
