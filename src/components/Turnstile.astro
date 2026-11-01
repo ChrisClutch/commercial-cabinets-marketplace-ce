@@ -1,0 +1,12 @@
+---
+// Cloudflare Turnstile spam check. Renders nothing unless turnstileSiteKey is set in site.json.
+// Also set the TURNSTILE_SECRET secret on the Worker so submissions are verified.
+import site from '../config/site.json';
+const key = (site as { turnstileSiteKey?: string }).turnstileSiteKey;
+---
+{key && (
+  <>
+    <div class="cf-turnstile field" data-sitekey={key}></div>
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  </>
+)}

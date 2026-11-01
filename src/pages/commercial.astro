@@ -1,0 +1,89 @@
+---
+import Base from '../layouts/Base.astro';
+import ShopCard from '../components/ShopCard.astro';
+import site from '../config/site.json';
+import { getShops, commercialRanking, RANKING_FACTORS } from '../lib/shops';
+const shops = await getShops();
+const { operator, others } = commercialRanking(shops);
+const useCases = [
+  { t: 'Multifamily', href: '/markets/multifamily', d: 'Repeat kitchen and bath packages for dozens or hundreds of units, delivered floor by floor to the framing schedule.' },
+  { t: 'Hospitality', href: '/markets/large-volume-installation', d: 'Guest-room vanities, kitchenettes and front-of-house millwork built to one standard across every room.' },
+  { t: 'Senior living', href: '/markets/assisted-living', d: 'Accessible heights, ADA vanities and durable, easy-clean finishes, consistent across the building.' },
+  { t: 'Tenant improvements', href: '/markets/commercial', d: 'Breakrooms, reception desks, storage walls and casework on tight TI schedules.' },
+];
+---
+<Base title="Commercial & High-Volume Cabinet Shops" description={`Commercial and high-volume cabinet production in ${site.region} for developers, general contractors and property managers. Multifamily, hospitality, senior living and tenant improvements.`}>
+  <section class="section">
+    <div class="wrap">
+      <div class="c-head">
+        <h1>Commercial &amp; high-volume cabinet production</h1>
+        <div>
+          <p class="lede">For developers, general contractors, property managers and builders. When the job is counted in units, you need production capacity, a schedule you can trust and commercial experience.</p>
+          <div class="btn-row"><a class="btn" href="/quote?size=commercial">Request a commercial quote</a><a class="btn secondary" href="#how-ranked">How shops are ranked</a></div>
+        </div>
+      </div>
+
+      <ul class="uses">
+        {useCases.map((u) => <li><h2 class="u-h"><a href={u.href}>{u.t}</a></h2><p>{u.d}</p></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="frame">
+        <h2>Commercial shops</h2>
+        {operator.length > 0 && (
+          <div class="op-row" data-operator-list>
+            {operator.map((s) => <ShopCard shop={s} showScore open uid="op" />)}
+            <p class="op-note">{site.operatorName} operates this directory, so it is shown first and labeled “Operator.” Every other shop below is ordered strictly by the capacity score.</p>
+          </div>
+        )}
+        <div class="dim">Other qualifying shops, ranked by capacity score</div>
+        {others.length ? (
+          <ol class="ranked" data-ranked-list>
+            {others.map((s, i) => <li><ShopCard shop={s} rank={i + 1} showScore /></li>)}
+          </ol>
+        ) : <p>No other commercial shops are listed yet.</p>}
+        <div class="frame-label" aria-hidden="true"><span>SEC. B</span><span>COMMERCIAL</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how-ranked">
+    <div class="wrap rank-wrap">
+      <h2>How shops are ranked</h2>
+      <p><strong>{site.operatorName} operates this directory.</strong> Its listing appears first in its own labeled row. All other shops that take commercial work are ranked by a 100-point capacity score built from the information each shop provides:</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th scope="col">Factor</th><th scope="col">Max</th><th scope="col">How it’s scored</th></tr></thead>
+          <tbody>{RANKING_FACTORS.map((f) => <tr><td>{f.label}</td><td class="ann">{f.max}</td><td>{f.rule}</td></tr>)}</tbody>
+        </table>
+      </div>
+      <p class="small muted">A blank value scores zero for that factor. Ties are broken alphabetically. Residential and light-commercial listings in the <a href="/directory">directory</a> are alphabetical with no ranking. Shop owners can <a href="/request-update">submit updated capacity details</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .c-head { display: grid; gap: 18px 40px; align-items: end; padding-bottom: 28px; border-bottom: 2px solid var(--steel); }
+  @media (min-width: 900px) { .c-head { grid-template-columns: 1.1fr 1fr; } }
+  .c-head h1 { margin: 0; }
+  .uses { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+  .uses li { padding: 22px 20px 18px 0; border-bottom: var(--hair); }
+  .u-h { font-size: 1.7rem; margin-bottom: 6px; }
+  .u-h a { color: var(--steel); text-decoration-color: var(--orange); }
+  .uses p { margin: 0; color: var(--graphite-ink); max-width: 52ch; }
+  .op-row { display: grid; gap: 18px 28px; align-items: start; margin-bottom: 26px; }
+  @media (min-width: 860px) { .op-row { grid-template-columns: 360px 1fr; } }
+  .op-note { margin: 0; max-width: 48ch; }
+  .ranked { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .rank-wrap { max-width: 880px; }
+  .rank-wrap .table-scroll { margin: 16px 0; }
+  .rank-wrap thead th { font-family: var(--mono); font-weight: 500; font-size: .8rem; background: var(--maple); }
+</style>
+
+<script>
+  import { initSpecToggles } from '../scripts/cards';
+  initSpecToggles();
+</script>

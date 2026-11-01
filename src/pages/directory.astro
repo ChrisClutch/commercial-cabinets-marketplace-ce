@@ -1,0 +1,114 @@
+---
+import Base from '../layouts/Base.astro';
+import ShopCard from '../components/ShopCard.astro';
+import ShopMap from '../components/ShopMap.astro';
+import site from '../config/site.json';
+import { getShops, SIZE_LABELS, SEGMENTS } from '../lib/shops';
+const shops = await getShops();
+const cities = [...new Set(shops.map((s) => s.city))].sort();
+const specialties = [...new Set(shops.flatMap((s) => s.specialties))].sort();
+---
+<Base title="Cabinet Shop Directory" description={`Browse and filter custom cabinet shops in ${site.region} by location, specialty, market and project size. Map of service areas and shop spec sheets.`}>
+  <section class="section">
+    <div class="wrap">
+      <h1>Cabinet shop directory</h1>
+      <p class="lede">Every shop, alphabetically. Narrow by location, specialty, market or project size. Results and the map update as you go.</p>
+
+      <form id="filters" class="filters" role="search" aria-label="Filter shops">
+        <div class="field f-q">
+          <label for="q">Search</label>
+          <input id="q" name="q" type="search" placeholder="Name, town or keyword" />
+        </div>
+        <div class="field">
+          <label for="city">Location</label>
+          <select id="city" name="city"><option value="">All locations</option>{cities.map((c) => <option value={c}>{c}</option>)}</select>
+        </div>
+        <div class="field">
+          <label for="specialty">Specialty</label>
+          <select id="specialty" name="specialty"><option value="">All specialties</option>{specialties.map((s) => <option value={s}>{s}</option>)}</select>
+        </div>
+        <div class="field">
+          <label for="market">Market</label>
+          <select id="market" name="market"><option value="">All markets</option>{SEGMENTS.map((s) => <option value={s.slug}>{s.label}</option>)}</select>
+        </div>
+        <div class="field">
+          <label for="size">Project size</label>
+          <select id="size" name="size"><option value="">All sizes</option>{Object.entries(SIZE_LABELS).map(([v, l]) => <option value={v}>{l}</option>)}</select>
+        </div>
+        <div class="field f-reset"><button type="reset" class="btn sm">Clear</button></div>
+      </form>
+
+      <div class="dir-grid">
+        <div>
+          <h2 class="vh">Shops</h2>
+          <p id="count" class="count ann" role="status" aria-live="polite">{shops.length} shops</p>
+          <div class="grid" id="results">
+            {shops.map((s) => <ShopCard shop={s} />)}
+          </div>
+          <p id="empty" class="callout" hidden>No shops match those filters. <a href="/directory">Clear filters</a> or <a href="/quote">send a quote request</a> and we’ll point you to a shop.</p>
+        </div>
+        <aside class="map-col" aria-label="Service area map">
+          <ShopMap shops={shops} height="520px" />
+        </aside>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .filters { display: grid; gap: 0 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); align-items: end; border-top: 2px solid var(--steel); border-bottom: var(--hair); padding: 18px 0 2px; margin: 24px 0; }
+  .f-q { grid-column: span 2; }
+  @media (max-width: 560px) { .f-q { grid-column: auto; } }
+  .f-reset .btn { width: 100%; }
+  .filters select.active, .filters input.active { border-bottom: 3px solid var(--orange); }
+  .count { margin: 0 0 12px; }
+  .dir-grid { display: grid; gap: 24px; }
+  @media (min-width: 1000px) { .dir-grid { grid-template-columns: 1fr 380px; align-items: start; } .map-col { position: sticky; top: 16px; } }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); align-items: start; }
+</style>
+
+<script>
+  import { initSpecToggles, applyLayout } from '../scripts/cards';
+  initSpecToggles();
+  const form = document.getElementById('filters') as HTMLFormElement;
+  const box = document.getElementById('results')!;
+  const cards = [...box.querySelectorAll<HTMLElement>('[data-shop-card]')];
+  const count = document.getElementById('count')!;
+  const empty = document.getElementById('empty')!;
+  const fields = ['q', 'city', 'specialty', 'market', 'size'] as const;
+  const params = new URLSearchParams(location.search);
+  for (const f of fields) {
+    const el = form.elements.namedItem(f) as HTMLInputElement | HTMLSelectElement;
+    const v = params.get(f);
+    if (v && el) el.value = v;
+  }
+  let first = true;
+  function apply() {
+    const get = (f: string) => ((form.elements.namedItem(f) as HTMLInputElement).value || '').trim();
+    const terms = get('q').toLowerCase().split(/\s+/).filter(Boolean);
+    const city = get('city'), specialty = get('specialty'), size = get('size'), market = get('market');
+    const shown = cards.filter((c) => {
+      const d = c.dataset;
+      return terms.every((t) => d.keywords!.includes(t)) &&
+        (!city || d.city === city) &&
+        (!specialty || d.specialties!.split('|').includes(specialty)) &&
+        (!size || d.sizes!.split('|').includes(size)) &&
+        (!market || d.segments!.split('|').includes(market));
+    }).sort((a, b) => a.dataset.name!.localeCompare(b.dataset.name!));
+    if (first) { cards.forEach((c) => (c.hidden = !shown.includes(c))); first = false; } else applyLayout(box, cards, shown);
+    count.textContent = `${shown.length} ${shown.length === 1 ? 'shop' : 'shops'}`;
+    empty.hidden = shown.length > 0;
+    for (const f of fields) (form.elements.namedItem(f) as HTMLElement).classList.toggle('active', !!get(f));
+    const w = window as unknown as { shopMapFilter?: (s: string[]) => void; __shopVisible?: string[] };
+    w.__shopVisible = shown.map((c) => c.dataset.slug!);
+    w.shopMapFilter?.(w.__shopVisible);
+    const next = new URLSearchParams();
+    for (const f of fields) { const v = get(f); if (v) next.set(f, v); }
+    const qs = next.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+  }
+  form.addEventListener('input', apply);
+  form.addEventListener('submit', (e) => { e.preventDefault(); apply(); });
+  form.addEventListener('reset', () => setTimeout(apply, 0));
+  apply();
+</script>
