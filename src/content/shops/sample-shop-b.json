@@ -1,0 +1,38 @@
+{
+  "name": "Sample Shop B (Placeholder)",
+  "slug": "sample-shop-b",
+  "city": "Eugene",
+  "state": "OR",
+  "serviceArea": "Eugene, Springfield, Lane County",
+  "lat": 44.0521,
+  "lng": -123.0868,
+  "serviceRadiusMiles": 40,
+  "specialties": [
+    "Commercial casework",
+    "Office millwork",
+    "Kitchens"
+  ],
+  "segments": [
+    "custom-residential",
+    "commercial"
+  ],
+  "projectSizes": [
+    "residential",
+    "light-commercial",
+    "commercial"
+  ],
+  "capacity": {
+    "unitsPerMonth": 60,
+    "cncAutomated": true,
+    "commercialProjectsCompleted": 18,
+    "maxProjectUnits": 80,
+    "leadTimeWeeks": 8
+  },
+  "phone": "(555) 010-0002",
+  "email": "hello@example.com",
+  "website": "https://example.com",
+  "logo": "",
+  "featured": false,
+  "operator": false,
+  "description": "Placeholder listing. A mid-size shop doing office and retail casework alongside residential kitchens. Replace or delete this sample before launch."
+}

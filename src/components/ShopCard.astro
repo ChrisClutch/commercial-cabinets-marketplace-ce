@@ -1,0 +1,93 @@
+---
+import { SIZE_LABELS, SEGMENT_LABELS, commercialScore, type Shop } from '../lib/shops';
+interface Props { shop: Shop; rank?: number; showScore?: boolean; headingLevel?: 2 | 3; open?: boolean; uid?: string }
+const { shop, rank, showScore = false, headingLevel = 3, open = false, uid = '' } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const c = shop.capacity ?? {};
+const score = commercialScore(shop);
+const noCapacity = Object.values(c).every((v) => v === null || v === undefined);
+const val = (v: unknown, unit = '') => (v === null || v === undefined ? null : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : `${v}${unit}`);
+const specs: [string, string | null][] = [
+  ['Production capacity', val(c.unitsPerMonth, ' units/mo')],
+  ['Largest project', val(c.maxProjectUnits, ' units')],
+  ['Typical lead time', val(c.leadTimeWeeks, ' wks')],
+  ['CNC / automated', val(c.cncAutomated)],
+  ['Commercial projects', val(c.commercialProjectsCompleted)],
+];
+const keywords = [shop.name, shop.city, shop.serviceArea, shop.description, ...shop.specialties, ...shop.segments.map((s) => SEGMENT_LABELS[s])].join(' ').toLowerCase();
+const RANGE: Record<string, [string, string]> = { residential: ['1', '4'], 'light-commercial': ['5', '49'], commercial: ['50', '200+'] };
+const order = ['residential', 'light-commercial', 'commercial'].filter((t) => shop.projectSizes.includes(t as never));
+const unitRange = order.length ? `${RANGE[order[0]][0]}–${RANGE[order[order.length - 1]][1]} units` : '';
+const specId = `spec-${shop.slug}${uid ? `-${uid}` : ''}${rank ? `-r${rank}` : ''}`;
+---
+<article
+  class:list={['card', { operator: shop.operator }]}
+  data-shop-card
+  data-slug={shop.slug}
+  data-name={shop.name.toLowerCase()}
+  data-city={shop.city}
+  data-sizes={shop.projectSizes.join('|')}
+  data-segments={shop.segments.join('|')}
+  data-specialties={shop.specialties.join('|')}
+  data-keywords={keywords}
+  data-score={score}
+  data-operator={shop.operator ? '1' : '0'}
+  data-max-units={c.maxProjectUnits ?? ''}
+>
+  <div class="card-strip ann">
+    <span>{shop.city}, {shop.state}</span>
+    <span>{rank ? `Rank ${rank} · ` : ''}{unitRange}</span>
+  </div>
+  <div class="card-body">
+    <H class="card-title"><a href={`/shops/${shop.slug}`}>{shop.name}</a></H>
+    {(shop.operator || shop.featured) && (
+      <p class="card-flags">{shop.operator ? <span class="op-tag">Operator</span> : <span class="feat-tag">Featured</span>}</p>
+    )}
+    <p class="card-area">Serves {shop.serviceArea}</p>
+    <ul class="tags" aria-label="Specialties">{shop.specialties.map((s) => <li class="tag">{s}</li>)}</ul>
+    {showScore && <p class="card-score ann">Capacity score: {noCapacity ? 'not yet published' : `${score}/100`}</p>}
+  </div>
+  <div class="spec" id={specId} data-open={open ? 'true' : 'false'}>
+    <div class="spec-inner">
+      <table>
+        <caption class="vh">Specifications for {shop.name}</caption>
+        <tbody>
+          {specs.map(([k, v]) => <tr><th scope="row">{k}</th><td class="ann">{v ?? <span class="np">Not yet published</span>}</td></tr>)}
+          <tr><th scope="row">Project sizes</th><td>{shop.projectSizes.map((s) => SIZE_LABELS[s]).join(', ')}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-foot">
+    <button type="button" class="spec-toggle" aria-expanded={open ? 'true' : 'false'} aria-controls={specId} data-spec-toggle>
+      <span class="when-closed">Show specs</span><span class="when-open">Hide specs</span><span class="vh"> for {shop.name}</span>
+    </button>
+    <a href={`/shops/${shop.slug}`} class="more">Shop sheet<span class="vh"> for {shop.name}</span> →</a>
+  </div>
+</article>
+
+<style>
+  .card { background: var(--sawdust); border: var(--hair); display: flex; flex-direction: column; position: relative; }
+  .card[hidden] { display: none; }
+  .card.operator { border: 2px solid var(--steel); box-shadow: 6px 6px 0 var(--orange); }
+  .card-strip { white-space: nowrap; display: flex; justify-content: space-between; gap: 8px; padding: 6px 12px; border-bottom: var(--hair); color: var(--graphite-ink); background: rgba(233, 220, 198, .55); }
+  .card-body { padding: 14px 16px 6px; display: flex; flex-direction: column; gap: 8px; }
+  .card-title { margin: 0; font-size: 1.55rem; }
+  .card-title a { color: var(--steel); text-decoration: none; }
+  .card-title a:hover { text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 3px; }
+  .card-flags { margin: 0; }
+  .card-area { margin: 0; color: var(--graphite-ink); font-size: .95rem; }
+  .card-score { margin: 2px 0 0; }
+  .spec { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s var(--ease); }
+  .spec[data-open='true'] { grid-template-rows: 1fr; }
+  .spec-inner { overflow: hidden; }
+  .spec table { margin: 6px 0 4px; font-size: .92rem; border-top: var(--hair); }
+  .spec th { font-weight: 500; color: var(--graphite-ink); padding: 7px 16px; width: 52%; }
+  .spec td { padding: 7px 16px 7px 0; }
+  .np { color: var(--graphite-ink); font-style: italic; font-family: var(--body); }
+  .card-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 16px 14px; }
+  .spec-toggle { font: inherit; font-family: var(--mono); font-size: .82rem; font-weight: 500; background: transparent; border: 1.5px solid var(--steel); padding: 6px 10px; cursor: pointer; color: var(--steel); min-height: 36px; }
+  .spec-toggle:hover { background: var(--maple); }
+  .spec-toggle[aria-expanded='true'] .when-closed, .spec-toggle[aria-expanded='false'] .when-open { display: none; }
+  .more { font-weight: 600; }
+</style>

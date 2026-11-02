@@ -1,0 +1,215 @@
+---
+import Base from '../layouts/Base.astro';
+import site from '../config/site.json';
+import { getShops, SEGMENTS } from '../lib/shops';
+import Turnstile from '../components/Turnstile.astro';
+const shops = await getShops();
+const operator = shops.find((s) => s.operator);
+const projectTypes = ['Kitchen', 'Bathroom / vanities', 'Whole-home / built-ins', 'New home build', 'Multifamily', 'Senior living', 'Hospitality', 'Tenant improvement / office', 'Other'];
+const timelines = ['Ready now / within 1 month', '1–3 months', '3–6 months', '6+ months', 'Budgeting only'];
+const steps = ['Project type', 'Scale', 'Timeline', 'Contact'];
+---
+<Base title="Request a Cabinet Quote" description={`Send a quote request to custom cabinet shops in ${site.region} in four short steps. Commercial, multifamily and residential projects.`}>
+  <section class="section">
+    <div class="wrap q-wrap">
+      <div class="q-intro">
+        <h1>Request a quote</h1>
+        <p class="lede">Four short steps. About two minutes.</p>
+        <div class="callout" id="routing">
+          <h2 class="r-h">Where your request goes</h2>
+          <ul>
+            <li><strong>Commercial &amp; high-volume</strong> requests go to {site.operatorName}, the operator of this directory.</li>
+            <li><strong>Residential and light-commercial</strong> requests go to the shop you pick. No pick? The site owner suggests one that fits.</li>
+            <li>Every request is received first by {site.operatorName}, which runs this site, then forwarded. Your details go only to the shop handling your request.</li>
+          </ul>
+        </div>
+      </div>
+
+      <form name="quote" method="POST" action="/api/form" id="quote-form" class="frame q-form" novalidate>
+        <input type="hidden" name="form-name" value="quote" />
+        <input type="hidden" name="route-to" id="route-to" value="" />
+        <p class="hp"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+
+        <ol class="progress ann" aria-label="Steps">
+          {steps.map((s, i) => <li data-step-dot={i}><span class="pn">{i + 1}</span> {s}</li>)}
+        </ol>
+
+        <fieldset class="step" data-step="0">
+          <legend>What are you building?</legend>
+          <div class="choices">
+            {projectTypes.map((t, i) => (
+              <label class="choice"><input type="radio" name="project-type" value={t} required={i === 0} /> <span>{t}</span></label>
+            ))}
+          </div>
+          <div class="field mt">
+            <label for="market">Market (optional)</label>
+            <select id="market" name="market"><option value="">Not sure</option>{SEGMENTS.map((s) => <option value={s.slug}>{s.label}</option>)}</select>
+          </div>
+        </fieldset>
+
+        <fieldset class="step" data-step="1">
+          <legend>How big is it?</legend>
+          <div class="row2">
+            <div class="field"><label for="qty">Approximate quantity</label><input id="qty" name="quantity" type="number" min="1" inputmode="numeric" placeholder="e.g. 120" /></div>
+            <div class="field"><label for="qty-unit">Measured in</label>
+              <select id="qty-unit" name="quantity-unit"><option value="units">Units (apartments, rooms, keys)</option><option value="rooms">Rooms</option><option value="linear feet">Linear feet of cabinetry</option></select></div>
+          </div>
+          <div class="field">
+            <label for="size">Project size <span aria-hidden="true">*</span></label>
+            <select id="size" name="project-size" required>
+              <option value="">Choose one</option>
+              <option value="residential">Residential (1–4 units)</option>
+              <option value="light-commercial">Light commercial (5–49 units)</option>
+              <option value="commercial">Commercial / high-volume (50+ units)</option>
+            </select>
+            <p class="hint">Filled in from the quantity when you enter units; change it if needed.</p>
+          </div>
+        </fieldset>
+
+        <fieldset class="step" data-step="2">
+          <legend>When and where?</legend>
+          <div class="choices">
+            {timelines.map((t, i) => <label class="choice"><input type="radio" name="timeline" value={t} checked={i === 1} /> <span>{t}</span></label>)}
+          </div>
+          <div class="field mt"><label for="location">Project location <span aria-hidden="true">*</span></label><input id="location" name="location" required placeholder="City or address" autocomplete="address-level2" /></div>
+        </fieldset>
+
+        <fieldset class="step" data-step="3">
+          <legend>Who should we contact?</legend>
+          <div class="row2">
+            <div class="field"><label for="name">Name <span aria-hidden="true">*</span></label><input id="name" name="name" required autocomplete="name" /></div>
+            <div class="field"><label for="company">Company</label><input id="company" name="company" autocomplete="organization" /></div>
+            <div class="field"><label for="email">Email <span aria-hidden="true">*</span></label><input id="email" name="email" type="email" required autocomplete="email" /></div>
+            <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" autocomplete="tel" /></div>
+          </div>
+          <div class="field" id="shop-field">
+            <label for="shop">Preferred shop</label>
+            <select id="shop" name="preferred-shop" aria-describedby="shop-hint">
+              <option value="">No preference: let the site owner suggest one</option>
+              {shops.map((s) => <option value={s.slug}>{s.name}{s.operator ? ' (operator)' : ''}</option>)}
+            </select>
+            <p class="hint" id="shop-hint">Commercial &amp; high-volume requests go to {site.operatorName}.</p>
+          </div>
+          <div class="field"><label for="details">Project details</label><textarea id="details" name="details" placeholder="Finish, style, plans available, bid date…"></textarea></div>
+          <p id="route-live" class="route-live" role="status" aria-live="polite"></p>
+          <Turnstile />
+        </fieldset>
+
+        <p id="step-error" class="step-error" role="alert"></p>
+        <div class="nav-row">
+          <button type="button" class="btn secondary" id="back-btn">Back</button>
+          <button type="button" class="btn" id="next-btn">Next</button>
+          <button type="submit" class="btn" id="submit-btn">Send request</button>
+        </div>
+        <div class="frame-label" aria-hidden="true"><span>FORM Q-1</span><span id="step-label">STEP 1 / 4</span></div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .q-wrap { display: grid; gap: 28px 44px; }
+  @media (min-width: 980px) { .q-wrap { grid-template-columns: 360px 1fr; align-items: start; } .q-intro { position: sticky; top: 16px; } }
+  .r-h { font-size: 1.4rem; margin-bottom: 6px; }
+  .callout ul { margin: 0; padding-left: 18px; font-size: .97rem; }
+  .callout li { margin-bottom: 6px; }
+  .hp { position: absolute; left: -9999px; }
+  .progress { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 22px; padding: 0 0 14px; border-bottom: var(--hair); color: var(--graphite-ink); }
+  .progress li { display: flex; align-items: center; gap: 6px; }
+  .pn { display: inline-grid; place-items: center; width: 24px; height: 24px; border: 1.5px solid var(--graphite); }
+  .progress li[aria-current='step'] { color: var(--steel); font-weight: 600; }
+  .progress li[aria-current='step'] .pn { background: var(--orange); border-color: var(--steel); }
+  .progress li.done .pn { background: var(--steel); color: var(--sawdust); border-color: var(--steel); }
+  .step { border: 0; padding: 0; margin: 0 0 8px; min-width: 0; }
+  .step legend { font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 3.6vw, 2.4rem); line-height: 1; margin-bottom: 16px; padding: 0; }
+  .q-form.js .step:not(.current) { display: none; }
+  .q-form.js .step.current { animation: stepin .28s var(--ease); }
+  @keyframes stepin { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+  .choices { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); }
+  .choice { display: flex; align-items: center; gap: 10px; margin: 0; padding: 12px 12px; border: var(--hair); background: var(--sawdust); font-weight: 500; cursor: pointer; }
+  .choice:has(input:checked) { border: 2px solid var(--steel); box-shadow: 4px 4px 0 var(--orange); }
+  .row2 { display: grid; gap: 0 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .mt { margin-top: 18px; }
+  .route-live:empty { display: none; }
+  .route-live { font-weight: 600; padding: 10px 12px; border: 1.5px solid var(--steel); background: var(--sawdust); }
+  .step-error:empty { display: none; }
+  .step-error { color: #8a1c0c; font-weight: 600; }
+  .nav-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+  .q-form.js #submit-btn, .q-form.js #next-btn, .q-form.js #back-btn { display: none; }
+  .q-form.js.show-next #next-btn, .q-form.js.show-back #back-btn, .q-form.js.show-submit #submit-btn { display: inline-flex; }
+  .q-form:not(.js) #next-btn, .q-form:not(.js) #back-btn { display: none; }
+</style>
+
+<script define:vars={{ operatorName: operator?.name ?? '', operatorSlug: operator?.slug ?? '' }}>
+  const form = document.getElementById('quote-form');
+  const steps = [...form.querySelectorAll('[data-step]')];
+  const dots = [...form.querySelectorAll('[data-step-dot]')];
+  const err = document.getElementById('step-error');
+  const label = document.getElementById('step-label');
+  const size = document.getElementById('size');
+  const qty = document.getElementById('qty');
+  const unit = document.getElementById('qty-unit');
+  const shop = document.getElementById('shop');
+  const routeTo = document.getElementById('route-to');
+  const live = document.getElementById('route-live');
+  const params = new URLSearchParams(location.search);
+  if (params.get('shop')) shop.value = params.get('shop');
+  if (params.get('size')) size.value = params.get('size');
+  if (params.get('market')) document.getElementById('market').value = params.get('market');
+  let cur = 0;
+  form.classList.add('js');
+
+  function show(i) {
+    cur = i;
+    steps.forEach((s, j) => s.classList.toggle('current', j === i));
+    dots.forEach((d, j) => { d.toggleAttribute('aria-current', false); if (j === i) d.setAttribute('aria-current', 'step'); d.classList.toggle('done', j < i); });
+    form.classList.toggle('show-back', i > 0);
+    form.classList.toggle('show-next', i < steps.length - 1);
+    form.classList.toggle('show-submit', i === steps.length - 1);
+    label.textContent = `STEP ${i + 1} / ${steps.length}`;
+    err.textContent = '';
+  }
+  function valid(i) {
+    const step = steps[i];
+    if (i === 0 && !step.querySelector('input[name="project-type"]:checked')) { err.textContent = 'Choose a project type to continue.'; return false; }
+    for (const el of step.querySelectorAll('input[required], select[required]')) {
+      if (el.type === 'radio') continue;
+      if (!el.checkValidity()) { el.reportValidity(); el.focus(); return false; }
+    }
+    return true;
+  }
+  document.getElementById('next-btn').addEventListener('click', () => {
+    if (!valid(cur)) return;
+    show(cur + 1);
+    steps[cur].querySelector('legend')?.scrollIntoView({ block: 'nearest' });
+    steps[cur].querySelector('input, select, textarea')?.focus({ preventScroll: true });
+  });
+  document.getElementById('back-btn').addEventListener('click', () => show(cur - 1));
+
+  // Quantity in units → suggested project size.
+  qty.addEventListener('input', () => {
+    const n = Number(qty.value);
+    if (unit.value === 'units' && n > 0) size.value = n < 5 ? 'residential' : n < 50 ? 'light-commercial' : 'commercial';
+    route();
+  });
+  function route() {
+    if (size.value === 'commercial' && operatorName) {
+      shop.value = operatorSlug; shop.disabled = true; routeTo.value = operatorName;
+      live.textContent = `This request will go to ${operatorName}.`;
+    } else {
+      shop.disabled = false;
+      const opt = shop.options[shop.selectedIndex];
+      routeTo.value = shop.value ? opt.text : 'Site owner to suggest a shop';
+      live.textContent = size.value ? (shop.value ? `This request will be forwarded to ${opt.text}.` : 'The site owner will suggest a shop that fits.') : '';
+    }
+  }
+  size.addEventListener('change', route);
+  shop.addEventListener('change', route);
+  form.addEventListener('submit', (e) => {
+    for (let i = 0; i < steps.length; i++) if (!valid(i)) { e.preventDefault(); show(i); valid(i); return; }
+    shop.disabled = false;
+    document.getElementById('submit-btn').disabled = true;
+  });
+  show(0);
+  route();
+</script>

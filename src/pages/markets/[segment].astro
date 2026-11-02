@@ -1,0 +1,70 @@
+---
+import Base from '../../layouts/Base.astro';
+import ShopCard from '../../components/ShopCard.astro';
+import site from '../../config/site.json';
+import { getShops, segmentRanking, SEGMENTS, type SegmentSlug } from '../../lib/shops';
+
+export function getStaticPaths() {
+  return SEGMENTS.map((s) => ({ params: { segment: s.slug } }));
+}
+const slug = Astro.params.segment as SegmentSlug;
+const seg = SEGMENTS.find((s) => s.slug === slug)!;
+const shops = await getShops();
+const { operator, others, ranked } = segmentRanking(shops, slug);
+const quoteSize = ranked ? 'commercial' : 'residential';
+---
+<Base title={`${seg.label} Cabinet Shops in ${site.region}`} description={`${seg.label} cabinet shops serving ${site.region}. ${seg.blurb}`}>
+  <section class="section">
+    <div class="wrap">
+      <nav aria-label="Breadcrumb" class="ann crumbs"><a href="/directory">Directory</a> / Markets / {seg.label}</nav>
+      <div class="m-head">
+        <h1>{seg.label} cabinet shops</h1>
+        <div>
+          <p class="lede">{seg.intro}</p>
+          <a class="btn" href={`/quote?size=${quoteSize}&market=${seg.slug}`}>Request a quote</a>
+        </div>
+      </div>
+      <nav aria-label="Other markets" class="markets">
+        {SEGMENTS.map((s) => <a href={`/markets/${s.slug}`} aria-current={s.slug === slug ? 'page' : undefined}>{s.label}</a>)}
+      </nav>
+
+      <div class="frame">
+        {operator.length > 0 && (
+          <div class="op-row" data-operator-list>
+            {operator.map((s) => <ShopCard shop={s} showScore uid="op" />)}
+            <p>{site.operatorName} operates this directory, so it is listed first and labeled “Operator.” Other shops are ranked by the <a href="/commercial#how-ranked">published capacity score</a>.</p>
+          </div>
+        )}
+        <div class="dim">{ranked ? (operator.length ? 'Other shops, ranked by capacity score' : 'Shops, ranked by capacity score') : 'Shops, listed alphabetically'}</div>
+        {others.length ? (
+          ranked ? (
+            <ol class="grid ranked" data-ranked-list>{others.map((s, i) => <li><ShopCard shop={s} rank={i + 1} showScore /></li>)}</ol>
+          ) : (
+            <div class="grid" data-alpha-list>{others.map((s) => <ShopCard shop={s} />)}</div>
+          )
+        ) : <p>No other shops are listed for this market yet. <a href="/request-update">Add your shop</a>.</p>}
+        <div class="frame-label" aria-hidden="true"><span>MARKET</span><span>{seg.slug.toUpperCase()}</span></div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .crumbs { margin-bottom: 14px; }
+  .m-head { display: grid; gap: 16px 40px; align-items: end; padding-bottom: 22px; border-bottom: 2px solid var(--steel); margin-bottom: 18px; }
+  @media (min-width: 900px) { .m-head { grid-template-columns: 1fr 1fr; } }
+  .m-head h1 { margin: 0; }
+  .markets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  .markets a { border: var(--hair); background: var(--sawdust); padding: 6px 12px; text-decoration: none; color: var(--steel); font-weight: 600; font-size: .94rem; }
+  .markets a[aria-current='page'] { border: 2px solid var(--steel); box-shadow: 3px 3px 0 var(--orange); }
+  .op-row { display: grid; gap: 18px 28px; align-items: start; margin-bottom: 22px; }
+  @media (min-width: 860px) { .op-row { grid-template-columns: 340px 1fr; } }
+  .op-row p { margin: 0; max-width: 48ch; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .ranked { list-style: none; padding: 0; margin: 0; }
+</style>
+
+<script>
+  import { initSpecToggles } from '../../scripts/cards';
+  initSpecToggles();
+</script>

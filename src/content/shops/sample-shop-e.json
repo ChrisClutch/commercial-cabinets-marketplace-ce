@@ -1,0 +1,37 @@
+{
+  "name": "Sample Shop E (Placeholder)",
+  "slug": "sample-shop-e",
+  "city": "Salem",
+  "state": "OR",
+  "serviceArea": "Marion and Polk counties",
+  "lat": 44.92,
+  "lng": -123.06,
+  "serviceRadiusMiles": 35,
+  "specialties": [
+    "Kitchens",
+    "Closets",
+    "Bathroom vanities"
+  ],
+  "segments": [
+    "custom-residential",
+    "commercial"
+  ],
+  "projectSizes": [
+    "residential",
+    "light-commercial"
+  ],
+  "capacity": {
+    "unitsPerMonth": 20,
+    "cncAutomated": true,
+    "commercialProjectsCompleted": 2,
+    "maxProjectUnits": 6,
+    "leadTimeWeeks": 5
+  },
+  "phone": "(555) 010-0005",
+  "email": "hello@example.com",
+  "website": "https://example.com",
+  "logo": "",
+  "featured": false,
+  "operator": false,
+  "description": "Placeholder listing. A residential shop with a CNC router and fast turnaround on kitchens and closets. Replace or delete this sample before launch."
+}

@@ -1,0 +1,79 @@
+---
+// Service-area map. Leaflet loads only when the map scrolls into view (keeps pages fast).
+import site from '../config/site.json';
+import type { Shop } from '../lib/shops';
+interface Props { shops: Shop[]; id?: string; height?: string; single?: boolean }
+const { shops, id = 'shop-map', height = '420px', single = false } = Astro.props;
+const points = shops.filter((s) => typeof s.lat === 'number' && typeof s.lng === 'number')
+  .map((s) => ({ slug: s.slug, name: s.name, city: s.city, lat: s.lat, lng: s.lng, r: s.serviceRadiusMiles ?? null, op: s.operator }));
+---
+<figure class="map-fig">
+  <div id={id} class="map" style={`height:${height}`} data-points={JSON.stringify(points)} data-tiles={JSON.stringify(site.mapTiles)} data-single={single ? '1' : ''} role="region" aria-label="Map of shop locations and service areas"></div>
+  <figcaption class="ann map-cap">{single ? 'Shop location' : 'Shop locations'}{points.some((p) => p.r) ? ' · circles show stated service radius' : ''}{points.length < shops.length ? ` · ${shops.length - points.length} without a mapped location` : ''}</figcaption>
+</figure>
+<style>
+  .map-fig { margin: 0; border: 1.5px solid var(--steel); background: var(--sawdust); }
+  .map { width: 100%; background: #ddd3c2; }
+  .map-cap { padding: 6px 10px; border-top: var(--hair); color: var(--graphite-ink); }
+  .map :global(.leaflet-tile-pane) { filter: grayscale(1) sepia(.18) contrast(.92) brightness(1.04); }
+  .map :global(.leaflet-container) { font-family: var(--body); }
+  .map :global(.leaflet-popup-content-wrapper), .map :global(.leaflet-popup-tip) { border-radius: 0; background: var(--sawdust); }
+  .map :global(.leaflet-popup-content a) { font-weight: 600; }
+</style>
+<script>
+  type Pt = { slug: string; name: string; city: string; lat: number; lng: number; r: number | null; op: boolean };
+  const maps = new Map<HTMLElement, { setVisible: (slugs: Set<string>) => void }>();
+  const initial = (window as unknown as { __shopVisible?: string[] }).__shopVisible;
+  let lastFilter: Set<string> | null = initial ? new Set(initial) : null;
+  async function mount(el: HTMLElement) {
+    const L = (await import('leaflet')).default;
+    await import('leaflet/dist/leaflet.css');
+    const pts = JSON.parse(el.dataset.points!) as Pt[];
+    const tiles = JSON.parse(el.dataset.tiles!) as { url: string; attribution: string };
+    const map = L.map(el, { scrollWheelZoom: false, attributionControl: true });
+    L.tileLayer(tiles.url, { attribution: tiles.attribution, maxZoom: 18 }).addTo(map);
+    const css = getComputedStyle(document.documentElement);
+    const orange = css.getPropertyValue('--orange').trim(), steel = css.getPropertyValue('--steel').trim(), graphite = css.getPropertyValue('--graphite').trim();
+    const layers = new Map<string, L.LayerGroup>();
+    for (const p of pts) {
+      const g = L.layerGroup();
+      if (p.r) L.circle([p.lat, p.lng], { radius: p.r * 1609.34, color: p.op ? orange : graphite, weight: 1.5, dashArray: '4 4', fillOpacity: 0.06 }).addTo(g);
+      const m = L.circleMarker([p.lat, p.lng], { radius: p.op ? 9 : 7, color: steel, weight: 2, fillColor: p.op ? orange : '#F5EFE4', fillOpacity: 1 }).addTo(g);
+      const a = document.createElement('a');
+      a.href = `/shops/${p.slug}`; a.textContent = p.name;
+      const div = document.createElement('div'); div.append(a, document.createElement('br'), p.city + (p.op ? ' · Operator' : ''));
+      m.bindPopup(div);
+      m.bindTooltip(p.name);
+      g.addTo(map);
+      layers.set(p.slug, g);
+    }
+    const fit = (list: Pt[]) => {
+      if (!list.length) return;
+      if (list.length === 1 || el.dataset.single) map.setView([list[0].lat, list[0].lng], 9);
+      else map.fitBounds(L.latLngBounds(list.map((p) => [p.lat, p.lng] as [number, number])).pad(0.35));
+    };
+    fit(pts);
+    maps.set(el, {
+      setVisible(slugs) {
+        for (const [slug, g] of layers) (slugs.has(slug) ? g.addTo(map) : g.remove());
+        fit(pts.filter((p) => slugs.has(p.slug)));
+      },
+    });
+    const late = (window as unknown as { __shopVisible?: string[] }).__shopVisible;
+    if (late) lastFilter = new Set(late);
+    if (lastFilter) maps.get(el)!.setVisible(lastFilter);
+    el.dispatchEvent(new CustomEvent('map:ready'));
+    el.dataset.ready = '1';
+  }
+  document.querySelectorAll<HTMLElement>('.map').forEach((el) => {
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); mount(el); }
+    }, { rootMargin: '200px' });
+    io.observe(el);
+  });
+  // Directory filters call this to sync markers with the visible list.
+  (window as unknown as { shopMapFilter?: (slugs: string[]) => void }).shopMapFilter = (slugs) => {
+    lastFilter = new Set(slugs);
+    maps.forEach((m) => m.setVisible(lastFilter!));
+  };
+</script>

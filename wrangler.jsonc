@@ -1,0 +1,38 @@
+// Cloudflare Worker config. See README → "Deploy to Cloudflare".
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cabinets-shop-floor",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // Send form posts and CMS login to the Worker before the static-file layer.
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true },
+
+  // Form emails go through Cloudflare Email Routing. Requirements:
+  //  1. Your domain uses Cloudflare DNS and Email Routing is enabled on it.
+  //  2. FORM_TO is a *verified* destination address in Email Routing.
+  //  3. FORM_FROM is an address on that same domain (it doesn't need a mailbox).
+  //  4. Then remove the // in front of the three send_email lines below and push.
+  //     (Left off so the first deploy works before Email Routing is set up.
+  //      Until then, form submissions show an error page.)
+  // "send_email": [
+  //   { "name": "FORM_EMAIL", "destination_address": "you@example.com" }
+  // ],
+  "vars": {
+    "FORM_TO": "you@example.com",
+    "FORM_FROM": "forms@example.com",
+    "FORM_FROM_NAME": "Cabinet Directory",
+    "GITHUB_CLIENT_ID": ""
+  }
+  // Secrets (set in the dashboard or with `npx wrangler secret put NAME`, never in this file):
+  //   GITHUB_CLIENT_SECRET  – for the /admin login
+  //   TURNSTILE_SECRET      – optional, turns on the Turnstile spam check
+  // Optional backup of every submission: create a KV namespace and add
+  //   "kv_namespaces": [{ "binding": "SUBMISSIONS", "id": "<namespace id>" }]
+}

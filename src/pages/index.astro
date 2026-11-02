@@ -1,0 +1,158 @@
+---
+import Base from '../layouts/Base.astro';
+import ShopCard from '../components/ShopCard.astro';
+import site from '../config/site.json';
+import { getShops, commercialRanking, SCALE_STEPS } from '../lib/shops';
+const shops = await getShops();
+const { operator, others } = commercialRanking(shops);
+const commercialTop = [...operator, ...others].slice(0, 3);
+const startStep = 0;
+const paths = [
+  { href: '/directory?size=residential', title: 'Residential', range: '1 kitchen – 4 units', text: 'Kitchens, baths, built-ins and closets for homeowners and remodelers. Listed alphabetically.' },
+  { href: '/directory?size=light-commercial', title: 'Light commercial', range: '5 – 49 units', text: 'Offices, clinics, retail and small multi-unit projects.' },
+  { href: '/commercial', title: 'Commercial & high-volume', range: '50 – 200+ units', text: 'Multifamily, hospitality, senior living and tenant improvements. Ranked by published capacity.' },
+];
+const jsonLd = { '@context': 'https://schema.org', '@type': 'WebSite', name: site.siteName, url: site.siteUrl };
+---
+<Base title={site.siteName} description={`Compare custom cabinet shops in ${site.region} by the size of your project, from one kitchen to 200+ unit multifamily. Specialties, capacity, lead times and quotes.`} jsonLd={jsonLd}>
+  <section class="section">
+    <div class="wrap">
+      <div class="frame hero">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <h1>Match the shop to the size of the job.</h1>
+            <p class="lede">Custom cabinet shops in {site.region}, from a single kitchen to a 200-unit building. Slide to your project size and the list re-sorts to the shops built for it.</p>
+            <p class="small muted">Run by <a href={site.operatorUrl}>{site.operatorName}</a>, a cabinet shop. Our own listing is labeled “Operator.”</p>
+          </div>
+          <div class="scale" aria-labelledby="scale-h">
+            <h2 id="scale-h" class="scale-h">How big is your project?</h2>
+            <output id="scale-out" class="scale-out" for="scale">{SCALE_STEPS[startStep].label}</output>
+            <input id="scale" type="range" min="0" max={SCALE_STEPS.length - 1} step="1" value={startStep}
+              aria-label="Project size" aria-valuetext={SCALE_STEPS[startStep].label}
+              data-steps={JSON.stringify(SCALE_STEPS)} />
+            <ol class="ruler ann" aria-hidden="true">
+              {SCALE_STEPS.map((s) => <li>{s.label.replace(' units', '').replace(' kitchen', '')}</li>)}
+            </ol>
+            <p id="scale-note" class="scale-note" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="dim">Shops for this project size</div>
+        <div class="grid" id="scale-results">
+          {shops.map((s) => <ShopCard shop={s} />)}
+        </div>
+        <noscript><p class="small">All shops are shown. Turn on JavaScript to filter by project size, or use the <a href="/directory">directory filters</a>.</p></noscript>
+        <div class="frame-label" aria-hidden="true"><span>SEC. A</span><span>PROJECT SCALE</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section paths-sec">
+    <div class="wrap">
+      <h2>Start from your project type</h2>
+      <ol class="cutlist">
+        {paths.map((p, i) => (
+          <li>
+            <a href={p.href}>
+              <span class="cl-no ann">{String.fromCharCode(65 + i)}</span>
+              <span class="cl-main"><span class="cl-title">{p.title}</span><span class="cl-text">{p.text}</span></span>
+              <span class="cl-range ann">{p.range}</span>
+              <span class="cl-go" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="wrap comm">
+      <div class="comm-copy">
+        <h2>Commercial and high-volume production</h2>
+        <p>For developers, general contractors and property managers pricing units, not rooms. {site.operatorName} operates this directory and is listed first for commercial work, with every shop’s capacity criteria published.</p>
+        <div class="btn-row"><a class="btn" href="/commercial">See commercial shops</a><a class="btn secondary" href="/quote?size=commercial">Request a commercial quote</a></div>
+        <p class="rank-link"><a href="/commercial#how-ranked">How shops are ranked</a></p>
+      </div>
+      <div class="comm-list">
+        {commercialTop.map((s) => <ShopCard shop={s} showScore uid="feat" />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap cta">
+      <div>
+        <h2>Ready to price it?</h2>
+        <p class="lede">Four short steps: project type, scale, timeline and contact. We tell you exactly where your request goes.</p>
+      </div>
+      <a class="btn" href="/quote">Start a quote request</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero-grid { display: grid; gap: 28px 40px; align-items: end; margin-bottom: 26px; }
+  @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.15fr 1fr; } }
+  .hero-copy h1 { max-width: 12ch; }
+  .scale { background: var(--sawdust); border: 1.5px solid var(--steel); padding: 18px 18px 14px; }
+  .scale-h { font-size: 1.35rem; margin-bottom: 4px; }
+  .scale-out { display: block; font-family: var(--display); font-weight: 800; font-size: 2.6rem; line-height: 1; margin-bottom: 10px; }
+  .scale input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; min-height: 32px; padding: 0; background: transparent; border: 0; outline-offset: 4px; }
+  .scale input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--steel); }
+  .scale input[type=range]::-moz-range-track { height: 4px; background: var(--steel); }
+  .scale input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -11px; background: var(--orange); border: 2px solid var(--steel); border-radius: 0; cursor: grab; }
+  .scale input[type=range]::-moz-range-thumb { width: 24px; height: 24px; background: var(--orange); border: 2px solid var(--steel); border-radius: 0; cursor: grab; }
+  .ruler { display: flex; justify-content: space-between; list-style: none; margin: 4px 0 0; padding: 0; font-size: .75rem; color: var(--graphite-ink); }
+  .ruler li { flex: 1; text-align: center; position: relative; padding-top: 10px; white-space: nowrap; }
+  .ruler li::before { content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 7px; background: var(--graphite); }
+  .ruler li:first-child::before { left: 0; }
+  .ruler li:last-child::before { left: auto; right: 0; }
+  .ruler li:first-child { text-align: left; }
+  .ruler li:last-child { text-align: right; }
+  .scale-note { margin: 10px 0 0; font-size: .92rem; min-height: 2.8em; }
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); align-items: start; }
+  .paths-sec { padding-top: 8px; }
+  .cutlist { list-style: none; margin: 18px 0 0; padding: 0; border-top: 2px solid var(--steel); }
+  .cutlist a { display: grid; grid-template-columns: 40px 1fr auto 28px; gap: 6px 18px; align-items: center; padding: 18px 6px; border-bottom: var(--hair); color: var(--steel); text-decoration: none; }
+  .cutlist a:hover { background: var(--sawdust); }
+  .cutlist a:hover .cl-go { color: var(--orange-ink); transform: translateX(4px); }
+  .cl-no { font-size: 1rem; border: 1.5px solid var(--steel); width: 30px; height: 30px; display: grid; place-items: center; }
+  .cl-main { display: flex; flex-direction: column; }
+  .cl-title { font-family: var(--display); font-weight: 800; font-size: 1.7rem; line-height: 1; }
+  .cl-text { color: var(--graphite-ink); font-size: .98rem; margin-top: 4px; }
+  .cl-go { font-size: 1.4rem; transition: transform .2s var(--ease); }
+  @media (max-width: 640px) { .cutlist a { grid-template-columns: 34px 1fr 20px; } .cl-range { grid-column: 2; grid-row: 2; } }
+  .comm { display: grid; gap: 32px; }
+  @media (min-width: 960px) { .comm { grid-template-columns: 1fr 1.5fr; align-items: start; } }
+  .comm-copy p { max-width: 46ch; }
+  .rank-link { margin-top: 18px; }
+  .rank-link a { display: inline-block; padding: 8px 0; }
+  .comm-list { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); color: var(--steel); }
+  .dark .btn.secondary { background: var(--sawdust); }
+  .dark .btn { box-shadow: 4px 4px 0 var(--orange-ink); }
+  .cta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; border-top: 2px solid var(--steel); padding-top: 28px; }
+  .cta h2 { margin-bottom: 6px; }
+</style>
+
+<script>
+  import { initSpecToggles, applyLayout } from '../scripts/cards';
+  import { fitsScale, orderForScale, RANK_FROM_UNITS } from '../scripts/scale';
+  initSpecToggles();
+  const range = document.getElementById('scale') as HTMLInputElement;
+  const out = document.getElementById('scale-out')!;
+  const note = document.getElementById('scale-note')!;
+  const box = document.getElementById('scale-results')!;
+  const steps = JSON.parse(range.dataset.steps!) as { label: string; units: number }[];
+  const cards = [...box.querySelectorAll<HTMLElement>('[data-shop-card]')];
+  function update() {
+    const step = steps[Number(range.value)];
+    out.textContent = step.label;
+    range.setAttribute('aria-valuetext', step.label);
+    const shown = orderForScale(cards.filter((c) => fitsScale(c, step.units)), step.units);
+    applyLayout(box, cards, shown);
+    const n = shown.length;
+    note.textContent = `${n} ${n === 1 ? 'shop takes' : 'shops take'} projects this size. ` +
+      (step.units >= RANK_FROM_UNITS ? 'Ranked by published capacity; the operator is listed first and labeled.' : 'Listed alphabetically.');
+  }
+  range.addEventListener('input', update);
+  update();
+</script>

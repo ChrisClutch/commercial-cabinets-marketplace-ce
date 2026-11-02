@@ -1,0 +1,118 @@
+---
+import Base from '../../layouts/Base.astro';
+import ShopMap from '../../components/ShopMap.astro';
+import site from '../../config/site.json';
+import { getShops, SIZE_LABELS, SEGMENTS, RANKING_FACTORS, scoreBreakdown, telHref, hasTodo, type Shop } from '../../lib/shops';
+
+export async function getStaticPaths() {
+  const shops = await getShops();
+  return shops.map((shop) => ({ params: { slug: shop.slug }, props: { shop } }));
+}
+const { shop } = Astro.props as { shop: Shop };
+const { parts, total } = scoreBreakdown(shop);
+const cap = shop.capacity ?? {};
+const noCapacity = Object.values(cap).every((v) => v === null || v === undefined);
+const fmt = (v: unknown, unit = '') => (v === null || v === undefined ? null : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : `${v}${unit}`);
+const capRows: [string, string | null][] = [
+  ['Production capacity', fmt(cap.unitsPerMonth, ' cabinet units / month')],
+  ['CNC / automated production', fmt(cap.cncAutomated)],
+  ['Completed commercial projects', fmt(cap.commercialProjectsCompleted)],
+  ['Largest project size', fmt(cap.maxProjectUnits, ' units')],
+  ['Typical lead time', fmt(cap.leadTimeWeeks, ' weeks')],
+];
+const pageUrl = `${site.siteUrl}/shops/${shop.slug}`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': `${pageUrl}#business`,
+  name: shop.name,
+  description: hasTodo(shop.description) ? undefined : shop.description,
+  url: shop.website || pageUrl,
+  telephone: shop.phone || undefined,
+  email: shop.email || undefined,
+  image: shop.logo ? new URL(shop.logo, site.siteUrl).href : undefined,
+  address: { '@type': 'PostalAddress', addressLocality: shop.city, addressRegion: shop.state, addressCountry: 'US' },
+  geo: typeof shop.lat === 'number' ? { '@type': 'GeoCoordinates', latitude: shop.lat, longitude: shop.lng } : undefined,
+  areaServed: hasTodo(shop.serviceArea) ? shop.city : shop.serviceArea,
+  knowsAbout: shop.specialties,
+  sameAs: shop.website ? [shop.website] : undefined,
+};
+const segs = SEGMENTS.filter((g) => (shop.segments as string[]).includes(g.slug));
+---
+<Base
+  title={`${shop.name}: Custom Cabinets in ${shop.city}, ${shop.state}`}
+  description={`${shop.name} is a custom cabinet shop in ${shop.city}, ${shop.state}. Specialties: ${shop.specialties.join(', ') || 'custom cabinetry'}. Project sizes: ${shop.projectSizes.map((s) => SIZE_LABELS[s]).join(', ')}.`}
+  jsonLd={jsonLd}
+>
+  <section class="section">
+    <div class="wrap">
+      <nav aria-label="Breadcrumb" class="crumbs ann"><a href="/directory">Directory</a> / {shop.name}</nav>
+      <div class="frame sheet">
+        <div class="sheet-head">
+          <div>
+            <h1>{shop.name}</h1>
+            <p class="lede">{shop.city}, {shop.state} · Serves {shop.serviceArea}</p>
+            {shop.operator ? <p><span class="op-tag">Operator</span> <span class="small">{shop.name} operates this directory. <a href="/about">How the directory works</a>.</span></p> : shop.featured ? <p><span class="feat-tag">Featured</span></p> : null}
+          </div>
+          <div class="sheet-actions">
+            <a class="btn" href={`/quote?shop=${shop.slug}`}>Request a quote</a>
+          </div>
+        </div>
+
+        <div class="sheet-grid">
+          <div>
+            <h2>About the shop</h2>
+            <p>{shop.description}</p>
+            <h2>Specialties</h2>
+            <ul class="tags">{shop.specialties.map((s) => <li class="tag">{s}</li>)}</ul>
+            {segs.length > 0 && (<><h2>Markets served</h2><ul class="tags">{segs.map((g) => <li><a class="tag" href={`/markets/${g.slug}`}>{g.label}</a></li>)}</ul></>)}
+            <h2>Project sizes</h2>
+            <ul class="tags">{shop.projectSizes.map((s) => <li class="tag">{SIZE_LABELS[s]}</li>)}</ul>
+
+            <h2>Capacity</h2>
+            <div class="table-scroll">
+              <table>
+                <tbody>
+                  {capRows.map(([k, v]) => <tr><th scope="row">{k}</th><td class="ann">{v ?? <span class="np">Not yet published</span>}</td></tr>)}
+                </tbody>
+              </table>
+            </div>
+            {shop.projectSizes.includes('commercial') && (
+              <p class="small muted">Commercial capacity score: <strong>{noCapacity ? 'not yet published' : `${total}/100`}</strong>{!noCapacity && <> ({RANKING_FACTORS.map((f, i) => `${f.label} ${Math.round(parts[f.key])}/${f.max}${i < RANKING_FACTORS.length - 1 ? ', ' : ''}`).join('')})</>}. <a href="/commercial#how-ranked">How scores work</a>.</p>
+            )}
+          </div>
+          <aside class="contact" aria-labelledby="contact-h">
+            <h2 id="contact-h">Contact</h2>
+            <dl>
+              {shop.phone && <><dt class="ann">Phone</dt><dd><a href={telHref(shop.phone)}>{shop.phone}</a></dd></>}
+              {shop.email && <><dt class="ann">Email</dt><dd><a href={`mailto:${shop.email}`}>{shop.email}</a></dd></>}
+              {shop.website && <><dt class="ann">Website</dt><dd><a href={shop.website} rel="noopener">{shop.website.replace(/^https?:\/\//, '')}</a></dd></>}
+              <dt class="ann">Location</dt><dd>{shop.city}, {shop.state}</dd>
+            </dl>
+            <ShopMap shops={[shop]} id={`map-${shop.slug}`} height="240px" single />
+            <p class="small update">Is this your shop? <a href={`/request-update?shop=${encodeURIComponent(shop.slug)}`}>Request an update</a></p>
+          </aside>
+        </div>
+        <div class="frame-label" aria-hidden="true"><span>SHOP SHEET</span><span>{shop.slug.toUpperCase()}</span></div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .crumbs { margin-bottom: 14px; }
+  .sheet-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 18px; border-bottom: 2px solid var(--steel); margin-bottom: 24px; }
+  .sheet-head h1 { margin-bottom: 6px; }
+  .sheet-head .lede { margin-bottom: 8px; }
+  .sheet-grid { display: grid; gap: 32px; }
+  @media (min-width: 900px) { .sheet-grid { grid-template-columns: 1.6fr 1fr; } }
+  .sheet-grid h2 { font-size: 1.6rem; margin-top: 1.1em; }
+  .sheet-grid h2:first-child { margin-top: 0; }
+  .sheet-grid th { width: 46%; font-weight: 500; color: var(--graphite-ink); }
+  .np { font-family: var(--body); font-style: italic; color: var(--graphite-ink); }
+  .contact { align-self: start; }
+  .contact dl { margin: 0 0 16px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; overflow-wrap: anywhere; }
+  .contact dt { color: var(--graphite-ink); padding-top: 3px; }
+  .contact dd { margin: 0; }
+  .update { margin-top: 14px; }
+</style>

@@ -1,0 +1,112 @@
+# Decap CMS configuration. Paths are relative to the ROOT of the git repo.
+# This site currently lives in the "clutch-cabinets-directory" folder of the
+# forgesalem-website repo, so every path starts with that folder name.
+# If you move the site into its own repo, delete ""
+# from the four paths below.
+
+backend:
+  name: github
+  repo: ChrisClutch/commercial-cabinets-marketplace-ce
+  branch: main                           # the branch Cloudflare deploys from
+  base_url: https://www.example.com      # your live site URL (no trailing slash)
+  auth_endpoint: api/auth                # handled by worker/index.js
+
+# Lets you use the admin locally: run `npm run cms` in one terminal and
+# `npm run dev` in another, then open http://localhost:4321/admin/
+local_backend: true
+
+media_folder: "public/images/shops"
+public_folder: "/images/shops"
+
+collections:
+  - name: shops
+    label: Shops
+    label_singular: Shop
+    folder: "src/content/shops"
+    extension: json
+    format: json
+    create: true
+    delete: true
+    identifier_field: name
+    slug: "{{fields.slug}}"
+    summary: "{{name}} ({{city}})"
+    sortable_fields: ["name", "city"]
+    fields:
+      - { name: name, label: "Shop name", widget: string }
+      - { name: slug, label: "URL slug", widget: string, pattern: ["^[a-z0-9-]+$", "Lowercase letters, numbers and dashes only"], hint: "Becomes /shops/your-slug. Example: smith-cabinet-co" }
+      - { name: city, label: City, widget: string }
+      - { name: state, label: State, widget: string, default: "OR" }
+      - { name: serviceArea, label: "Service area", widget: string, hint: "e.g. Salem, Keizer and Polk County" }
+      - { name: lat, label: "Map latitude (shop location)", widget: number, value_type: float, required: false, hint: "Right-click the spot in Google Maps to copy coordinates, e.g. 44.9429" }
+      - { name: lng, label: "Map longitude", widget: number, value_type: float, required: false, hint: "e.g. -123.0351" }
+      - { name: serviceRadiusMiles, label: "Service radius (miles)", widget: number, value_type: int, min: 0, required: false, hint: "Draws the service-area circle on the map" }
+      - { name: specialties, label: Specialties, widget: list, hint: "Comma-separated, e.g. Kitchens, Multifamily, Built-ins" }
+      - name: segments
+        label: "Markets"
+        widget: select
+        multiple: true
+        required: false
+        hint: "Each market gets its own page at /markets/<market>."
+        options:
+          - { label: "Custom Residential", value: "custom-residential" }
+          - { label: "Commercial & Tenant Improvement", value: "commercial" }
+          - { label: "Multifamily", value: "multifamily" }
+          - { label: "Assisted Living & Senior Living", value: "assisted-living" }
+          - { label: "Other Large-Volume Installation", value: "large-volume-installation" }
+      - name: projectSizes
+        label: "Project sizes"
+        widget: select
+        multiple: true
+        min: 1
+        options:
+          - { label: "Residential", value: "residential" }
+          - { label: "Light Commercial", value: "light-commercial" }
+          - { label: "Commercial & High-Volume", value: "commercial" }
+      - name: capacity
+        label: "Capacity (used for the commercial ranking; leave blank if unknown)"
+        widget: object
+        collapsed: false
+        fields:
+          - { name: unitsPerMonth, label: "Production capacity (cabinet units / month)", widget: number, value_type: int, min: 0, required: false }
+          - { name: cncAutomated, label: "CNC or automated production", widget: boolean, required: false, default: false }
+          - { name: commercialProjectsCompleted, label: "Completed commercial projects", widget: number, value_type: int, min: 0, required: false }
+          - { name: maxProjectUnits, label: "Largest project size (units)", widget: number, value_type: int, min: 0, required: false }
+          - { name: leadTimeWeeks, label: "Typical lead time (weeks)", widget: number, value_type: int, min: 0, required: false }
+      - { name: phone, label: Phone, widget: string, required: false }
+      - { name: email, label: Email, widget: string, required: false }
+      - { name: website, label: "Website (include https://)", widget: string, required: false }
+      - { name: logo, label: "Logo or photo", widget: image, required: false, choose_url: false }
+      - { name: featured, label: "Featured (shows a Featured label)", widget: boolean, default: false }
+      - { name: operator, label: "Operator listing (Clutch Cabinets NW only)", widget: boolean, default: false, hint: "Pins the listing first on the Commercial page with an Operator label. Only one shop should have this on." }
+      - { name: description, label: Description, widget: text }
+
+  - name: settings
+    label: Site settings
+    files:
+      - name: site
+        label: "Site name, region, contact & colors"
+        file: "src/config/site.json"
+        format: json
+        fields:
+          - { name: siteName, label: "Site name", widget: string }
+          - { name: tagline, label: Tagline, widget: string }
+          - { name: region, label: "Region (e.g. Willamette Valley, OR)", widget: string }
+          - { name: siteUrl, label: "Site URL (e.g. https://www.yourdomain.com, no trailing slash)", widget: string }
+          - { name: operatorName, label: "Operator name", widget: string }
+          - { name: operatorUrl, label: "Operator website", widget: string }
+          - { name: contactEmail, label: "Public contact email", widget: string }
+          - { name: previewNoindex, label: "Hide from search engines (keep on for previews; turn off at launch)", widget: boolean, default: true }
+          - { name: turnstileSiteKey, label: "Turnstile site key (optional spam check; leave blank to turn off)", widget: string, required: false }
+          - { name: quoteEmail, label: "Quote email (reference only — the real address is FORM_TO in wrangler.jsonc)", widget: string }
+          - name: colors
+            label: Colors
+            widget: object
+            fields:
+              - { name: walnut, label: "Walnut (header, footer)", widget: color }
+              - { name: steel, label: "Blackened steel (text, dark sections)", widget: color }
+              - { name: maple, label: "Raw maple (page background)", widget: color }
+              - { name: sawdust, label: "Sawdust (cards, panels)", widget: color }
+              - { name: orange, label: "Safety orange (buttons, active states)", widget: color }
+              - { name: orangeInk, label: "Orange ink (orange text and Operator tag; keep dark enough to read)", widget: color }
+              - { name: graphite, label: "Pencil graphite (drawing lines)", widget: color }
+              - { name: graphiteInk, label: "Graphite ink (secondary text)", widget: color }
